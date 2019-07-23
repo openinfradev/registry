@@ -7,14 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var sampleService *service.SampleService
-var httpsampleService *service.HTTPSampleService
+// var sampleService *service.SampleService
+// var httpsampleService *service.HTTPSampleService
+var dockerService *service.DockerService
 
 func init() {
 	// inject service
 	injectServices()
 
-	// ping
+	// health
 	addRequestMapping(
 		RequestMapper{
 			Method:  "GET",
@@ -22,35 +23,23 @@ func init() {
 			Request: health,
 		},
 	)
-	// sample
+
+	// docker catalog
 	addRequestMapping(
 		RequestMapper{
 			Method:  "GET",
-			Path:    "/sample",
-			Request: sample,
+			Path:    "/docker/catalog",
+			Request: getDockerCatalog,
 		},
 	)
-	// sleepTest
-	addRequestMapping(
-		RequestMapper{
-			Method:  "GET",
-			Path:    "/sleep",
-			Request: sleepTest,
-		},
-	)
-	// httpTest
-	addRequestMapping(
-		RequestMapper{
-			Method:  "GET",
-			Path:    "/http",
-			Request: httpTest,
-		},
-	)
+
 }
 
 func injectServices() {
-	sampleService = new(service.SampleService)
-	httpsampleService = new(service.HTTPSampleService)
+	// sampleService = new(service.SampleService)
+	// httpsampleService = new(service.HTTPSampleService)
+
+	dockerService = new(service.DockerService)
 }
 
 /*
@@ -63,29 +52,35 @@ func health(c *gin.Context) {
 	})
 }
 
-func sample(c *gin.Context) {
-	keyword := c.Query("q")
+func getDockerCatalog(c *gin.Context) {
+	r := dockerService.GetCatalog()
 
-	workflowList := sampleService.GetWorkflowList(keyword)
-
-	c.JSON(http.StatusOK, workflowList)
+	c.Data(http.StatusOK, "application/json; charset=utf-8", r)
 }
 
-func sleepTest(c *gin.Context) {
-	target := c.Query("t")
+// func sample(c *gin.Context) {
+// 	keyword := c.Query("q")
 
-	r := sampleService.Holding(target)
+// 	workflowList := sampleService.GetWorkflowList(keyword)
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": r,
-	})
-}
+// 	c.JSON(http.StatusOK, workflowList)
+// }
 
-func httpTest(c *gin.Context) {
-	r := httpsampleService.GetDaum()
+// func sleepTest(c *gin.Context) {
+// 	target := c.Query("t")
 
-	c.Data(http.StatusOK, "text/html; charset=utf-8", r)
-}
+// 	r := sampleService.Holding(target)
+
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"message": r,
+// 	})
+// }
+
+// func httpTest(c *gin.Context) {
+// 	r := httpsampleService.GetDaum()
+
+// 	c.Data(http.StatusOK, "text/html; charset=utf-8", r)
+// }
 
 /*
 	registry

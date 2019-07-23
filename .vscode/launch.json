@@ -19,7 +19,9 @@
                 "-dbuser=integrator",
                 "-dbpass=integrator00",
                 "-dbname=integrator",
-                "-dbxarg="
+                "-dbxarg=",
+                "-registry-insecure=true",
+                "-registry-endpoint=localhost:5555"
             ]
         }
     ]

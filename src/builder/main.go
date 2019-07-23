@@ -4,6 +4,7 @@ import (
 	"builder/controller"
 	"builder/network/server"
 	"builder/repository"
+	"builder/service"
 	"builder/util/logger"
 	"flag"
 	"fmt"
@@ -23,6 +24,9 @@ func main() {
 	dbname := flag.String("dbname", "", "Database Name")
 	dbxarg := flag.String("dbxarg", "", "Database Extra Arguments")
 
+	registryInsecure := flag.Bool("registry-insecure", false, "Docker Registry Insecure")
+	registryEndpoint := flag.String("registry-endpoint", "localhost:5000", "Docker Registry Endpoint")
+
 	flag.Parse()
 
 	logger.DEBUG("main.go", fmt.Sprintf("flags information\n loglevel[%d]\n dbhost[%v]\n dbport[%v]\n dbuser[%v]\n dbpass[%v]\n dbname[%v]\n dbxarg[%v]", *loglevel, *dbhost, *dbport, *dbuser, *dbpass, *dbname, *dbxarg))
@@ -40,6 +44,11 @@ func main() {
 		DBxarg: *dbxarg,
 	}
 
+	basicinfo := service.BasicInfo{
+		RegistryInsecure: *registryInsecure,
+		RegistryEndpoint: *registryEndpoint,
+	}
+
 	// log level
 	logger.SetLevel(*loglevel)
 
@@ -52,6 +61,9 @@ func main() {
 
 	// database connection ready
 	repository.SetDBConnectionInfo(&dbinfo)
+
+	// service info
+	service.SetBasicInfo(&basicinfo)
 
 	// server run
 	server.Run("4000")
