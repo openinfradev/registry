@@ -1,9 +1,9 @@
 package controller
 
 import (
+	"builder/network/server"
+	"builder/util/logger"
 	"fmt"
-	"network/server"
-	"util/logger"
 
 	"github.com/gin-gonic/gin"
 )

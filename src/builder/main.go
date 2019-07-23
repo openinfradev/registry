@@ -1,12 +1,12 @@
 package main
 
 import (
-	"controller"
+	"builder/controller"
+	"builder/network/server"
+	"builder/repository"
+	"builder/util/logger"
 	"flag"
 	"fmt"
-	"network/server"
-	"repository"
-	"util/logger"
 
 	_ "github.com/go-sql-driver/mysql"
 )

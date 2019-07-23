@@ -1,9 +1,9 @@
 package repository
 
 import (
+	"builder/util/logger"
 	"database/sql"
 	"fmt"
-	"util/logger"
 )
 
 // DBInfo is basically database information

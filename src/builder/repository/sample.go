@@ -1,10 +1,10 @@
 package repository
 
 import (
+	"builder/util/logger"
 	"fmt"
 	"strconv"
 	"time"
-	"util/logger"
 )
 
 // SampleRepository is sample

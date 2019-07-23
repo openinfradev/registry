@@ -1,7 +1,7 @@
 package server
 
 import (
-	"util/logger"
+	"builder/util/logger"
 
 	"github.com/gin-gonic/gin"
 )

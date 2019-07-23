@@ -1,8 +1,8 @@
 package service
 
 import (
-	"repository"
-	"util/logger"
+	"builder/repository"
+	"builder/util/logger"
 )
 
 // SampleService is sample service

@@ -1,8 +1,8 @@
 package controller
 
 import (
+	"builder/service"
 	"net/http"
-	"service"
 
 	"github.com/gin-gonic/gin"
 )
