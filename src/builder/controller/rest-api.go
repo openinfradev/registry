@@ -3,6 +3,7 @@ package controller
 import (
 	"builder/service"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,7 +38,7 @@ func init() {
 	addRequestMapping(
 		RequestMapper{
 			Method:  "GET",
-			Path:    "/docker/repositories",
+			Path:    "/docker/repositories/*name",
 			Request: getDockerRepositories,
 		},
 	)
@@ -68,7 +69,8 @@ func getDockerCatalog(c *gin.Context) {
 }
 
 func getDockerRepositories(c *gin.Context) {
-	repoName := c.Query("name")
+	repoName := c.Params.ByName("name")
+	repoName = strings.Replace(repoName, "/", "", 1)
 
 	if repoName == "" {
 		r := dockerRegistryService.GetRepositories()
