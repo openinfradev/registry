@@ -56,18 +56,40 @@ func injectServices() {
 	Request Mapping Functions
 */
 
+// health
+// @Summary health 체크 api
+// @Description builder의 health를 체크할 목적의 api
+// @name health
+// @Produce  json
+// @Router /health [get]
+// @Success 200
 func health(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "ok",
 	})
 }
 
+// getDockerCatalog
+// @Summary docker registry catalog api
+// @Description docker registry catalog api
+// @name getDockerCatalog
+// @Produce  json
+// @Router /docker/catalog [get]
+// @Success 200
 func getDockerCatalog(c *gin.Context) {
 	r := dockerRegistryService.GetCatalog()
 
 	c.JSON(http.StatusOK, r)
 }
 
+// getDockerRepositories
+// @Summary docker registry repositories api
+// @Description docker registry repositories api
+// @name getDockerRepositories
+// @Param name path string false "Repository Name"
+// @Produce  json
+// @Router /docker/repositories/{name} [get]
+// @Success 200
 func getDockerRepositories(c *gin.Context) {
 	repoName := c.Params.ByName("name")
 	repoName = strings.Replace(repoName, "/", "", 1)

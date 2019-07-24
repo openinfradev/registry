@@ -1,0 +1,58 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "{{.Description}}",
+        "title": "{{.Title}}",
+        "contact": {},
+        "license": {},
+        "version": "{{.Version}}"
+    },
+    "host": "{{.Host}}",
+    "basePath": "{{.BasePath}}",
+    "paths": {
+        "/docker/catalog": {
+            "get": {
+                "description": "docker registry catalog api",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "docker registry catalog api",
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/docker/repositories/{name}": {
+            "get": {
+                "description": "docker registry repositories api",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "docker registry repositories api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Repository Name",
+                        "name": "name",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "builder의 health를 체크할 목적의 api",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "health 체크 api",
+                "responses": {
+                    "200": {}
+                }
+            }
+        }
+    }
+}

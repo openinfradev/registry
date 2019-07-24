@@ -4,6 +4,9 @@ import (
 	"builder/util/logger"
 
 	"github.com/gin-gonic/gin"
+
+	ginSwagger "github.com/swaggo/gin-swagger"
+	swaggerFiles "github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 // Instance is server instance functions
@@ -24,6 +27,10 @@ func New() *Instance {
 		Run:      run,
 		AddRoute: addRoute,
 	}
+
+	// swagger
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	return instance
 }
 

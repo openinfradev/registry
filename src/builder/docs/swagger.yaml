@@ -1,0 +1,39 @@
+basePath: '{{.BasePath}}'
+host: '{{.Host}}'
+info:
+  contact: {}
+  description: '{{.Description}}'
+  license: {}
+  title: '{{.Title}}'
+  version: '{{.Version}}'
+paths:
+  /docker/catalog:
+    get:
+      description: docker registry catalog api
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      summary: docker registry catalog api
+  /docker/repositories/{name}:
+    get:
+      description: docker registry repositories api
+      parameters:
+      - description: Repository Name
+        in: path
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      summary: docker registry repositories api
+  /health:
+    get:
+      description: builder의 health를 체크할 목적의 api
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      summary: health 체크 api
+swagger: "2.0"

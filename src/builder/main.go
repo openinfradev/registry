@@ -2,6 +2,7 @@ package main
 
 import (
 	"builder/controller"
+	"builder/docs"
 	"builder/network/server"
 	"builder/repository"
 	"builder/service"
@@ -26,6 +27,8 @@ func main() {
 
 	registryInsecure := flag.Bool("registry-insecure", false, "Docker Registry Insecure")
 	registryEndpoint := flag.String("registry-endpoint", "localhost:5000", "Docker Registry Endpoint")
+
+	port := flag.String("port", "4000", "Builder Service Port")
 
 	flag.Parse()
 
@@ -52,6 +55,13 @@ func main() {
 	// log level
 	logger.SetLevel(*loglevel)
 
+	// programatically set swagger info
+	docs.SwaggerInfo.Title = "Builder API"
+	docs.SwaggerInfo.Description = "This is a sample server for Builder."
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = "localhost:" + *port
+	docs.SwaggerInfo.BasePath = "/v1"
+
 	// server ready
 	server := server.New()
 
@@ -66,5 +76,5 @@ func main() {
 	service.SetBasicInfo(&basicinfo)
 
 	// server run
-	server.Run("4000")
+	server.Run(*port)
 }
