@@ -57,7 +57,7 @@ func injectServices() {
 */
 
 // health
-// @Summary health 체크 api
+// @Summary health check api
 // @Description builder의 health를 체크할 목적의 api
 // @name health
 // @Produce  json
