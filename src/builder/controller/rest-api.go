@@ -9,7 +9,7 @@ import (
 
 // var sampleService *service.SampleService
 // var httpsampleService *service.HTTPSampleService
-var dockerService *service.DockerService
+var dockerRegistryService *service.DockerRegistryService
 
 func init() {
 	// inject service
@@ -33,13 +33,22 @@ func init() {
 		},
 	)
 
+	// docker repositories tag list
+	addRequestMapping(
+		RequestMapper{
+			Method:  "GET",
+			Path:    "/docker/repositories",
+			Request: getDockerRepositories,
+		},
+	)
+
 }
 
 func injectServices() {
 	// sampleService = new(service.SampleService)
 	// httpsampleService = new(service.HTTPSampleService)
 
-	dockerService = new(service.DockerService)
+	dockerRegistryService = new(service.DockerRegistryService)
 }
 
 /*
@@ -53,9 +62,25 @@ func health(c *gin.Context) {
 }
 
 func getDockerCatalog(c *gin.Context) {
-	r := dockerService.GetCatalog()
+	r := dockerRegistryService.GetCatalog()
 
-	c.Data(http.StatusOK, "application/json; charset=utf-8", r)
+	c.JSON(http.StatusOK, r)
+}
+
+func getDockerRepositories(c *gin.Context) {
+	repoName := c.Query("name")
+
+	if repoName == "" {
+		r := dockerRegistryService.GetRepositories()
+		c.JSON(http.StatusOK, r)
+	} else {
+		r := dockerRegistryService.GetRepository(repoName)
+		if r.Tags == nil {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+		c.JSON(http.StatusOK, r)
+	}
 }
 
 // func sample(c *gin.Context) {
