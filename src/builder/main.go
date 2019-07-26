@@ -9,11 +9,21 @@ import (
 	"builder/util/logger"
 	"flag"
 	"fmt"
+	"os/exec"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
+
+	// generate swagger documents
+	swag := exec.Command("../../bin/swag", "init")
+	err := swag.Run()
+	if err != nil {
+		logger.ERROR("main.go", "Failed to generate swagger documents")
+	} else {
+		logger.INFO("main.go", "Generate Swagger Documents")
+	}
 
 	// flags
 	loglevel := flag.Int("loglevel", 0, "Log Level 0:debug 1:info 2:error")

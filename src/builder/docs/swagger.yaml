@@ -35,5 +35,5 @@ paths:
       - application/json
       responses:
         "200": {}
-      summary: health 체크 api
+      summary: health check api
 swagger: "2.0"

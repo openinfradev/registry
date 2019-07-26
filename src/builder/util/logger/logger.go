@@ -20,14 +20,12 @@ func DEBUG(where string, message string) {
 
 // ERROR is error level log
 func ERROR(where string, message string) {
-	if level > 1 {
-		write("ERROR", where, message)
-	}
+	write("ERROR", where, message)
 }
 
 // INFO is info level log
 func INFO(where string, message string) {
-	if level > 0 {
+	if level < 2 {
 		write("INFO", where, message)
 	}
 }

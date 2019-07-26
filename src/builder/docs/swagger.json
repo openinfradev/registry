@@ -48,7 +48,7 @@
                 "produces": [
                     "application/json"
                 ],
-                "summary": "health 체크 api",
+                "summary": "health check api",
                 "responses": {
                     "200": {}
                 }
