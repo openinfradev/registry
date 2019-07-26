@@ -129,7 +129,12 @@ func buildDockerFile(c *gin.Context) {
 	repoName := "exntu/sample1"
 	dockerfilePath := "./sample"
 
-	dockerService.Build(repoName, dockerfilePath)
+	// dockerService.Build(repoName, dockerfilePath)
+	r := dockerService.Build(repoName, dockerfilePath)
+
+	c.JSON(http.StatusOK, gin.H{
+		"log": r,
+	})
 }
 
 // func sample(c *gin.Context) {
