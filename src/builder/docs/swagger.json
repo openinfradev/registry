@@ -10,6 +10,18 @@
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/docker/build": {
+            "get": {
+                "description": "docker build by dockerfile api",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "docker build by dockerfile",
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
         "/health": {
             "get": {
                 "description": "builder의 health를 체크할 목적의 api",

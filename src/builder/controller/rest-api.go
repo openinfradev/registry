@@ -11,6 +11,7 @@ import (
 // var sampleService *service.SampleService
 // var httpsampleService *service.HTTPSampleService
 var registryService *service.RegistryService
+var dockerService *service.DockerService
 
 func init() {
 	// inject service
@@ -43,12 +44,21 @@ func init() {
 		},
 	)
 
+	// docker build
+	// needs POST (GET is test)
+	addRequestMapping(
+		RequestMapper{
+			Method:  "GET",
+			Path:    "/docker/build",
+			Request: buildDockerFile,
+		},
+	)
 }
 
 func injectServices() {
 	// sampleService = new(service.SampleService)
 	// httpsampleService = new(service.HTTPSampleService)
-
+	dockerService = new(service.DockerService)
 	registryService = new(service.RegistryService)
 }
 
@@ -105,6 +115,21 @@ func getRegistryRepositories(c *gin.Context) {
 		}
 		c.JSON(http.StatusOK, r)
 	}
+}
+
+// buildDockerFile
+// @Summary docker build by dockerfile
+// @Description docker build by dockerfile api
+// @name buildDockerFile
+// @Produce  json
+// @Router /docker/build [get]
+// @Success 200
+func buildDockerFile(c *gin.Context) {
+	// test arguments
+	repoName := "exntu/sample1"
+	dockerfilePath := "./sample"
+
+	dockerService.Build(repoName, dockerfilePath)
 }
 
 // func sample(c *gin.Context) {

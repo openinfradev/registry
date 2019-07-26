@@ -17,6 +17,13 @@ import (
 func main() {
 
 	// generate swagger documents
+	// swag := "../../bin/swag init"
+	// _, err := exec.Command("/bin/sh", "-c", swag).Output()
+	// if err != nil {
+	// 	logger.ERROR("main.go", "Failed to generate swagger documents")
+	// } else {
+	// 	logger.INFO("main.go", "Generate Swagger Documents")
+	// }
 	swag := exec.Command("../../bin/swag", "init")
 	err := swag.Run()
 	if err != nil {
