@@ -7,7 +7,15 @@ info:
   title: '{{.Title}}'
   version: '{{.Version}}'
 paths:
-  /docker/catalog:
+  /health:
+    get:
+      description: builder의 health를 체크할 목적의 api
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      summary: health check api
+  /registry/catalog:
     get:
       description: docker registry catalog api
       produces:
@@ -15,7 +23,7 @@ paths:
       responses:
         "200": {}
       summary: docker registry catalog api
-  /docker/repositories/{name}:
+  /registry/repositories/{name}:
     get:
       description: docker registry repositories api
       parameters:
@@ -28,12 +36,4 @@ paths:
       responses:
         "200": {}
       summary: docker registry repositories api
-  /health:
-    get:
-      description: builder의 health를 체크할 목적의 api
-      produces:
-      - application/json
-      responses:
-        "200": {}
-      summary: health check api
 swagger: "2.0"

@@ -10,7 +10,7 @@ import (
 
 // var sampleService *service.SampleService
 // var httpsampleService *service.HTTPSampleService
-var dockerRegistryService *service.DockerRegistryService
+var registryService *service.RegistryService
 
 func init() {
 	// inject service
@@ -25,21 +25,21 @@ func init() {
 		},
 	)
 
-	// docker catalog
+	// registry catalog
 	addRequestMapping(
 		RequestMapper{
 			Method:  "GET",
-			Path:    "/docker/catalog",
-			Request: getDockerCatalog,
+			Path:    "/registry/catalog",
+			Request: getRegistryCatalog,
 		},
 	)
 
-	// docker repositories tag list
+	// registry repositories tag list
 	addRequestMapping(
 		RequestMapper{
 			Method:  "GET",
-			Path:    "/docker/repositories/*name",
-			Request: getDockerRepositories,
+			Path:    "/registry/repositories/*name",
+			Request: getRegistryRepositories,
 		},
 	)
 
@@ -49,7 +49,7 @@ func injectServices() {
 	// sampleService = new(service.SampleService)
 	// httpsampleService = new(service.HTTPSampleService)
 
-	dockerRegistryService = new(service.DockerRegistryService)
+	registryService = new(service.RegistryService)
 }
 
 /*
@@ -69,36 +69,36 @@ func health(c *gin.Context) {
 	})
 }
 
-// getDockerCatalog
+// getRegistryCatalog
 // @Summary docker registry catalog api
 // @Description docker registry catalog api
-// @name getDockerCatalog
+// @name getRegistryCatalog
 // @Produce  json
-// @Router /docker/catalog [get]
+// @Router /registry/catalog [get]
 // @Success 200
-func getDockerCatalog(c *gin.Context) {
-	r := dockerRegistryService.GetCatalog()
+func getRegistryCatalog(c *gin.Context) {
+	r := registryService.GetCatalog()
 
 	c.JSON(http.StatusOK, r)
 }
 
-// getDockerRepositories
+// getRegistryRepositories
 // @Summary docker registry repositories api
 // @Description docker registry repositories api
-// @name getDockerRepositories
+// @name getRegistryRepositories
 // @Param name path string false "Repository Name"
 // @Produce  json
-// @Router /docker/repositories/{name} [get]
+// @Router /registry/repositories/{name} [get]
 // @Success 200
-func getDockerRepositories(c *gin.Context) {
+func getRegistryRepositories(c *gin.Context) {
 	repoName := c.Params.ByName("name")
 	repoName = strings.Replace(repoName, "/", "", 1)
 
 	if repoName == "" {
-		r := dockerRegistryService.GetRepositories()
+		r := registryService.GetRepositories()
 		c.JSON(http.StatusOK, r)
 	} else {
-		r := dockerRegistryService.GetRepository(repoName)
+		r := registryService.GetRepository(repoName)
 		if r.Tags == nil {
 			c.AbortWithStatus(http.StatusNoContent)
 			return

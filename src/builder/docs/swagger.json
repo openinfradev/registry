@@ -10,7 +10,19 @@
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/docker/catalog": {
+        "/health": {
+            "get": {
+                "description": "builder의 health를 체크할 목적의 api",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "health check api",
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/registry/catalog": {
             "get": {
                 "description": "docker registry catalog api",
                 "produces": [
@@ -22,7 +34,7 @@
                 }
             }
         },
-        "/docker/repositories/{name}": {
+        "/registry/repositories/{name}": {
             "get": {
                 "description": "docker registry repositories api",
                 "produces": [
@@ -37,18 +49,6 @@
                         "in": "path"
                     }
                 ],
-                "responses": {
-                    "200": {}
-                }
-            }
-        },
-        "/health": {
-            "get": {
-                "description": "builder의 health를 체크할 목적의 api",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "health check api",
                 "responses": {
                     "200": {}
                 }

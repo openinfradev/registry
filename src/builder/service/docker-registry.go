@@ -8,8 +8,8 @@ import (
 	"net/http"
 )
 
-// DockerRegistryService is relative docker registry
-type DockerRegistryService struct{}
+// RegistryService is relative docker registry
+type RegistryService struct{}
 
 // CatalogResult is registry catalog result
 type CatalogResult struct {
@@ -28,7 +28,7 @@ type RepositoriesResult struct {
 }
 
 // GetCatalog returns docker registry catalog
-func (d *DockerRegistryService) GetCatalog() *CatalogResult {
+func (d *RegistryService) GetCatalog() *CatalogResult {
 	// needs admin logon
 	// needs token
 
@@ -53,7 +53,7 @@ func (d *DockerRegistryService) GetCatalog() *CatalogResult {
 }
 
 // GetRepository returns repository included tags
-func (d *DockerRegistryService) GetRepository(repoName string) *RepositoryResult {
+func (d *RegistryService) GetRepository(repoName string) *RepositoryResult {
 	// needs admin logon
 	// needs token
 
@@ -79,7 +79,7 @@ func (d *DockerRegistryService) GetRepository(repoName string) *RepositoryResult
 }
 
 // GetRepositories returns repositories included tags
-func (d *DockerRegistryService) GetRepositories() *RepositoriesResult {
+func (d *RegistryService) GetRepositories() *RepositoriesResult {
 	// needs admin logon
 	// needs token
 
