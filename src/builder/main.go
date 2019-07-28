@@ -10,6 +10,7 @@ import (
 	"flag"
 	"fmt"
 	"os/exec"
+	"runtime"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -24,12 +25,16 @@ func main() {
 	// } else {
 	// 	logger.INFO("main.go", "Generate Swagger Documents")
 	// }
-	swag := exec.Command("../../bin/swag", "init")
-	err := swag.Run()
-	if err != nil {
-		logger.ERROR("main.go", "Failed to generate swagger documents")
+	if runtime.GOOS != "windows" {
+		swag := exec.Command("../../bin/swag", "init")
+		err := swag.Run()
+		if err != nil {
+			logger.ERROR("main.go", "Failed to generate swagger documents")
+		} else {
+			logger.INFO("main.go", "Generate Swagger Documents")
+		}
 	} else {
-		logger.INFO("main.go", "Generate Swagger Documents")
+		logger.INFO("main.go", "Skipped Generate Swagger Documents in Windows")
 	}
 
 	// flags
