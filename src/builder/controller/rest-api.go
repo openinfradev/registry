@@ -2,6 +2,7 @@ package controller
 
 import (
 	"builder/service"
+	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -129,12 +130,10 @@ func buildDockerFile(c *gin.Context) {
 	repoName := "exntu/sample1"
 	dockerfilePath := "./sample"
 
-	// dockerService.Build(repoName, dockerfilePath)
 	r := dockerService.Build(repoName, dockerfilePath)
-
-	c.JSON(http.StatusOK, gin.H{
-		"log": r,
-	})
+	var raw map[string]interface{}
+	json.Unmarshal([]byte(r), &raw)
+	c.JSON(http.StatusOK, raw)
 }
 
 // func sample(c *gin.Context) {

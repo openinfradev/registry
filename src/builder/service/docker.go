@@ -2,7 +2,7 @@ package service
 
 import (
 	"bufio"
-	"fmt"
+	"builder/util/logger"
 	"os/exec"
 )
 
@@ -15,6 +15,15 @@ func (d *DockerService) Build(repoName string, dockerfilePath string) string {
 	// needs using goroutine
 	// and saving log line by line
 
+	go buildJob(repoName, dockerfilePath)
+
+	// only ok
+	return `{"message":"ok"}`
+}
+
+func buildJob(repoName string, dockerfilePath string) {
+	logger.DEBUG("docker.go", "buildJob start")
+
 	repoName = repoName + ":latest"
 	build := exec.Command("docker", "build", "-t", repoName, dockerfilePath)
 
@@ -26,9 +35,9 @@ func (d *DockerService) Build(repoName string, dockerfilePath string) string {
 	for scanner.Scan() {
 		m := scanner.Text()
 		r += m + "\n"
-		fmt.Println(m)
+		logger.DEBUG("docker.go build", m)
 	}
 	build.Wait()
 
-	return r
+	logger.DEBUG("docker.go", "buildJob end")
 }
