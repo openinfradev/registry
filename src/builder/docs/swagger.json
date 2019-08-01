@@ -22,6 +22,18 @@
                 }
             }
         },
+        "/docker/tag": {
+            "get": {
+                "description": "docker image tag",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "docker image tag",
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
         "/health": {
             "get": {
                 "description": "builder의 health를 체크할 목적의 api",

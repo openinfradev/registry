@@ -2,7 +2,7 @@ package controller
 
 import (
 	"builder/service"
-	"encoding/json"
+	"builder/util"
 	"net/http"
 	"strings"
 
@@ -52,6 +52,16 @@ func init() {
 			Method:  "GET",
 			Path:    "/docker/build",
 			Request: buildDockerFile,
+		},
+	)
+
+	// docker tag
+	// needs PATCH (GET is test)
+	addRequestMapping(
+		RequestMapper{
+			Method:  "GET",
+			Path:    "/docker/tag",
+			Request: tagDockerImage,
 		},
 	)
 }
@@ -131,51 +141,22 @@ func buildDockerFile(c *gin.Context) {
 	dockerfilePath := "./sample"
 
 	r := dockerService.Build(repoName, dockerfilePath)
-	var raw map[string]interface{}
-	json.Unmarshal([]byte(r), &raw)
-	c.JSON(http.StatusOK, raw)
+	c.JSON(http.StatusOK, util.StringToMap(r))
 }
 
-// func sample(c *gin.Context) {
-// 	keyword := c.Query("q")
+// tagDockerImage
+// @Summary docker image tag
+// @Description docker image tag
+// @name tagDockerImage
+// @Produce  json
+// @Router /docker/tag [get]
+// @Success 200
+func tagDockerImage(c *gin.Context) {
+	// test arguments
+	repoName := "exntu/sample1"
+	oldTag := "latest"
+	newTag := "v1"
 
-// 	workflowList := sampleService.GetWorkflowList(keyword)
-
-// 	c.JSON(http.StatusOK, workflowList)
-// }
-
-// func sleepTest(c *gin.Context) {
-// 	target := c.Query("t")
-
-// 	r := sampleService.Holding(target)
-
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"message": r,
-// 	})
-// }
-
-// func httpTest(c *gin.Context) {
-// 	r := httpsampleService.GetDaum()
-
-// 	c.Data(http.StatusOK, "text/html; charset=utf-8", r)
-// }
-
-/*
-	registry
-*/
-
-/*
-	docker build
-*/
-
-/*
-	security scan
-*/
-
-/*
-	zookeeper
-*/
-
-/*
-	docker accout ??
-*/
+	r := dockerService.Tag(repoName, oldTag, newTag)
+	c.JSON(http.StatusOK, util.StringToMap(r))
+}
