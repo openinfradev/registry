@@ -67,7 +67,7 @@ func pushJob(repoName string, tag string) {
 	}
 	push.Wait()
 
-	logger.DEBUG("docker.go", fmt.Sprintf("pushJob end [%s:%s]", repoName, tag))
+	logger.DEBUG("docker.go", fmt.Sprintf("pushJob end [%s]", repoName))
 }
 
 func tagJob(ch chan<- string, repoName string, oldTag string, newTag string) {
