@@ -64,6 +64,16 @@ func init() {
 			Request: tagDockerImage,
 		},
 	)
+
+	// docker push
+	// needs POST (GET is test)
+	addRequestMapping(
+		RequestMapper{
+			Method:  "GET",
+			Path:    "/docker/push",
+			Request: pushDockerImage,
+		},
+	)
 }
 
 func injectServices() {
@@ -158,5 +168,21 @@ func tagDockerImage(c *gin.Context) {
 	newTag := "v1"
 
 	r := dockerService.Tag(repoName, oldTag, newTag)
+	c.JSON(http.StatusOK, util.StringToMap(r))
+}
+
+// pushDockerImage
+// @Summary docker image push
+// @Description docker image push
+// @name pushDockerImage
+// @Produce  json
+// @Router /docker/push [get]
+// @Success 200
+func pushDockerImage(c *gin.Context) {
+	// test arguments
+	repoName := "exntu/sample1"
+	tag := "v1"
+
+	r := dockerService.Push(repoName, tag)
 	c.JSON(http.StatusOK, util.StringToMap(r))
 }

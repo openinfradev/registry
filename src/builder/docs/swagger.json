@@ -22,6 +22,18 @@
                 }
             }
         },
+        "/docker/push": {
+            "get": {
+                "description": "docker image push",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "docker image push",
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
         "/docker/tag": {
             "get": {
                 "description": "docker image tag",

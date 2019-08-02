@@ -15,6 +15,14 @@ paths:
       responses:
         "200": {}
       summary: docker build by dockerfile
+  /docker/push:
+    get:
+      description: docker image push
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      summary: docker image push
   /docker/tag:
     get:
       description: docker image tag

@@ -26,6 +26,9 @@ func (d *DockerService) Build(repoName string, dockerfilePath string) string {
 // Tag is image tagging
 func (d *DockerService) Tag(repoName string, oldTag string, newTag string) string {
 
+	// needs using goroutine
+	// and saving log line by line
+
 	// sync
 	ch := make(chan string, 1)
 	go tagJob(ch, repoName, oldTag, newTag)
@@ -34,11 +37,44 @@ func (d *DockerService) Tag(repoName string, oldTag string, newTag string) strin
 	return r
 }
 
+// Push is docker image pushing
+func (d *DockerService) Push(repoName string, tag string) string {
+	// needs using goroutine
+	// and saving log line by line
+
+	// async
+	go pushJob(repoName, tag)
+
+	// only ok
+	return `{"message":"ok"}`
+}
+
+func pushJob(repoName string, tag string) {
+	logger.DEBUG("docker.go", fmt.Sprintf("pushJob start [%s:%s]", repoName, tag))
+
+	repoName = basicinfo.RegistryEndpoint + "/" + repoName + ":" + tag
+	push := exec.Command("docker", "push", repoName)
+
+	r := ""
+	stdout, _ := push.StdoutPipe()
+	push.Start()
+	scanner := bufio.NewScanner(stdout)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		m := scanner.Text()
+		r += m + "\n"
+		logger.DEBUG("docker.go push ", m)
+	}
+	push.Wait()
+
+	logger.DEBUG("docker.go", fmt.Sprintf("pushJob end [%s:%s]", repoName, tag))
+}
+
 func tagJob(ch chan<- string, repoName string, oldTag string, newTag string) {
-	logger.DEBUG("docker.go", fmt.Sprintf("tagJob [%s] to [%s]", oldTag, newTag))
+	logger.DEBUG("docker.go", fmt.Sprintf("tagJob [%s] [%s] to [%s]", repoName, oldTag, newTag))
 
 	oldRepo := repoName + ":" + oldTag
-	newRepo := repoName + ":" + newTag
+	newRepo := basicinfo.RegistryEndpoint + "/" + repoName + ":" + newTag
 
 	tag := exec.Command("docker", "tag", oldRepo, newRepo)
 
@@ -53,7 +89,7 @@ func tagJob(ch chan<- string, repoName string, oldTag string, newTag string) {
 }
 
 func buildJob(repoName string, dockerfilePath string) {
-	logger.DEBUG("docker.go", "buildJob start")
+	logger.DEBUG("docker.go", "buildJob start "+repoName)
 
 	repoName = repoName + ":latest"
 	build := exec.Command("docker", "build", "-t", repoName, dockerfilePath)
@@ -70,5 +106,5 @@ func buildJob(repoName string, dockerfilePath string) {
 	}
 	build.Wait()
 
-	logger.DEBUG("docker.go", "buildJob end")
+	logger.DEBUG("docker.go", "buildJob end "+repoName)
 }

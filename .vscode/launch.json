@@ -21,7 +21,7 @@
                 "-dbname=integrator",
                 "-dbxarg=",
                 "-registry-insecure=true",
-                "-registry-endpoint=localhost:5555",
+                "-registry-endpoint=registry.linus.com:5555",
                 "-port=4000"
             ]
         }
