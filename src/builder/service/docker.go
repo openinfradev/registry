@@ -2,6 +2,7 @@ package service
 
 import (
 	"bufio"
+	"builder/constant"
 	"builder/util/logger"
 	"fmt"
 	"os/exec"
@@ -11,7 +12,7 @@ import (
 type DockerService struct{}
 
 // Build is docker building logs with dockerfile
-func (d *DockerService) Build(repoName string, dockerfilePath string) string {
+func (d *DockerService) Build(repoName string, dockerfilePath string) *BasicResult {
 
 	// needs using goroutine
 	// and saving log line by line
@@ -20,25 +21,28 @@ func (d *DockerService) Build(repoName string, dockerfilePath string) string {
 	go buildJob(repoName, dockerfilePath)
 
 	// only ok
-	return `{"message":"ok"}`
+	return &BasicResult{
+		Code:    constant.ResultSuccess,
+		Message: "",
+	}
 }
 
 // Tag is image tagging
-func (d *DockerService) Tag(repoName string, oldTag string, newTag string) string {
+func (d *DockerService) Tag(repoName string, oldTag string, newTag string) *BasicResult {
 
 	// needs using goroutine
 	// and saving log line by line
 
 	// sync
-	ch := make(chan string, 1)
+	ch := make(chan BasicResult, 1)
 	go tagJob(ch, repoName, oldTag, newTag)
 	r := <-ch
 
-	return r
+	return &r
 }
 
 // Push is docker image pushing
-func (d *DockerService) Push(repoName string, tag string) string {
+func (d *DockerService) Push(repoName string, tag string) *BasicResult {
 	// needs using goroutine
 	// and saving log line by line
 
@@ -46,7 +50,10 @@ func (d *DockerService) Push(repoName string, tag string) string {
 	go pushJob(repoName, tag)
 
 	// only ok
-	return `{"message":"ok"}`
+	return &BasicResult{
+		Code:    constant.ResultSuccess,
+		Message: "",
+	}
 }
 
 func pushJob(repoName string, tag string) {
@@ -70,8 +77,10 @@ func pushJob(repoName string, tag string) {
 	logger.DEBUG("docker.go", fmt.Sprintf("pushJob end [%s]", repoName))
 }
 
-func tagJob(ch chan<- string, repoName string, oldTag string, newTag string) {
+func tagJob(ch chan<- BasicResult, repoName string, oldTag string, newTag string) {
 	logger.DEBUG("docker.go", fmt.Sprintf("tagJob [%s] [%s] to [%s]", repoName, oldTag, newTag))
+
+	result := &BasicResult{}
 
 	oldRepo := repoName + ":" + oldTag
 	newRepo := basicinfo.RegistryEndpoint + "/" + repoName + ":" + newTag
@@ -81,10 +90,14 @@ func tagJob(ch chan<- string, repoName string, oldTag string, newTag string) {
 	err := tag.Run()
 	if err != nil {
 		logger.ERROR("docker.go", "tagJob is failed")
-		ch <- `{"message":"error"}`
+		result.Code = constant.ResultFail
+		result.Message = ""
+		ch <- *result
 	} else {
 		logger.DEBUG("docker.go", "tagJob is success")
-		ch <- `{"message":"ok"}`
+		result.Code = constant.ResultSuccess
+		result.Message = ""
+		ch <- *result
 	}
 }
 
@@ -92,7 +105,7 @@ func buildJob(repoName string, dockerfilePath string) {
 	logger.DEBUG("docker.go", "buildJob start "+repoName)
 
 	repoName = repoName + ":latest"
-	build := exec.Command("docker", "build", "-t", repoName, dockerfilePath)
+	build := exec.Command("docker", "build", "--no-cache", "-t", repoName, dockerfilePath)
 
 	r := ""
 	stdout, _ := build.StdoutPipe()

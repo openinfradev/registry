@@ -1,8 +1,8 @@
 package controller
 
 import (
+	"builder/constant"
 	"builder/service"
-	"builder/util"
 	"net/http"
 	"strings"
 
@@ -95,8 +95,9 @@ func injectServices() {
 // @Router /health [get]
 // @Success 200
 func health(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "ok",
+	c.JSON(http.StatusOK, &service.BasicResult{
+		Code:    constant.ResultSuccess,
+		Message: "",
 	})
 }
 
@@ -147,11 +148,11 @@ func getRegistryRepositories(c *gin.Context) {
 // @Success 200
 func buildDockerFile(c *gin.Context) {
 	// test arguments
-	repoName := "exntu/sample1"
+	repoName := "exntu/sample2"
 	dockerfilePath := "./sample"
 
 	r := dockerService.Build(repoName, dockerfilePath)
-	c.JSON(http.StatusOK, util.StringToMap(r))
+	c.JSON(http.StatusOK, r)
 }
 
 // tagDockerImage
@@ -163,12 +164,12 @@ func buildDockerFile(c *gin.Context) {
 // @Success 200
 func tagDockerImage(c *gin.Context) {
 	// test arguments
-	repoName := "exntu/sample1"
+	repoName := "exntu/sample2"
 	oldTag := "latest"
-	newTag := "v1"
+	newTag := "v100"
 
 	r := dockerService.Tag(repoName, oldTag, newTag)
-	c.JSON(http.StatusOK, util.StringToMap(r))
+	c.JSON(http.StatusOK, r)
 }
 
 // pushDockerImage
@@ -180,9 +181,9 @@ func tagDockerImage(c *gin.Context) {
 // @Success 200
 func pushDockerImage(c *gin.Context) {
 	// test arguments
-	repoName := "exntu/sample1"
-	tag := "v1"
+	repoName := "exntu/sample2"
+	tag := "v100"
 
 	r := dockerService.Push(repoName, tag)
-	c.JSON(http.StatusOK, util.StringToMap(r))
+	c.JSON(http.StatusOK, r)
 }

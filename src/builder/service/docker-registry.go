@@ -98,3 +98,12 @@ func (d *RegistryService) GetRepositories() *RepositoriesResult {
 
 	return repositoriesResult
 }
+
+// DeleteRepository is repository deleting
+func (d *RegistryService) DeleteRepository() *BasicResult {
+
+	return &BasicResult{
+		Code:    constant.ResultSuccess,
+		Message: "",
+	}
+}

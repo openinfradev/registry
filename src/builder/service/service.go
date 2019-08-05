@@ -2,6 +2,12 @@ package service
 
 import "builder/util/logger"
 
+// BasicResult is basic result for response
+type BasicResult struct {
+	Code    string
+	Message string
+}
+
 // BasicInfo is defined information
 type BasicInfo struct {
 	RegistryInsecure bool
