@@ -88,6 +88,32 @@
                 "responses": {
                     "200": {}
                 }
+            },
+            "delete": {
+                "description": "docker registry repository delete api",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "docker registry repository delete api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Repository Name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Tag Name",
+                        "name": "tag",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
             }
         }
     }

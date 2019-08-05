@@ -2,6 +2,7 @@ package service
 
 import (
 	"builder/constant"
+	"builder/util/logger"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -32,14 +33,14 @@ func (d *RegistryService) GetCatalog() *CatalogResult {
 	// needs admin logon
 	// needs token
 
+	catalogResult := &CatalogResult{}
+
 	resp, err := http.Get(basicinfo.GetRegistryURL(constant.PathRegistryCatalog))
 	if err != nil {
-		panic(err)
+		return catalogResult
 	}
 
 	defer resp.Body.Close()
-
-	catalogResult := &CatalogResult{}
 
 	r, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -57,15 +58,15 @@ func (d *RegistryService) GetRepository(repoName string) *RepositoryResult {
 	// needs admin logon
 	// needs token
 
+	repositoryResult := &RepositoryResult{}
+
 	path := fmt.Sprintf(constant.PathRegistryTagList, repoName)
 	resp, err := http.Get(basicinfo.GetRegistryURL(path))
 	if err != nil {
-		panic(err)
+		return repositoryResult
 	}
 
 	defer resp.Body.Close()
-
-	repositoryResult := &RepositoryResult{}
 
 	r, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -100,10 +101,77 @@ func (d *RegistryService) GetRepositories() *RepositoriesResult {
 }
 
 // DeleteRepository is repository deleting
-func (d *RegistryService) DeleteRepository() *BasicResult {
+func (d *RegistryService) DeleteRepository(repoName string, tag string) *BasicResult {
+
+	// get digest
+	path := fmt.Sprintf(constant.PathRegistryManifest, repoName, tag)
+	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
+	if err != nil {
+		return &BasicResult{
+			Code:    constant.ResultFail,
+			Message: "",
+		}
+	}
+
+	req.Header.Add("Accept", "application/vnd.docker.distribution.manifest.v2+json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return &BasicResult{
+			Code:    constant.ResultFail,
+			Message: "",
+		}
+	}
+	defer resp.Body.Close()
+
+	digest := resp.Header.Get("Docker-Content-Digest")
+	if digest == "" {
+		return &BasicResult{
+			Code:    constant.ResultFail,
+			Message: "",
+		}
+	}
+
+	// delete by digest
+	path = fmt.Sprintf(constant.PathRegistryManifest, repoName, digest)
+	req, err = http.NewRequest("DELETE", basicinfo.GetRegistryURL(path), nil)
+	if err != nil {
+		return &BasicResult{
+			Code:    constant.ResultFail,
+			Message: "",
+		}
+	}
+
+	req.Header.Add("Accept", "application/vnd.docker.distribution.manifest.v2+json")
+
+	client = &http.Client{}
+	resp, err = client.Do(req)
+	if err != nil {
+		return &BasicResult{
+			Code:    constant.ResultFail,
+			Message: "",
+		}
+	}
+	defer resp.Body.Close()
+
+	r, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return &BasicResult{
+			Code:    constant.ResultFail,
+			Message: "",
+		}
+	}
+
+	// garbage collect (go-routine)
+	// sync (???)
+	ch := make(chan string, 1)
+	go garbageCollectJob(ch)
+	rr := <-ch
+	logger.DEBUG("docker-registry.go", rr)
 
 	return &BasicResult{
 		Code:    constant.ResultSuccess,
-		Message: "",
+		Message: string(r),
 	}
 }

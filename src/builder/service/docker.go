@@ -121,3 +121,25 @@ func buildJob(repoName string, dockerfilePath string) {
 
 	logger.DEBUG("docker.go", "buildJob end "+repoName)
 }
+
+func garbageCollectJob(ch chan<- string) {
+	logger.DEBUG("docker.go", "garbage collect start")
+
+	gc := exec.Command("docker", "exec", basicinfo.RegistryName, "bin/registry", "garbage-collect", "/etc/docker/registry/config.yml")
+
+	r := ""
+	stdout, _ := gc.StdoutPipe()
+	gc.Start()
+	scanner := bufio.NewScanner(stdout)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		m := scanner.Text()
+		r += m + "\n"
+		logger.DEBUG("docker.go garbage collect", m)
+	}
+	gc.Wait()
+
+	logger.DEBUG("docker.go", "garbage collect end")
+
+	ch <- r
+}

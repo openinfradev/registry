@@ -20,6 +20,7 @@
                 "-dbpass=integrator00",
                 "-dbname=integrator",
                 "-dbxarg=",
+                "-registry=starkube-registry",
                 "-registry-insecure=true",
                 "-registry-endpoint=registry.linus.com:5555",
                 "-port=4000"

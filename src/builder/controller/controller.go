@@ -2,8 +2,6 @@ package controller
 
 import (
 	"builder/network/server"
-	"builder/util/logger"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,7 +32,7 @@ func requestMapping(instance *server.Instance) {
 
 	for _, mapper := range mappers {
 		instance.AddRoute(mapper.Method, mapper.Path, mapper.Request)
-		logger.INFO("controller.go", fmt.Sprintf("[%v] [%v] mapped request method", mapper.Method, mapper.Path))
+		// logger.INFO("controller.go", fmt.Sprintf("[%v] [%v] mapped request method", mapper.Method, mapper.Path))
 	}
 }
 

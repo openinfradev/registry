@@ -18,13 +18,6 @@ import (
 func main() {
 
 	// generate swagger documents
-	// swag := "../../bin/swag init"
-	// _, err := exec.Command("/bin/sh", "-c", swag).Output()
-	// if err != nil {
-	// 	logger.ERROR("main.go", "Failed to generate swagger documents")
-	// } else {
-	// 	logger.INFO("main.go", "Generate Swagger Documents")
-	// }
 	if runtime.GOOS != "windows" {
 		swag := exec.Command("../../bin/swag", "init")
 		err := swag.Run()
@@ -47,6 +40,7 @@ func main() {
 	dbname := flag.String("dbname", "", "Database Name")
 	dbxarg := flag.String("dbxarg", "", "Database Extra Arguments")
 
+	registryName := flag.String("registry", "registry", "Docker Registry Container Name")
 	registryInsecure := flag.Bool("registry-insecure", false, "Docker Registry Insecure")
 	registryEndpoint := flag.String("registry-endpoint", "localhost:5000", "Docker Registry Endpoint")
 
@@ -70,6 +64,7 @@ func main() {
 	}
 
 	basicinfo := service.BasicInfo{
+		RegistryName:     *registryName,
 		RegistryInsecure: *registryInsecure,
 		RegistryEndpoint: *registryEndpoint,
 	}

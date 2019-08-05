@@ -45,6 +45,15 @@ func init() {
 		},
 	)
 
+	// registry repository delete
+	addRequestMapping(
+		RequestMapper{
+			Method:  "DELETE",
+			Path:    "/registry/repositories/*name",
+			Request: deleteRegistryRepository,
+		},
+	)
+
 	// docker build
 	// needs POST (GET is test)
 	addRequestMapping(
@@ -90,7 +99,7 @@ func injectServices() {
 // health
 // @Summary health check api
 // @Description builder의 health를 체크할 목적의 api
-// @name health
+// @Name health
 // @Produce  json
 // @Router /health [get]
 // @Success 200
@@ -104,7 +113,7 @@ func health(c *gin.Context) {
 // getRegistryCatalog
 // @Summary docker registry catalog api
 // @Description docker registry catalog api
-// @name getRegistryCatalog
+// @Name getRegistryCatalog
 // @Produce  json
 // @Router /registry/catalog [get]
 // @Success 200
@@ -117,7 +126,7 @@ func getRegistryCatalog(c *gin.Context) {
 // getRegistryRepositories
 // @Summary docker registry repositories api
 // @Description docker registry repositories api
-// @name getRegistryRepositories
+// @Name getRegistryRepositories
 // @Param name path string false "Repository Name"
 // @Produce  json
 // @Router /registry/repositories/{name} [get]
@@ -139,10 +148,29 @@ func getRegistryRepositories(c *gin.Context) {
 	}
 }
 
+// deleteRegistryRepository
+// @Summary docker registry repository delete api
+// @Description docker registry repository delete api
+// @Name deleteRegistryRepository
+// @Param name path string true "Repository Name"
+// @Param tag query string true "Tag Name"
+// @Produce  json
+// @Router /registry/repositories/{name} [delete]
+// @Success 200
+func deleteRegistryRepository(c *gin.Context) {
+	repoName := c.Params.ByName("name")
+	repoName = strings.Replace(repoName, "/", "", 1)
+
+	tag := c.Query("tag")
+
+	r := registryService.DeleteRepository(repoName, tag)
+	c.JSON(http.StatusOK, r)
+}
+
 // buildDockerFile
 // @Summary docker build by dockerfile
 // @Description docker build by dockerfile api
-// @name buildDockerFile
+// @Name buildDockerFile
 // @Produce  json
 // @Router /docker/build [get]
 // @Success 200
@@ -158,7 +186,7 @@ func buildDockerFile(c *gin.Context) {
 // tagDockerImage
 // @Summary docker image tag
 // @Description docker image tag
-// @name tagDockerImage
+// @Name tagDockerImage
 // @Produce  json
 // @Router /docker/tag [get]
 // @Success 200
@@ -175,7 +203,7 @@ func tagDockerImage(c *gin.Context) {
 // pushDockerImage
 // @Summary docker image push
 // @Description docker image push
-// @name pushDockerImage
+// @Name pushDockerImage
 // @Produce  json
 // @Router /docker/push [get]
 // @Success 200

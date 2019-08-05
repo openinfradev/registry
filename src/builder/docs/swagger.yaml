@@ -48,6 +48,24 @@ paths:
         "200": {}
       summary: docker registry catalog api
   /registry/repositories/{name}:
+    delete:
+      description: docker registry repository delete api
+      parameters:
+      - description: Repository Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Tag Name
+        in: query
+        name: tag
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      summary: docker registry repository delete api
     get:
       description: docker registry repositories api
       parameters:

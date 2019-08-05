@@ -10,6 +10,7 @@ type BasicResult struct {
 
 // BasicInfo is defined information
 type BasicInfo struct {
+	RegistryName     string
 	RegistryInsecure bool
 	RegistryEndpoint string
 }
