@@ -87,7 +87,10 @@ func (d *RegistryService) GetRepositories() *RepositoriesResult {
 	catalog := d.GetCatalog()
 	for _, repoName := range catalog.Repositories {
 		repository := d.GetRepository(repoName)
-		repositories = append(repositories, *repository)
+		// skipped tag which is null(or nil)
+		if repository.Tags != nil {
+			repositories = append(repositories, *repository)
+		}
 	}
 	repositoriesResult := &RepositoriesResult{
 		Repositories: repositories,
