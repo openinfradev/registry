@@ -47,6 +47,8 @@ func addRoute(method string, path string, routerFunc gin.HandlerFunc) {
 		v1.POST(path, routerFunc)
 	case "PUT":
 		v1.PUT(path, routerFunc)
+	case "PATCH":
+		v1.PATCH(path, routerFunc)
 	case "DELETE":
 		v1.DELETE(path, routerFunc)
 	default:

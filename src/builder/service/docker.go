@@ -3,6 +3,7 @@ package service
 import (
 	"bufio"
 	"builder/constant"
+	"builder/model"
 	"builder/util/logger"
 	"fmt"
 	"os/exec"
@@ -12,7 +13,7 @@ import (
 type DockerService struct{}
 
 // Build is docker building logs with dockerfile
-func (d *DockerService) Build(repoName string, dockerfilePath string) *BasicResult {
+func (d *DockerService) Build(repoName string, dockerfilePath string) *model.BasicResult {
 
 	// needs using goroutine
 	// and saving log line by line
@@ -21,20 +22,20 @@ func (d *DockerService) Build(repoName string, dockerfilePath string) *BasicResu
 	go buildJob(repoName, dockerfilePath)
 
 	// only ok
-	return &BasicResult{
+	return &model.BasicResult{
 		Code:    constant.ResultSuccess,
 		Message: "",
 	}
 }
 
 // Tag is image tagging
-func (d *DockerService) Tag(repoName string, oldTag string, newTag string) *BasicResult {
+func (d *DockerService) Tag(repoName string, oldTag string, newTag string) *model.BasicResult {
 
 	// needs using goroutine
 	// and saving log line by line
 
 	// sync
-	ch := make(chan BasicResult, 1)
+	ch := make(chan model.BasicResult, 1)
 	go tagJob(ch, repoName, oldTag, newTag)
 	r := <-ch
 
@@ -42,7 +43,7 @@ func (d *DockerService) Tag(repoName string, oldTag string, newTag string) *Basi
 }
 
 // Push is docker image pushing
-func (d *DockerService) Push(repoName string, tag string) *BasicResult {
+func (d *DockerService) Push(repoName string, tag string) *model.BasicResult {
 	// needs using goroutine
 	// and saving log line by line
 
@@ -50,7 +51,7 @@ func (d *DockerService) Push(repoName string, tag string) *BasicResult {
 	go pushJob(repoName, tag)
 
 	// only ok
-	return &BasicResult{
+	return &model.BasicResult{
 		Code:    constant.ResultSuccess,
 		Message: "",
 	}
@@ -77,10 +78,10 @@ func pushJob(repoName string, tag string) {
 	logger.DEBUG("docker.go", fmt.Sprintf("pushJob end [%s]", repoName))
 }
 
-func tagJob(ch chan<- BasicResult, repoName string, oldTag string, newTag string) {
+func tagJob(ch chan<- model.BasicResult, repoName string, oldTag string, newTag string) {
 	logger.DEBUG("docker.go", fmt.Sprintf("tagJob [%s] [%s] to [%s]", repoName, oldTag, newTag))
 
-	result := &BasicResult{}
+	result := &model.BasicResult{}
 
 	oldRepo := repoName + ":" + oldTag
 	newRepo := basicinfo.RegistryEndpoint + "/" + repoName + ":" + newTag

@@ -2,6 +2,7 @@ package service
 
 import (
 	"builder/constant"
+	"builder/model"
 	"builder/util/logger"
 	"encoding/json"
 	"fmt"
@@ -12,28 +13,12 @@ import (
 // RegistryService is relative docker registry
 type RegistryService struct{}
 
-// CatalogResult is registry catalog result
-type CatalogResult struct {
-	Repositories []string `json:"repositories"`
-}
-
-// RepositoryResult is registry repository result
-type RepositoryResult struct {
-	Name string   `json:"name"`
-	Tags []string `json:"tags"`
-}
-
-// RepositoriesResult is regitry repositories result
-type RepositoriesResult struct {
-	Repositories []RepositoryResult `json:"repositories"`
-}
-
 // GetCatalog returns docker registry catalog
-func (d *RegistryService) GetCatalog() *CatalogResult {
+func (d *RegistryService) GetCatalog() *model.CatalogResult {
 	// needs admin logon
 	// needs token
 
-	catalogResult := &CatalogResult{}
+	catalogResult := &model.CatalogResult{}
 
 	resp, err := http.Get(basicinfo.GetRegistryURL(constant.PathRegistryCatalog))
 	if err != nil {
@@ -54,11 +39,11 @@ func (d *RegistryService) GetCatalog() *CatalogResult {
 }
 
 // GetRepository returns repository included tags
-func (d *RegistryService) GetRepository(repoName string) *RepositoryResult {
+func (d *RegistryService) GetRepository(repoName string) *model.RepositoryResult {
 	// needs admin logon
 	// needs token
 
-	repositoryResult := &RepositoryResult{}
+	repositoryResult := &model.RepositoryResult{}
 
 	path := fmt.Sprintf(constant.PathRegistryTagList, repoName)
 	resp, err := http.Get(basicinfo.GetRegistryURL(path))
@@ -80,11 +65,11 @@ func (d *RegistryService) GetRepository(repoName string) *RepositoryResult {
 }
 
 // GetRepositories returns repositories included tags
-func (d *RegistryService) GetRepositories() *RepositoriesResult {
+func (d *RegistryService) GetRepositories() *model.RepositoriesResult {
 	// needs admin logon
 	// needs token
 
-	repositories := []RepositoryResult{}
+	repositories := []model.RepositoryResult{}
 	catalog := d.GetCatalog()
 	for _, repoName := range catalog.Repositories {
 		repository := d.GetRepository(repoName)
@@ -93,7 +78,7 @@ func (d *RegistryService) GetRepositories() *RepositoriesResult {
 			repositories = append(repositories, *repository)
 		}
 	}
-	repositoriesResult := &RepositoriesResult{
+	repositoriesResult := &model.RepositoriesResult{
 		Repositories: repositories,
 	}
 
@@ -101,13 +86,13 @@ func (d *RegistryService) GetRepositories() *RepositoriesResult {
 }
 
 // DeleteRepository is repository deleting
-func (d *RegistryService) DeleteRepository(repoName string, tag string) *BasicResult {
+func (d *RegistryService) DeleteRepository(repoName string, tag string) *model.BasicResult {
 
 	// get digest
 	path := fmt.Sprintf(constant.PathRegistryManifest, repoName, tag)
 	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
 	if err != nil {
-		return &BasicResult{
+		return &model.BasicResult{
 			Code:    constant.ResultFail,
 			Message: "",
 		}
@@ -118,7 +103,7 @@ func (d *RegistryService) DeleteRepository(repoName string, tag string) *BasicRe
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return &BasicResult{
+		return &model.BasicResult{
 			Code:    constant.ResultFail,
 			Message: "",
 		}
@@ -127,7 +112,7 @@ func (d *RegistryService) DeleteRepository(repoName string, tag string) *BasicRe
 
 	digest := resp.Header.Get("Docker-Content-Digest")
 	if digest == "" {
-		return &BasicResult{
+		return &model.BasicResult{
 			Code:    constant.ResultFail,
 			Message: "",
 		}
@@ -137,7 +122,7 @@ func (d *RegistryService) DeleteRepository(repoName string, tag string) *BasicRe
 	path = fmt.Sprintf(constant.PathRegistryManifest, repoName, digest)
 	req, err = http.NewRequest("DELETE", basicinfo.GetRegistryURL(path), nil)
 	if err != nil {
-		return &BasicResult{
+		return &model.BasicResult{
 			Code:    constant.ResultFail,
 			Message: "",
 		}
@@ -148,7 +133,7 @@ func (d *RegistryService) DeleteRepository(repoName string, tag string) *BasicRe
 	client = &http.Client{}
 	resp, err = client.Do(req)
 	if err != nil {
-		return &BasicResult{
+		return &model.BasicResult{
 			Code:    constant.ResultFail,
 			Message: "",
 		}
@@ -157,7 +142,7 @@ func (d *RegistryService) DeleteRepository(repoName string, tag string) *BasicRe
 
 	r, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return &BasicResult{
+		return &model.BasicResult{
 			Code:    constant.ResultFail,
 			Message: "",
 		}
@@ -170,7 +155,7 @@ func (d *RegistryService) DeleteRepository(repoName string, tag string) *BasicRe
 	rr := <-ch
 	logger.DEBUG("docker-registry.go", rr)
 
-	return &BasicResult{
+	return &model.BasicResult{
 		Code:    constant.ResultSuccess,
 		Message: string(r),
 	}

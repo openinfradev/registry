@@ -1,14 +1,10 @@
 package service
 
-import "builder/util/logger"
+import (
+	"builder/util/logger"
+)
 
-// BasicResult is basic result for response
-type BasicResult struct {
-	Code    string
-	Message string
-}
-
-// BasicInfo is defined information
+// BasicInfo is defined service information
 type BasicInfo struct {
 	RegistryName     string
 	RegistryInsecure bool

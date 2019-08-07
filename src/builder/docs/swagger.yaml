@@ -1,4 +1,35 @@
 basePath: '{{.BasePath}}'
+definitions:
+  model.BasicResult:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  model.CatalogResult:
+    properties:
+      repositories:
+        items:
+          type: string
+        type: array
+    type: object
+  model.RepositoriesResult:
+    properties:
+      repositories:
+        items:
+          $ref: '#/definitions/model.RepositoryResult'
+        type: array
+    type: object
+  model.RepositoryResult:
+    properties:
+      name:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
 host: '{{.Host}}'
 info:
   contact: {}
@@ -8,28 +39,37 @@ info:
   version: '{{.Version}}'
 paths:
   /docker/build:
-    get:
+    post:
       description: docker build by dockerfile api
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
       summary: docker build by dockerfile
   /docker/push:
-    get:
+    put:
       description: docker image push
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
       summary: docker image push
   /docker/tag:
-    get:
+    patch:
       description: docker image tag
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
       summary: docker image tag
   /health:
     get:
@@ -37,7 +77,10 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
       summary: health check api
   /registry/catalog:
     get:
@@ -45,13 +88,17 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.CatalogResult'
       summary: docker registry catalog api
   /registry/repositories/{name}:
     delete:
       description: docker registry repository delete api
       parameters:
-      - description: Repository Name
+      - default: ""
+        description: Repository Name
         in: path
         name: name
         required: true
@@ -64,18 +111,25 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
       summary: docker registry repository delete api
     get:
       description: docker registry repositories api
       parameters:
-      - description: Repository Name
+      - default: ""
+        description: Repository Name
         in: path
         name: name
         type: string
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.RepositoryResult'
       summary: docker registry repositories api
 swagger: "2.0"
