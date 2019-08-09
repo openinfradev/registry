@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"builder/model"
 	"builder/service"
 	"net/http"
 
@@ -13,12 +14,21 @@ func init() {
 	// inject service
 	dockerService = new(service.DockerService)
 
-	// docker build
+	// docker build by file
 	addRequestMapping(
 		RequestMapper{
 			Method:  "POST",
-			Path:    "/docker/build",
-			Request: buildDockerFile,
+			Path:    "/docker/build/file",
+			Request: buildByDockerFile,
+		},
+	)
+
+	// docker build by git
+	addRequestMapping(
+		RequestMapper{
+			Method:  "POST",
+			Path:    "/docker/build/git",
+			Request: buildByGitRepository,
 		},
 	)
 
@@ -41,14 +51,33 @@ func init() {
 	)
 }
 
-// buildDockerFile
+// buildByDockerFile
 // @Summary docker build by dockerfile
 // @Description docker build by dockerfile api
-// @Name buildDockerFile
-// @Produce  json
-// @Router /docker/build [post]
+// @Name buildByDockerFile
+// @Accept json
+// @Produce json
+// @Router /docker/build/file [post]
+// @Param contents body model.DockerBuildByFileParam true "Json Parameters (contents is base64 encoded)"
 // @Success 200 {object} model.BasicResult
-func buildDockerFile(c *gin.Context) {
+func buildByDockerFile(c *gin.Context) {
+
+	var params *model.DockerBuildByFileParam
+	c.BindJSON(&params)
+
+	r := dockerService.BuildByDockerfile(params.Name, params.Contents)
+
+	c.JSON(http.StatusOK, r)
+}
+
+// buildByGitRepository
+// @Summary docker build by git
+// @Description docker build by git api
+// @Name buildByGitRepository
+// @Produce  json
+// @Router /docker/build/git [post]
+// @Success 200 {object} model.BasicResult
+func buildByGitRepository(c *gin.Context) {
 	// test arguments
 	repoName := "exntu/sample2"
 	dockerfilePath := "./sample"

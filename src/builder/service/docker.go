@@ -5,6 +5,7 @@ import (
 	"builder/constant"
 	"builder/model"
 	"builder/util/logger"
+	"encoding/base64"
 	"fmt"
 	"os/exec"
 )
@@ -12,11 +13,55 @@ import (
 // DockerService is docker command relative service
 type DockerService struct{}
 
-// Build is docker building logs with dockerfile
-func (d *DockerService) Build(repoName string, dockerfilePath string) *model.BasicResult {
+var fileManager *FileManager
 
+func init() {
+	fileManager = new(FileManager)
+}
+
+// BuildByDockerfile is docker building by dockerfile
+func (d *DockerService) BuildByDockerfile(repoName string, encodedContents string) *model.BasicResult {
 	// needs using goroutine
 	// and saving log line by line
+
+	// decoding contents
+	decoded, err := base64.StdEncoding.DecodeString(encodedContents)
+	if err != nil {
+		return &model.BasicResult{
+			Code:    constant.ResultFail,
+			Message: "contents isn't base64 encoded",
+		}
+	}
+
+	path, err := fileManager.WriteDockerfile(string(decoded))
+	if err != nil {
+		return &model.BasicResult{
+			Code:    constant.ResultFail,
+			Message: "",
+		}
+	}
+
+	return d.Build(repoName, path)
+}
+
+// BuildByGitRepository is docker building by git repository
+func (d *DockerService) BuildByGitRepository(repoName string, gitRepo string, userID string, userPW string) *model.BasicResult {
+	// needs using goroutine
+	// and saving log line by line
+
+	path, err := fileManager.PullGitRepository(gitRepo, userID, userPW)
+	if err != nil {
+		return &model.BasicResult{
+			Code:    constant.ResultFail,
+			Message: "",
+		}
+	}
+
+	return d.Build(repoName, path)
+}
+
+// Build is docker building by file path
+func (d *DockerService) Build(repoName string, dockerfilePath string) *model.BasicResult {
 
 	// async
 	go buildJob(repoName, dockerfilePath)
@@ -121,6 +166,9 @@ func buildJob(repoName string, dockerfilePath string) {
 	build.Wait()
 
 	logger.DEBUG("docker.go", "buildJob end "+repoName)
+
+	// path removeall
+	fileManager.DeleteDirectory(dockerfilePath)
 }
 
 func garbageCollectJob(ch chan<- string) {

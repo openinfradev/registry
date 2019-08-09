@@ -14,6 +14,16 @@ definitions:
           type: string
         type: array
     type: object
+  model.DockerBuildByFileParam:
+    properties:
+      contents:
+        type: string
+      name:
+        type: string
+    required:
+    - contents
+    - name
+    type: object
   model.RepositoriesResult:
     properties:
       repositories:
@@ -38,9 +48,19 @@ info:
   title: '{{.Title}}'
   version: '{{.Version}}'
 paths:
-  /docker/build:
+  /docker/build/file:
     post:
+      consumes:
+      - application/json
       description: docker build by dockerfile api
+      parameters:
+      - description: Json Parameters (contents is base64 encoded)
+        in: body
+        name: contents
+        required: true
+        schema:
+          $ref: '#/definitions/model.DockerBuildByFileParam'
+          type: object
       produces:
       - application/json
       responses:
@@ -49,6 +69,17 @@ paths:
           schema:
             $ref: '#/definitions/model.BasicResult'
       summary: docker build by dockerfile
+  /docker/build/git:
+    post:
+      description: docker build by git api
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
+      summary: docker build by git
   /docker/push:
     put:
       description: docker image push

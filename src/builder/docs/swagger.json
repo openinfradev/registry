@@ -10,13 +10,45 @@
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/docker/build": {
+        "/docker/build/file": {
             "post": {
                 "description": "docker build by dockerfile api",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "docker build by dockerfile",
+                "parameters": [
+                    {
+                        "description": "Json Parameters (contents is base64 encoded)",
+                        "name": "contents",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.DockerBuildByFileParam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/docker/build/git": {
+            "post": {
+                "description": "docker build by git api",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "docker build by git",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -174,6 +206,21 @@
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "model.DockerBuildByFileParam": {
+            "type": "object",
+            "required": [
+                "contents",
+                "name"
+            ],
+            "properties": {
+                "contents": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },

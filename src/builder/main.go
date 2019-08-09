@@ -31,24 +31,27 @@ func main() {
 	}
 
 	// flags
-	loglevel := flag.Int("loglevel", 0, "Log Level 0:debug 1:info 2:error")
+	loglevel := flag.Int("log.level", 0, "Log Level 0:debug 1:info 2:error")
 
-	dbhost := flag.String("dbhost", "", "Database Host Name")
-	dbport := flag.String("dbport", "", "Database Port")
-	dbuser := flag.String("dbuser", "", "Database User Name")
-	dbpass := flag.String("dbpass", "", "Database User Password")
-	dbname := flag.String("dbname", "", "Database Name")
-	dbxarg := flag.String("dbxarg", "", "Database Extra Arguments")
+	dbhost := flag.String("db.host", "", "Database Host Name")
+	dbport := flag.String("db.port", "", "Database Port")
+	dbuser := flag.String("db.user", "", "Database User Name")
+	dbpass := flag.String("db.pass", "", "Database User Password")
+	dbname := flag.String("db.name", "", "Database Name")
+	dbxarg := flag.String("db.xarg", "", "Database Extra Arguments")
 
-	registryName := flag.String("registry", "registry", "Docker Registry Container Name")
-	registryInsecure := flag.Bool("registry-insecure", false, "Docker Registry Insecure")
-	registryEndpoint := flag.String("registry-endpoint", "localhost:5000", "Docker Registry Endpoint")
+	registryName := flag.String("registry.name", "registry", "Docker Registry Container Name")
+	registryInsecure := flag.Bool("registry.insecure", false, "Docker Registry Insecure")
+	registryEndpoint := flag.String("registry.endpoint", "localhost:5000", "Docker Registry Endpoint")
 
-	port := flag.String("port", "4000", "Builder Service Port")
+	port := flag.String("service.port", "4000", "Builder Service Port")
+	tmpPath := flag.String("service.tmp", "/tmp/builder", "Builder Service Temporary Path")
 
 	flag.Parse()
 
-	logger.DEBUG("main.go", fmt.Sprintf("flags information\n loglevel[%d]\n dbhost[%v]\n dbport[%v]\n dbuser[%v]\n dbpass[%v]\n dbname[%v]\n dbxarg[%v]", *loglevel, *dbhost, *dbport, *dbuser, *dbpass, *dbname, *dbxarg))
+	logger.DEBUG("main.go", fmt.Sprintf("settings basic\n log.level[%d]\n service.port[%v]\n service.tmp[%v]", *loglevel, *port, *tmpPath))
+	logger.DEBUG("main.go", fmt.Sprintf("settings database\n db.host[%v]\n db.port[%v]\n db.user[%v]\n db.pass[%v]\n db.name[%v]\n db.xarg[%v]", *dbhost, *dbport, *dbuser, *dbpass, *dbname, *dbxarg))
+	logger.DEBUG("main.go", fmt.Sprintf("settings registry\n registry.name[%v]\n registry.insecure[%v]\n registry.endpoint[%v]", *registryName, *registryInsecure, *registryEndpoint))
 
 	if *dbhost == "" {
 		logger.FATAL("main.go", "Required Database Host Name")
@@ -67,6 +70,7 @@ func main() {
 		RegistryName:     *registryName,
 		RegistryInsecure: *registryInsecure,
 		RegistryEndpoint: *registryEndpoint,
+		TemporaryPath:    *tmpPath,
 	}
 
 	// log level

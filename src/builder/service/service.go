@@ -9,6 +9,7 @@ type BasicInfo struct {
 	RegistryName     string
 	RegistryInsecure bool
 	RegistryEndpoint string
+	TemporaryPath    string
 }
 
 var basicinfo *BasicInfo

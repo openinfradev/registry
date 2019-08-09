@@ -13,17 +13,18 @@
             "program": "${fileDirname}",
             "env": {},
             "args": [
-                "-loglevel=0",
-                "-dbhost=exntu.kr",
-                "-dbport=23336",
-                "-dbuser=integrator",
-                "-dbpass=integrator00",
-                "-dbname=integrator",
-                "-dbxarg=",
-                "-registry=starkube-registry",
-                "-registry-insecure=true",
-                "-registry-endpoint=registry.linus.com:5555",
-                "-port=4000"
+                "-log.level=0",
+                "-db.host=exntu.kr",
+                "-db.port=23336",
+                "-db.user=integrator",
+                "-db.pass=integrator00",
+                "-db.name=integrator",
+                "-db.xarg=",
+                "-registry.name=starkube-registry",
+                "-registry.insecure=true",
+                "-registry.endpoint=registry.linus.com:5555",
+                "-service.port=4000",
+                "-service.tmp=/Users/linus/tmp"
             ]
         }
     ]
