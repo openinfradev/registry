@@ -32,6 +32,10 @@ func init() {
 // @Router /health [get]
 // @Success 200 {object} model.BasicResult
 func health(c *gin.Context) {
+	// url := location.Get(c)
+	// util.GetLocalIP()
+	// util.GetOutboundIP()
+
 	c.JSON(http.StatusOK, &model.BasicResult{
 		Code:    constant.ResultSuccess,
 		Message: "taco-registry-builder is healthy",

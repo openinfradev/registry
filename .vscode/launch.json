@@ -23,6 +23,7 @@
                 "-registry.name=starkube-registry",
                 "-registry.insecure=true",
                 "-registry.endpoint=registry.linus.com:5555",
+                "-redis.endpoint=registry.linus.com:6379",
                 "-service.port=4000",
                 "-service.tmp=/Users/linus/tmp"
             ]

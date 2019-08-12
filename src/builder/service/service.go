@@ -10,6 +10,8 @@ type BasicInfo struct {
 	RegistryInsecure bool
 	RegistryEndpoint string
 	TemporaryPath    string
+	RedisEndpoint    string
+	ServicePort      string
 }
 
 var basicinfo *BasicInfo

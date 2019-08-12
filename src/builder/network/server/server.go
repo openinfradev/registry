@@ -3,6 +3,8 @@ package server
 import (
 	"builder/util/logger"
 
+	"github.com/gin-contrib/location"
+
 	"github.com/gin-gonic/gin"
 
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -21,6 +23,9 @@ var v1 *gin.RouterGroup
 // New returns created instance
 func New() *Instance {
 	r = gin.Default()
+	// added location (not yet)
+	r.Use(location.Default())
+
 	v1 = r.Group("/v1")
 
 	instance := &Instance{
