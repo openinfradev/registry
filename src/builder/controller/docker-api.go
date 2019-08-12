@@ -74,15 +74,17 @@ func buildByDockerFile(c *gin.Context) {
 // @Summary docker build by git
 // @Description docker build by git api
 // @Name buildByGitRepository
-// @Produce  json
+// @Accept json
+// @Produce json
 // @Router /docker/build/git [post]
+// @Param contents body model.DockerBuildByGitParam true "Json Parameters (userPW is base64 encoded)"
 // @Success 200 {object} model.BasicResult
 func buildByGitRepository(c *gin.Context) {
-	// test arguments
-	repoName := "exntu/sample2"
-	dockerfilePath := "./sample"
 
-	r := dockerService.Build(repoName, dockerfilePath)
+	var params *model.DockerBuildByGitParam
+	c.BindJSON(&params)
+
+	r := dockerService.BuildByGitRepository(params.Name, params.GitRepository, params.UserID, params.UserPW)
 	c.JSON(http.StatusOK, r)
 }
 

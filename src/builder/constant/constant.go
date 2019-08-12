@@ -14,3 +14,6 @@ const ResultSuccess string = "SUCCESS"
 
 // ResultFail is basic result fail code
 const ResultFail string = "FAIL"
+
+// GitRepositoryURL is git repository url
+const GitRepositoryURL string = "https://%s:%s@%s"

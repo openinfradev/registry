@@ -45,11 +45,22 @@ func (d *DockerService) BuildByDockerfile(repoName string, encodedContents strin
 }
 
 // BuildByGitRepository is docker building by git repository
-func (d *DockerService) BuildByGitRepository(repoName string, gitRepo string, userID string, userPW string) *model.BasicResult {
+func (d *DockerService) BuildByGitRepository(repoName string, gitRepo string, userID string, encodedUserPW string) *model.BasicResult {
 	// needs using goroutine
 	// and saving log line by line
 
-	path, err := fileManager.PullGitRepository(gitRepo, userID, userPW)
+	// decoding userPW
+	decoded, err := base64.StdEncoding.DecodeString(encodedUserPW)
+	if err != nil {
+		return &model.BasicResult{
+			Code:    constant.ResultFail,
+			Message: "userPW isn't base64 encoded",
+		}
+	}
+
+	// not using go-routine (not yet)
+	// ch := make(chan string, 1)	// dirPath
+	path, err := fileManager.PullGitRepository(gitRepo, userID, string(decoded))
 	if err != nil {
 		return &model.BasicResult{
 			Code:    constant.ResultFail,

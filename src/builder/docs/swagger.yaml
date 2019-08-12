@@ -24,6 +24,22 @@ definitions:
     - contents
     - name
     type: object
+  model.DockerBuildByGitParam:
+    properties:
+      gitRepo:
+        type: string
+      name:
+        type: string
+      userId:
+        type: string
+      userPw:
+        type: string
+    required:
+    - gitRepo
+    - name
+    - userId
+    - userPw
+    type: object
   model.RepositoriesResult:
     properties:
       repositories:
@@ -71,7 +87,17 @@ paths:
       summary: docker build by dockerfile
   /docker/build/git:
     post:
+      consumes:
+      - application/json
       description: docker build by git api
+      parameters:
+      - description: Json Parameters (userPW is base64 encoded)
+        in: body
+        name: contents
+        required: true
+        schema:
+          $ref: '#/definitions/model.DockerBuildByGitParam'
+          type: object
       produces:
       - application/json
       responses:

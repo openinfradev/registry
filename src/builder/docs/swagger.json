@@ -45,10 +45,25 @@
         "/docker/build/git": {
             "post": {
                 "description": "docker build by git api",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "docker build by git",
+                "parameters": [
+                    {
+                        "description": "Json Parameters (userPW is base64 encoded)",
+                        "name": "contents",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.DockerBuildByGitParam"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -220,6 +235,29 @@
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DockerBuildByGitParam": {
+            "type": "object",
+            "required": [
+                "gitRepo",
+                "name",
+                "userId",
+                "userPw"
+            ],
+            "properties": {
+                "gitRepo": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "userPw": {
                     "type": "string"
                 }
             }
