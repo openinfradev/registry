@@ -81,6 +81,18 @@
                     "application/json"
                 ],
                 "summary": "docker image push",
+                "parameters": [
+                    {
+                        "description": "Json Parameters",
+                        "name": "contents",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.DockerPushParam"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -98,6 +110,18 @@
                     "application/json"
                 ],
                 "summary": "docker image tag",
+                "parameters": [
+                    {
+                        "description": "Json Parameters",
+                        "name": "contents",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.DockerTagParam"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -258,6 +282,40 @@
                     "type": "string"
                 },
                 "userPw": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DockerPushParam": {
+            "type": "object",
+            "required": [
+                "name",
+                "tag"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "tag": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DockerTagParam": {
+            "type": "object",
+            "required": [
+                "name",
+                "newTag",
+                "oldTag"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "newTag": {
+                    "type": "string"
+                },
+                "oldTag": {
                     "type": "string"
                 }
             }

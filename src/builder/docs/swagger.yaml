@@ -40,6 +40,29 @@ definitions:
     - userId
     - userPw
     type: object
+  model.DockerPushParam:
+    properties:
+      name:
+        type: string
+      tag:
+        type: string
+    required:
+    - name
+    - tag
+    type: object
+  model.DockerTagParam:
+    properties:
+      name:
+        type: string
+      newTag:
+        type: string
+      oldTag:
+        type: string
+    required:
+    - name
+    - newTag
+    - oldTag
+    type: object
   model.RepositoriesResult:
     properties:
       repositories:
@@ -109,6 +132,14 @@ paths:
   /docker/push:
     put:
       description: docker image push
+      parameters:
+      - description: Json Parameters
+        in: body
+        name: contents
+        required: true
+        schema:
+          $ref: '#/definitions/model.DockerPushParam'
+          type: object
       produces:
       - application/json
       responses:
@@ -120,6 +151,14 @@ paths:
   /docker/tag:
     patch:
       description: docker image tag
+      parameters:
+      - description: Json Parameters
+        in: body
+        name: contents
+        required: true
+        schema:
+          $ref: '#/definitions/model.DockerTagParam'
+          type: object
       produces:
       - application/json
       responses:

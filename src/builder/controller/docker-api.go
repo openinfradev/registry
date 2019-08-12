@@ -94,14 +94,14 @@ func buildByGitRepository(c *gin.Context) {
 // @Name tagDockerImage
 // @Produce  json
 // @Router /docker/tag [patch]
+// @Param contents body model.DockerTagParam true "Json Parameters"
 // @Success 200 {object} model.BasicResult
 func tagDockerImage(c *gin.Context) {
-	// test arguments
-	repoName := "exntu/sample2"
-	oldTag := "latest"
-	newTag := "v100"
 
-	r := dockerService.Tag(repoName, oldTag, newTag)
+	var params *model.DockerTagParam
+	c.BindJSON(&params)
+
+	r := dockerService.Tag(params.Name, params.OldTag, params.NewTag)
 	c.JSON(http.StatusOK, r)
 }
 
@@ -111,12 +111,13 @@ func tagDockerImage(c *gin.Context) {
 // @Name pushDockerImage
 // @Produce  json
 // @Router /docker/push [put]
+// @Param contents body model.DockerPushParam true "Json Parameters"
 // @Success 200 {object} model.BasicResult
 func pushDockerImage(c *gin.Context) {
-	// test arguments
-	repoName := "exntu/sample2"
-	tag := "v100"
 
-	r := dockerService.Push(repoName, tag)
+	var params *model.DockerPushParam
+	c.BindJSON(&params)
+
+	r := dockerService.Push(params.Name, params.Tag)
 	c.JSON(http.StatusOK, r)
 }
