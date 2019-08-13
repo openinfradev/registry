@@ -6,3 +6,5 @@ src/golang.org/
 src/gopkg.in/
 
 src/builder/__debug_bin
+
+.DS_Store
