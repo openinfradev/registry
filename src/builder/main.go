@@ -101,6 +101,10 @@ func main() {
 	// service info
 	service.SetBasicInfo(&basicinfo)
 
+	// redis builder list sync
+	registerService := new(service.RegisterService)
+	go registerService.Sync()
+
 	// server run
 	server.Run(*port)
 }

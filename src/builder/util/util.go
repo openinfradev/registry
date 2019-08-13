@@ -33,7 +33,7 @@ func GetLocalIP() string {
 	for _, a := range addrs {
 		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 			if ipnet.IP.To4() != nil {
-				logger.DEBUG("util.go", ipnet.IP.String())
+				// logger.DEBUG("util.go", ipnet.IP.String())
 				// for test ... first ip only
 				return ipnet.IP.String()
 			}
@@ -53,7 +53,7 @@ func GetOutboundIP() string {
 
 	defer conn.Close()
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
-	logger.DEBUG("util.go", localAddr.IP.String())
+	// logger.DEBUG("util.go", localAddr.IP.String())
 
 	return localAddr.IP.String()
 }

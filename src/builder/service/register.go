@@ -1,6 +1,13 @@
 package service
 
 import (
+	"builder/model"
+	"builder/util"
+	"builder/util/logger"
+	"encoding/json"
+	"strconv"
+	"time"
+
 	"github.com/go-redis/redis"
 )
 
@@ -15,23 +22,58 @@ func (g *RegisterService) Health() bool {
 		g.InitClient()
 	}
 	pong, err := g.Register.Ping().Result()
-	if err != nil && pong != "PONG" {
+	if err != nil || pong != "PONG" {
+		logger.ERROR("register.go", err.Error())
 		return false
 	}
-	// problem...
 	return true
 }
 
 // Regist is builder registered in Redis
 func (g *RegisterService) Regist() {
-	// self := util.GetLocalIP() + ":" + basicinfo.ServicePort
-	// builders, err := g.Register.Get("builders").Result()
-	// if err != nil {
-	// 	logger.ERROR("register.go", err.Error())
-	// }
-	// builderArray := json.Unmarshal([]byte(builders), []string{})
-	// builderArray = append(builderArray, self)
+	if !g.Health() {
+		logger.ERROR("regist.go", "redis is unhealthy")
+		return
+	}
+	builderListJSON, err := g.Register.Get("builderList").Result()
+	if err != nil {
+		logger.ERROR("register.go", err.Error())
+	}
+	builderList := &model.BuilderList{}
+	json.Unmarshal([]byte(builderListJSON), &builderList)
+	port, _ := strconv.Atoi(basicinfo.ServicePort)
+	self := &model.Builder{
+		Host: util.GetOutboundIP(),
+		Port: port,
+	}
+	exist := false
+	for _, b := range builderList.Builders {
+		if b.Host == self.Host && b.Port == self.Port {
+			exist = true
+		}
+	}
+	if !exist {
+		builderList.Builders = append(builderList.Builders, *self)
+	}
 
+	bytes, _ := json.Marshal(builderList)
+	result, err := g.Register.Set("builderList", string(bytes), 0).Result()
+	if err != nil {
+		logger.ERROR("register.go", err.Error())
+		return
+	}
+	logger.INFO("register.go regist builder to redis", result+"::"+string(bytes))
+}
+
+// Sync is builder host sync to redis
+func (g *RegisterService) Sync() {
+	ticker := time.NewTicker(time.Second * 15)
+	go func() {
+		for t := range ticker.C {
+			logger.DEBUG("register.go sync builder to redis", t.String())
+			g.Regist()
+		}
+	}()
 }
 
 // InitClient is register create
