@@ -15,16 +15,16 @@
             "args": [
                 "-log.level=0",
                 "-db.type=postgres",
-                "-db.host=192.168.201.146",
-                "-db.port=5432",
+                "-db.host=exntu.kr",
+                "-db.port=25432",
                 "-db.user=registry",
                 "-db.pass=registry1234$$",
                 "-db.name=registry",
                 "-db.xarg=",
                 "-registry.name=taco-registry",
                 "-registry.insecure=true",
-                "-registry.endpoint=192.168.201.146:5000",
-                "-redis.endpoint=192.168.201.146:6379",
+                "-registry.endpoint=exntu.kr:25000",
+                "-redis.endpoint=exntu.kr:26379",
                 "-service.port=4000",
                 "-service.tmp=/Users/linus/tmp"
             ]
