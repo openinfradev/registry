@@ -8,6 +8,7 @@ import (
 
 // DBInfo is basically database information
 type DBInfo struct {
+	DBtype string
 	DBhost string
 	DBport string
 	DBuser string
@@ -28,8 +29,10 @@ func SetDBConnectionInfo(info *DBInfo) {
 // CreateDBConnection return created database connection
 func CreateDBConnection() *sql.DB {
 	url := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v", dbinfo.DBuser, dbinfo.DBpass, dbinfo.DBhost, dbinfo.DBport, dbinfo.DBname)
-
-	db, err := sql.Open("mysql", url)
+	if dbinfo.DBxarg != "" {
+		url += "?" + dbinfo.DBxarg
+	}
+	db, err := sql.Open(dbinfo.DBtype, url)
 	if err != nil {
 		logger.FATAL("repository.go", "failed database connection")
 	}

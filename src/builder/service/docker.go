@@ -176,6 +176,7 @@ func buildJob(repoName string, dockerfilePath string) {
 	}
 	build.Wait()
 
+	// logger.DEBUG("docker.go", r)
 	logger.DEBUG("docker.go", "buildJob end "+repoName)
 
 	// path removeall

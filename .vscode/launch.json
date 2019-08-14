@@ -14,18 +14,19 @@
             "env": {},
             "args": [
                 "-log.level=0",
-                "-db.host=exntu.kr",
-                "-db.port=23336",
-                "-db.user=integrator",
-                "-db.pass=integrator00",
-                "-db.name=integrator",
-                "-db.xarg=",
+                "-db.type=postgres",
+                "-db.host=192.168.201.146",
+                "-db.port=5432",
+                "-db.user=registry",
+                "-db.pass=registry1234$$",
+                "-db.name=registry",
+                "-db.xarg=useUnicode=true&characterEncoding=utf-8",
                 "-registry.name=taco-registry",
                 "-registry.insecure=true",
                 "-registry.endpoint=192.168.201.146:5000",
                 "-redis.endpoint=192.168.201.146:6379",
                 "-service.port=4000",
-                "-service.tmp=/tmp"
+                "-service.tmp=/Users/linus/tmp"
             ]
         }
     ]
