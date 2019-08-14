@@ -50,6 +50,7 @@ func (g *RegisterService) Regist() {
 	for _, b := range builderList.Builders {
 		if b.Host == self.Host && b.Port == self.Port {
 			exist = true
+			break
 		}
 	}
 	if !exist {

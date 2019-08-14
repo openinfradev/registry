@@ -15,3 +15,9 @@ type RepositoryResult struct {
 type RepositoriesResult struct {
 	Repositories []RepositoryResult `json:"repositories"`
 }
+
+// RegistryCommonCode is test struct
+type RegistryCommonCode struct {
+	CodeName  string `json:"codeName"`
+	GroupCode string `json:"groupCode"`
+}

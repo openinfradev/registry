@@ -152,6 +152,9 @@
         "/registry/catalog": {
             "get": {
                 "description": "docker registry catalog api",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -166,9 +169,35 @@
                 }
             }
         },
+        "/registry/codes": {
+            "get": {
+                "description": "docker registry test api",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "docker registry test api",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.RegistryCommonCode"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/registry/repositories/{name}": {
             "get": {
                 "description": "docker registry repositories api",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -193,6 +222,9 @@
             },
             "delete": {
                 "description": "docker registry repository delete api",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -316,6 +348,17 @@
                     "type": "string"
                 },
                 "oldTag": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.RegistryCommonCode": {
+            "type": "object",
+            "properties": {
+                "codeName": {
+                    "type": "string"
+                },
+                "groupCode": {
                     "type": "string"
                 }
             }

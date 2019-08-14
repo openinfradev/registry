@@ -40,12 +40,22 @@ func init() {
 			Request: deleteRegistryRepository,
 		},
 	)
+
+	// registry repository test
+	addRequestMapping(
+		RequestMapper{
+			Method:  "GET",
+			Path:    "/registry/codes",
+			Request: getCommonCodes,
+		},
+	)
 }
 
 // getRegistryCatalog
 // @Summary docker registry catalog api
 // @Description docker registry catalog api
 // @Name getRegistryCatalog
+// @Accept json
 // @Produce  json
 // @Router /registry/catalog [get]
 // @Success 200 {object} model.CatalogResult
@@ -60,6 +70,7 @@ func getRegistryCatalog(c *gin.Context) {
 // @Description docker registry repositories api
 // @Name getRegistryRepositories
 // @Param name path string false "Repository Name" default()
+// @Accept json
 // @Produce  json
 // @Router /registry/repositories/{name} [get]
 // @Success 200 {object} model.RepositoriesResult
@@ -87,6 +98,7 @@ func getRegistryRepositories(c *gin.Context) {
 // @Name deleteRegistryRepository
 // @Param name path string true "Repository Name" default()
 // @Param tag query string true "Tag Name"
+// @Accept json
 // @Produce  json
 // @Router /registry/repositories/{name} [delete]
 // @Success 200 {object} model.BasicResult
@@ -97,5 +109,18 @@ func deleteRegistryRepository(c *gin.Context) {
 	tag := c.Query("tag")
 
 	r := registryService.DeleteRepository(repoName, tag)
+	c.JSON(http.StatusOK, r)
+}
+
+// getCommonCodes
+// @Summary docker registry test api
+// @Description docker registry test api
+// @Name getCommonCodes
+// @Accept json
+// @Produce  json
+// @Router /registry/codes [get]
+// @Success 200 {array} model.RegistryCommonCode
+func getCommonCodes(c *gin.Context) {
+	r := registryService.GetCommonCodes()
 	c.JSON(http.StatusOK, r)
 }

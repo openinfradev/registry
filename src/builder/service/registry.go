@@ -3,6 +3,7 @@ package service
 import (
 	"builder/constant"
 	"builder/model"
+	"builder/repository"
 	"builder/util/logger"
 	"encoding/json"
 	"fmt"
@@ -12,6 +13,12 @@ import (
 
 // RegistryService is relative docker registry
 type RegistryService struct{}
+
+var registryRepository *repository.RegistryRepository
+
+func init() {
+	registryRepository = new(repository.RegistryRepository)
+}
 
 // GetCatalog returns docker registry catalog
 func (d *RegistryService) GetCatalog() *model.CatalogResult {
@@ -159,4 +166,9 @@ func (d *RegistryService) DeleteRepository(repoName string, tag string) *model.B
 		Code:    constant.ResultSuccess,
 		Message: string(r),
 	}
+}
+
+// GetCommonCodes returns test
+func (d *RegistryService) GetCommonCodes() []model.RegistryCommonCode {
+	return registryRepository.SelectCommonCodeList()
 }

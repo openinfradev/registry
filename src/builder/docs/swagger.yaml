@@ -63,6 +63,13 @@ definitions:
     - newTag
     - oldTag
     type: object
+  model.RegistryCommonCode:
+    properties:
+      codeName:
+        type: string
+      groupCode:
+        type: string
+    type: object
   model.RepositoriesResult:
     properties:
       repositories:
@@ -180,6 +187,8 @@ paths:
       summary: health check api
   /registry/catalog:
     get:
+      consumes:
+      - application/json
       description: docker registry catalog api
       produces:
       - application/json
@@ -189,8 +198,25 @@ paths:
           schema:
             $ref: '#/definitions/model.CatalogResult'
       summary: docker registry catalog api
+  /registry/codes:
+    get:
+      consumes:
+      - application/json
+      description: docker registry test api
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.RegistryCommonCode'
+            type: array
+      summary: docker registry test api
   /registry/repositories/{name}:
     delete:
+      consumes:
+      - application/json
       description: docker registry repository delete api
       parameters:
       - default: ""
@@ -213,6 +239,8 @@ paths:
             $ref: '#/definitions/model.BasicResult'
       summary: docker registry repository delete api
     get:
+      consumes:
+      - application/json
       description: docker registry repositories api
       parameters:
       - default: ""

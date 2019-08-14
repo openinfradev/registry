@@ -28,15 +28,22 @@ func SetDBConnectionInfo(info *DBInfo) {
 
 // CreateDBConnection return created database connection
 func CreateDBConnection() *sql.DB {
-	url := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v", dbinfo.DBuser, dbinfo.DBpass, dbinfo.DBhost, dbinfo.DBport, dbinfo.DBname)
-	if dbinfo.DBxarg != "" {
-		url += "?" + dbinfo.DBxarg
+	url := ""
+	switch dbinfo.DBtype {
+	case "mysql":
+		url = fmt.Sprintf("%v:%v@tcp(%v:%v)/%v", dbinfo.DBuser, dbinfo.DBpass, dbinfo.DBhost, dbinfo.DBport, dbinfo.DBname)
+		if dbinfo.DBxarg != "" {
+			url += "?" + dbinfo.DBxarg
+		}
+	case "postgres":
+		url = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable options='%s'", dbinfo.DBhost, dbinfo.DBport, dbinfo.DBuser, dbinfo.DBpass, dbinfo.DBname, dbinfo.DBxarg)
 	}
+
 	db, err := sql.Open(dbinfo.DBtype, url)
 	if err != nil {
-		logger.FATAL("repository.go", "failed database connection")
+		logger.ERROR("repository.go", "failed database connection : "+err.Error())
 	}
-	logger.DEBUG("repository.go", "created database connection")
+	logger.DEBUG("repository.go", "created database connection : "+url)
 
 	return db
 }
