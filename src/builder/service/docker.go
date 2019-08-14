@@ -20,12 +20,12 @@ func init() {
 }
 
 // BuildByDockerfile is docker building by dockerfile
-func (d *DockerService) BuildByDockerfile(repoName string, encodedContents string) *model.BasicResult {
+func (d *DockerService) BuildByDockerfile(params *model.DockerBuildByFileParam) *model.BasicResult {
 	// needs using goroutine
 	// and saving log line by line
 
 	// decoding contents
-	decoded, err := base64.StdEncoding.DecodeString(encodedContents)
+	decoded, err := base64.StdEncoding.DecodeString(params.Contents)
 	if err != nil {
 		return &model.BasicResult{
 			Code:    constant.ResultFail,
@@ -41,16 +41,16 @@ func (d *DockerService) BuildByDockerfile(repoName string, encodedContents strin
 		}
 	}
 
-	return d.Build(repoName, path)
+	return d.Build(params.Name, path)
 }
 
 // BuildByGitRepository is docker building by git repository
-func (d *DockerService) BuildByGitRepository(repoName string, gitRepo string, userID string, encodedUserPW string) *model.BasicResult {
+func (d *DockerService) BuildByGitRepository(params *model.DockerBuildByGitParam) *model.BasicResult {
 	// needs using goroutine
 	// and saving log line by line
 
 	// decoding userPW
-	decoded, err := base64.StdEncoding.DecodeString(encodedUserPW)
+	decoded, err := base64.StdEncoding.DecodeString(params.UserPW)
 	if err != nil {
 		return &model.BasicResult{
 			Code:    constant.ResultFail,
@@ -60,7 +60,7 @@ func (d *DockerService) BuildByGitRepository(repoName string, gitRepo string, us
 
 	// not using go-routine (not yet)
 	// ch := make(chan string, 1)	// dirPath
-	path, err := fileManager.PullGitRepository(gitRepo, userID, string(decoded))
+	path, err := fileManager.PullGitRepository(params.GitRepository, params.UserID, string(decoded))
 	if err != nil {
 		return &model.BasicResult{
 			Code:    constant.ResultFail,
@@ -68,7 +68,7 @@ func (d *DockerService) BuildByGitRepository(repoName string, gitRepo string, us
 		}
 	}
 
-	return d.Build(repoName, path)
+	return d.Build(params.Name, path)
 }
 
 // Build is docker building by file path
@@ -85,26 +85,26 @@ func (d *DockerService) Build(repoName string, dockerfilePath string) *model.Bas
 }
 
 // Tag is image tagging
-func (d *DockerService) Tag(repoName string, oldTag string, newTag string) *model.BasicResult {
+func (d *DockerService) Tag(params *model.DockerTagParam) *model.BasicResult {
 
 	// needs using goroutine
 	// and saving log line by line
 
 	// sync
 	ch := make(chan model.BasicResult, 1)
-	go tagJob(ch, repoName, oldTag, newTag)
+	go tagJob(ch, params.Name, params.OldTag, params.NewTag)
 	r := <-ch
 
 	return &r
 }
 
 // Push is docker image pushing
-func (d *DockerService) Push(repoName string, tag string) *model.BasicResult {
+func (d *DockerService) Push(params *model.DockerPushParam) *model.BasicResult {
 	// needs using goroutine
 	// and saving log line by line
 
 	// async
-	go pushJob(repoName, tag)
+	go pushJob(params.Name, params.Tag)
 
 	// only ok
 	return &model.BasicResult{

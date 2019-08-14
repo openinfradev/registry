@@ -65,7 +65,7 @@ func buildByDockerFile(c *gin.Context) {
 	var params *model.DockerBuildByFileParam
 	c.BindJSON(&params)
 
-	r := dockerService.BuildByDockerfile(params.Name, params.Contents)
+	r := dockerService.BuildByDockerfile(params)
 
 	c.JSON(http.StatusOK, r)
 }
@@ -84,7 +84,7 @@ func buildByGitRepository(c *gin.Context) {
 	var params *model.DockerBuildByGitParam
 	c.BindJSON(&params)
 
-	r := dockerService.BuildByGitRepository(params.Name, params.GitRepository, params.UserID, params.UserPW)
+	r := dockerService.BuildByGitRepository(params)
 	c.JSON(http.StatusOK, r)
 }
 
@@ -101,7 +101,7 @@ func tagDockerImage(c *gin.Context) {
 	var params *model.DockerTagParam
 	c.BindJSON(&params)
 
-	r := dockerService.Tag(params.Name, params.OldTag, params.NewTag)
+	r := dockerService.Tag(params)
 	c.JSON(http.StatusOK, r)
 }
 
@@ -118,6 +118,6 @@ func pushDockerImage(c *gin.Context) {
 	var params *model.DockerPushParam
 	c.BindJSON(&params)
 
-	r := dockerService.Push(params.Name, params.Tag)
+	r := dockerService.Push(params)
 	c.JSON(http.StatusOK, r)
 }

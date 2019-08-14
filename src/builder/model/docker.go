@@ -2,12 +2,14 @@ package model
 
 // DockerBuildByFileParam is parameters for docker api
 type DockerBuildByFileParam struct {
+	BuildID  string `json:"build" binding:"required"`
 	Name     string `json:"name" binding:"required"`
 	Contents string `json:"contents" binding:"required"`
 }
 
 // DockerBuildByGitParam is parameters for docker api
 type DockerBuildByGitParam struct {
+	BuildID       string `json:"build" binding:"required"`
 	Name          string `json:"name" binding:"required"`
 	GitRepository string `json:"gitRepo" binding:"required"`
 	UserID        string `json:"userId" binding:"required"`
