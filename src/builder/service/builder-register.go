@@ -71,7 +71,7 @@ func (g *RegisterService) Sync() {
 	ticker := time.NewTicker(time.Second * 15)
 	go func() {
 		for t := range ticker.C {
-			// logger.DEBUG("service/builder-register.go", "Regist", t.String())
+			logger.DEBUG("service/builder-register.go", "Regist", t.String())
 			g.Regist()
 		}
 	}()
