@@ -9,7 +9,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os/exec"
-	"strconv"
 )
 
 // DockerService is docker command relative service
@@ -169,6 +168,7 @@ func buildJob(buildID string, repoName string, dockerfilePath string) {
 	build := exec.Command("docker", "build", "--no-cache", "-t", repoName, dockerfilePath)
 
 	seq := 0
+	rows := []model.BuildLogRow{}
 	stdout, _ := build.StdoutPipe()
 	build.Start()
 	scanner := bufio.NewScanner(stdout)
@@ -177,11 +177,15 @@ func buildJob(buildID string, repoName string, dockerfilePath string) {
 		m := scanner.Text()
 		row := &model.BuildLogRow{}
 		row.Parse(buildID, seq, m)
-		r := registryRepository.InsertBuildLog(row)
+		rows = append(rows, *row)
 		seq++
-		logger.DEBUG("service/docker.go", "buildJob", strconv.FormatBool(r)+"::"+m)
+		logger.DEBUG("service/docker.go", "buildJob", m)
 	}
 	build.Wait()
+
+	if len(rows) > 0 {
+		registryRepository.InsertBuildLogBatch(rows)
+	}
 
 	logger.DEBUG("service/docker.go", "buildJob", "buildJob end "+repoName)
 

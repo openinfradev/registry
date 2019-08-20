@@ -57,3 +57,18 @@ func (a *RegistryRepository) InsertBuildLog(row *model.BuildLogRow) bool {
 
 	return true
 }
+
+// InsertBuildLogBatch is build log insert rows batch
+func (a *RegistryRepository) InsertBuildLogBatch(rows []model.BuildLogRow) {
+	dbconn := CreateDBConnection()
+	defer CloseDBConnection(dbconn)
+
+	// rows count -> failed count??
+	for _, row := range rows {
+		_, err := dbconn.Exec("insert into build_log (build_id, seq, type, message, datetime) values ($1, $2, $3, $4, now())", row.BuildID, row.Seq, row.Type, row.Message)
+		if err != nil {
+			logger.ERROR("repository/taco-registry.go", "InsertBuildLog", err.Error())
+		}
+	}
+
+}
