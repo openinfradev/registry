@@ -18,6 +18,15 @@ func init() {
 			Request: health,
 		},
 	)
+
+	// test
+	addRequestMapping(
+		RequestMapper{
+			Method:  "GET",
+			Path:    "/test",
+			Request: test,
+		},
+	)
 }
 
 /*
@@ -36,4 +45,18 @@ func health(c *gin.Context) {
 		Code:    constant.ResultSuccess,
 		Message: "taco-registry-builder is healthy",
 	})
+}
+
+// test
+// @Summary test api
+// @Description test
+// @Name test
+// @Produce  json
+// @Router /test [get]
+// @Success 200
+func test(c *gin.Context) {
+	t := &model.BuildLogRow{}
+	t.Parse("build-id", 1, "Step    91111114444440   : EXPOSE 22")
+
+	c.JSON(http.StatusOK, t)
 }

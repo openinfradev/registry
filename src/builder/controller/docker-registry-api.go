@@ -41,14 +41,6 @@ func init() {
 		},
 	)
 
-	// registry repository test
-	addRequestMapping(
-		RequestMapper{
-			Method:  "GET",
-			Path:    "/registry/codes",
-			Request: getCommonCodes,
-		},
-	)
 }
 
 // getRegistryCatalog
@@ -109,18 +101,5 @@ func deleteRegistryRepository(c *gin.Context) {
 	tag := c.Query("tag")
 
 	r := registryService.DeleteRepository(repoName, tag)
-	c.JSON(http.StatusOK, r)
-}
-
-// getCommonCodes
-// @Summary docker registry test api
-// @Description docker registry test api
-// @Name getCommonCodes
-// @Accept json
-// @Produce  json
-// @Router /registry/codes [get]
-// @Success 200 {array} model.RegistryCommonCode
-func getCommonCodes(c *gin.Context) {
-	r := registryService.GetCommonCodes()
 	c.JSON(http.StatusOK, r)
 }

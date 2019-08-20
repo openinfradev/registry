@@ -169,29 +169,6 @@
                 }
             }
         },
-        "/registry/codes": {
-            "get": {
-                "description": "docker registry test api",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "docker registry test api",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.RegistryCommonCode"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/registry/repositories/{name}": {
             "get": {
                 "description": "docker registry repositories api",
@@ -255,6 +232,18 @@
                     }
                 }
             }
+        },
+        "/test": {
+            "get": {
+                "description": "test",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test api",
+                "responses": {
+                    "200": {}
+                }
+            }
         }
     },
     "definitions": {
@@ -283,10 +272,14 @@
         "model.DockerBuildByFileParam": {
             "type": "object",
             "required": [
+                "build",
                 "contents",
                 "name"
             ],
             "properties": {
+                "build": {
+                    "type": "string"
+                },
                 "contents": {
                     "type": "string"
                 },
@@ -298,12 +291,16 @@
         "model.DockerBuildByGitParam": {
             "type": "object",
             "required": [
+                "build",
                 "gitRepo",
                 "name",
                 "userId",
                 "userPw"
             ],
             "properties": {
+                "build": {
+                    "type": "string"
+                },
                 "gitRepo": {
                     "type": "string"
                 },
@@ -321,10 +318,14 @@
         "model.DockerPushParam": {
             "type": "object",
             "required": [
+                "build",
                 "name",
                 "tag"
             ],
             "properties": {
+                "build": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -336,11 +337,15 @@
         "model.DockerTagParam": {
             "type": "object",
             "required": [
+                "build",
                 "name",
                 "newTag",
                 "oldTag"
             ],
             "properties": {
+                "build": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -348,17 +353,6 @@
                     "type": "string"
                 },
                 "oldTag": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.RegistryCommonCode": {
-            "type": "object",
-            "properties": {
-                "codeName": {
-                    "type": "string"
-                },
-                "groupCode": {
                     "type": "string"
                 }
             }

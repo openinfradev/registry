@@ -21,7 +21,7 @@ var dbinfo *DBInfo
 
 // SetDBConnectionInfo is setting database basically information
 func SetDBConnectionInfo(info *DBInfo) {
-	logger.DEBUG("repository.go", "setting database connection information")
+	logger.DEBUG("repository/repository.go", "SetDBConnectionInfo", "setting database connection information")
 
 	dbinfo = info
 }
@@ -41,16 +41,16 @@ func CreateDBConnection() *sql.DB {
 
 	db, err := sql.Open(dbinfo.DBtype, url)
 	if err != nil {
-		logger.ERROR("repository.go", "failed database connection : "+err.Error())
+		logger.ERROR("repository/repository.go", "CreateDBConnection", "failed database connection : "+err.Error())
 	}
-	logger.DEBUG("repository.go", "created database connection : "+url)
+	logger.DEBUG("repository/repository.go", "CreateDBConnection", "created database connection : "+url)
 
 	return db
 }
 
 // CloseDBConnection is closing database connection
 func CloseDBConnection(dbconn *sql.DB) {
-	logger.DEBUG("repository.go", "closed database connection")
+	logger.DEBUG("repository/repository.go", "CloseDBConnection", "closed database connection")
 
 	dbconn.Close()
 }

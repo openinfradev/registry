@@ -3,7 +3,6 @@ package service
 import (
 	"builder/constant"
 	"builder/model"
-	"builder/repository"
 	"builder/util/logger"
 	"encoding/json"
 	"fmt"
@@ -14,10 +13,7 @@ import (
 // RegistryService is relative docker registry
 type RegistryService struct{}
 
-var registryRepository *repository.RegistryRepository
-
 func init() {
-	registryRepository = new(repository.RegistryRepository)
 }
 
 // GetCatalog returns docker registry catalog
@@ -160,15 +156,10 @@ func (d *RegistryService) DeleteRepository(repoName string, tag string) *model.B
 	ch := make(chan string, 1)
 	go garbageCollectJob(ch)
 	rr := <-ch
-	logger.DEBUG("docker-registry.go", rr)
+	logger.DEBUG("service/docker-registry.go", "DeleteRepository", rr)
 
 	return &model.BasicResult{
 		Code:    constant.ResultSuccess,
 		Message: string(r),
 	}
-}
-
-// GetCommonCodes returns test
-func (d *RegistryService) GetCommonCodes() []model.RegistryCommonCode {
-	return registryRepository.SelectCommonCodeList()
 }

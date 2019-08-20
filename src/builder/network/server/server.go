@@ -40,7 +40,7 @@ func New() *Instance {
 }
 
 func run(port string) {
-	logger.INFO("server.go", "started server on :"+port)
+	logger.INFO("network/server/server.go", "run", "started server on :"+port)
 	r.Run(":" + port)
 }
 

@@ -18,13 +18,15 @@ type DockerBuildByGitParam struct {
 
 // DockerTagParam is parameters for docker api
 type DockerTagParam struct {
-	Name   string `json:"name" binding:"required"`
-	OldTag string `json:"oldTag" binding:"required"`
-	NewTag string `json:"newTag" binding:"required"`
+	BuildID string `json:"build" binding:"required"`
+	Name    string `json:"name" binding:"required"`
+	OldTag  string `json:"oldTag" binding:"required"`
+	NewTag  string `json:"newTag" binding:"required"`
 }
 
 // DockerPushParam is parameters for docker api
 type DockerPushParam struct {
-	Name string `json:"name" binding:"required"`
-	Tag  string `json:"tag" binding:"required"`
+	BuildID string `json:"build" binding:"required"`
+	Name    string `json:"name" binding:"required"`
+	Tag     string `json:"tag" binding:"required"`
 }

@@ -27,7 +27,7 @@ func GetTimeMillisecond() string {
 func GetLocalIP() string {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
-		logger.ERROR("util.go", err.Error())
+		logger.ERROR("util/util.go", "GetLocalIP", err.Error())
 	}
 
 	for _, a := range addrs {
@@ -47,7 +47,7 @@ func GetOutboundIP() string {
 	// china not work
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
-		logger.ERROR("util.go", err.Error())
+		logger.ERROR("util/util.go", "GetOutboundIP", err.Error())
 		return ""
 	}
 

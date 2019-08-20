@@ -32,13 +32,13 @@ func ParseFlags() (*service.BasicInfo, *repository.DBInfo) {
 
 	flag.Parse()
 
-	logger.DEBUG("config.go", fmt.Sprintf("settings basic\n log.level[%d]\n service.port[%v]\n service.tmp[%v]", *loglevel, *port, *tmpPath))
-	logger.DEBUG("config.go", fmt.Sprintf("settings database\n db.host[%v]\n db.port[%v]\n db.user[%v]\n db.pass[%v]\n db.name[%v]\n db.xarg[%v]", *dbhost, *dbport, *dbuser, *dbpass, *dbname, *dbxarg))
-	logger.DEBUG("config.go", fmt.Sprintf("settings registry\n registry.name[%v]\n registry.insecure[%v]\n registry.endpoint[%v]", *registryName, *registryInsecure, *registryEndpoint))
-	logger.DEBUG("config.go", fmt.Sprintf("settings redis\n redis.endpoint[%v]", *redisEndpoint))
+	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings basic\n log.level[%d]\n service.port[%v]\n service.tmp[%v]", *loglevel, *port, *tmpPath))
+	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings database\n db.host[%v]\n db.port[%v]\n db.user[%v]\n db.pass[%v]\n db.name[%v]\n db.xarg[%v]", *dbhost, *dbport, *dbuser, *dbpass, *dbname, *dbxarg))
+	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings registry\n registry.name[%v]\n registry.insecure[%v]\n registry.endpoint[%v]", *registryName, *registryInsecure, *registryEndpoint))
+	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings redis\n redis.endpoint[%v]", *redisEndpoint))
 
 	if *dbhost == "" {
-		logger.FATAL("config.go", "Required Database Host Name")
+		logger.FATAL("config/config.go", "ParseFlags", "Required Database Host Name")
 	}
 
 	// log level

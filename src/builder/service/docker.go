@@ -4,19 +4,23 @@ import (
 	"bufio"
 	"builder/constant"
 	"builder/model"
+	"builder/repository"
 	"builder/util/logger"
 	"encoding/base64"
 	"fmt"
 	"os/exec"
+	"strconv"
 )
 
 // DockerService is docker command relative service
 type DockerService struct{}
 
 var fileManager *FileManager
+var registryRepository *repository.RegistryRepository
 
 func init() {
 	fileManager = new(FileManager)
+	registryRepository = new(repository.RegistryRepository)
 }
 
 // BuildByDockerfile is docker building by dockerfile
@@ -41,7 +45,7 @@ func (d *DockerService) BuildByDockerfile(params *model.DockerBuildByFileParam) 
 		}
 	}
 
-	return d.Build(params.Name, path)
+	return d.Build(params.BuildID, params.Name, path)
 }
 
 // BuildByGitRepository is docker building by git repository
@@ -68,14 +72,14 @@ func (d *DockerService) BuildByGitRepository(params *model.DockerBuildByGitParam
 		}
 	}
 
-	return d.Build(params.Name, path)
+	return d.Build(params.BuildID, params.Name, path)
 }
 
 // Build is docker building by file path
-func (d *DockerService) Build(repoName string, dockerfilePath string) *model.BasicResult {
+func (d *DockerService) Build(buildID string, repoName string, dockerfilePath string) *model.BasicResult {
 
 	// async
-	go buildJob(repoName, dockerfilePath)
+	go buildJob(buildID, repoName, dockerfilePath)
 
 	// only ok
 	return &model.BasicResult{
@@ -114,7 +118,7 @@ func (d *DockerService) Push(params *model.DockerPushParam) *model.BasicResult {
 }
 
 func pushJob(repoName string, tag string) {
-	logger.DEBUG("docker.go", fmt.Sprintf("pushJob start [%s:%s]", repoName, tag))
+	logger.DEBUG("service/docker.go", "pushJob", fmt.Sprintf("pushJob start [%s:%s]", repoName, tag))
 
 	repoName = basicinfo.RegistryEndpoint + "/" + repoName + ":" + tag
 	push := exec.Command("docker", "push", repoName)
@@ -127,15 +131,15 @@ func pushJob(repoName string, tag string) {
 	for scanner.Scan() {
 		m := scanner.Text()
 		r += m + "\n"
-		logger.DEBUG("docker.go push ", m)
+		logger.DEBUG("service/docker.go", "pushJob", m)
 	}
 	push.Wait()
 
-	logger.DEBUG("docker.go", fmt.Sprintf("pushJob end [%s]", repoName))
+	logger.DEBUG("service/docker.go", "pushJob", fmt.Sprintf("pushJob end [%s]", repoName))
 }
 
 func tagJob(ch chan<- model.BasicResult, repoName string, oldTag string, newTag string) {
-	logger.DEBUG("docker.go", fmt.Sprintf("tagJob [%s] [%s] to [%s]", repoName, oldTag, newTag))
+	logger.DEBUG("service/docker.go", "tagJob", fmt.Sprintf("tagJob [%s] [%s] to [%s]", repoName, oldTag, newTag))
 
 	result := &model.BasicResult{}
 
@@ -146,45 +150,47 @@ func tagJob(ch chan<- model.BasicResult, repoName string, oldTag string, newTag 
 
 	err := tag.Run()
 	if err != nil {
-		logger.ERROR("docker.go", "tagJob is failed")
+		logger.ERROR("service/docker.go", "tagJob", "tagJob is failed")
 		result.Code = constant.ResultFail
 		result.Message = ""
 		ch <- *result
 	} else {
-		logger.DEBUG("docker.go", "tagJob is success")
+		logger.DEBUG("service/docker.go", "tagJob", "tagJob is success")
 		result.Code = constant.ResultSuccess
 		result.Message = ""
 		ch <- *result
 	}
 }
 
-func buildJob(repoName string, dockerfilePath string) {
-	logger.DEBUG("docker.go", "buildJob start "+repoName)
+func buildJob(buildID string, repoName string, dockerfilePath string) {
+	logger.DEBUG("service/docker.go", "buildJob", "buildJob start "+repoName)
 
 	repoName = repoName + ":latest"
 	build := exec.Command("docker", "build", "--no-cache", "-t", repoName, dockerfilePath)
 
-	r := ""
+	seq := 0
 	stdout, _ := build.StdoutPipe()
 	build.Start()
 	scanner := bufio.NewScanner(stdout)
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
 		m := scanner.Text()
-		r += m + "\n"
-		logger.DEBUG("docker.go build", m)
+		row := &model.BuildLogRow{}
+		row.Parse(buildID, seq, m)
+		r := registryRepository.InsertBuildLog(row)
+		seq++
+		logger.DEBUG("service/docker.go", "buildJob", strconv.FormatBool(r)+"::"+m)
 	}
 	build.Wait()
 
-	// logger.DEBUG("docker.go", r)
-	logger.DEBUG("docker.go", "buildJob end "+repoName)
+	logger.DEBUG("service/docker.go", "buildJob", "buildJob end "+repoName)
 
 	// path removeall
 	fileManager.DeleteDirectory(dockerfilePath)
 }
 
 func garbageCollectJob(ch chan<- string) {
-	logger.DEBUG("docker.go", "garbage collect start")
+	logger.DEBUG("service/docker.go", "garbageCollectJob", "garbage collect start")
 
 	gc := exec.Command("docker", "exec", basicinfo.RegistryName, "bin/registry", "garbage-collect", "/etc/docker/registry/config.yml")
 
@@ -196,11 +202,11 @@ func garbageCollectJob(ch chan<- string) {
 	for scanner.Scan() {
 		m := scanner.Text()
 		r += m + "\n"
-		logger.DEBUG("docker.go garbage collect", m)
+		logger.DEBUG("service/docker.go", "garbageCollectJob", m)
 	}
 	gc.Wait()
 
-	logger.DEBUG("docker.go", "garbage collect end")
+	logger.DEBUG("service/docker.go", "garbageCollectJob", "garbage collect end")
 
 	ch <- r
 }

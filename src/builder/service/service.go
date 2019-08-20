@@ -18,7 +18,7 @@ var basicinfo *BasicInfo
 
 // SetBasicInfo is setting service information
 func SetBasicInfo(info *BasicInfo) {
-	logger.DEBUG("service.go", "setting service information")
+	logger.DEBUG("service/service.go", "SetBasicInfo", "setting service information")
 
 	basicinfo = info
 }
@@ -34,7 +34,7 @@ func (b *BasicInfo) GetRegistryURL(path string) string {
 	url += basicinfo.RegistryEndpoint
 	url += path
 
-	logger.DEBUG("service.go GetRegistryURL", url)
+	logger.DEBUG("service/service.go", "GetRegistryURL", url)
 
 	return url
 }

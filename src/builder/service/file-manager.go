@@ -25,7 +25,7 @@ func (f *FileManager) GetTemporaryPath() string {
 func (f *FileManager) DeleteDirectory(path string) {
 	err := os.RemoveAll(path)
 	if err != nil {
-		logger.ERROR("file-manager.go", err.Error())
+		logger.ERROR("service/file-manager.go", "DeleteDirectory", err.Error())
 	}
 }
 
@@ -46,7 +46,7 @@ func (f *FileManager) PullGitRepository(gitRepo string, userID string, userPW st
 	gitURL := fmt.Sprintf(constant.GitRepositoryURL, url.QueryEscape(userID), url.QueryEscape(userPW), gitRepo)
 	gitClone := exec.Command("git", "clone", gitURL, dirPath)
 
-	logger.DEBUG("file-manager.go", gitURL)
+	logger.DEBUG("service/file-manager.go", "PullGitRepository", gitURL)
 
 	// make stdout pipeline but anything doesn't printed.
 	stdout, err := gitClone.StdoutPipe()
@@ -58,7 +58,7 @@ func (f *FileManager) PullGitRepository(gitRepo string, userID string, userPW st
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
 		m := scanner.Text()
-		logger.DEBUG("file-manager.go git clone", m)
+		logger.DEBUG("service/file-manager.go", "PullGitRepository", m)
 	}
 	gitClone.Wait()
 

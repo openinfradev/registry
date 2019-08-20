@@ -16,16 +16,21 @@ definitions:
     type: object
   model.DockerBuildByFileParam:
     properties:
+      build:
+        type: string
       contents:
         type: string
       name:
         type: string
     required:
+    - build
     - contents
     - name
     type: object
   model.DockerBuildByGitParam:
     properties:
+      build:
+        type: string
       gitRepo:
         type: string
       name:
@@ -35,6 +40,7 @@ definitions:
       userPw:
         type: string
     required:
+    - build
     - gitRepo
     - name
     - userId
@@ -42,16 +48,21 @@ definitions:
     type: object
   model.DockerPushParam:
     properties:
+      build:
+        type: string
       name:
         type: string
       tag:
         type: string
     required:
+    - build
     - name
     - tag
     type: object
   model.DockerTagParam:
     properties:
+      build:
+        type: string
       name:
         type: string
       newTag:
@@ -59,16 +70,10 @@ definitions:
       oldTag:
         type: string
     required:
+    - build
     - name
     - newTag
     - oldTag
-    type: object
-  model.RegistryCommonCode:
-    properties:
-      codeName:
-        type: string
-      groupCode:
-        type: string
     type: object
   model.RepositoriesResult:
     properties:
@@ -198,21 +203,6 @@ paths:
           schema:
             $ref: '#/definitions/model.CatalogResult'
       summary: docker registry catalog api
-  /registry/codes:
-    get:
-      consumes:
-      - application/json
-      description: docker registry test api
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.RegistryCommonCode'
-            type: array
-      summary: docker registry test api
   /registry/repositories/{name}:
     delete:
       consumes:
@@ -256,4 +246,12 @@ paths:
           schema:
             $ref: '#/definitions/model.RepositoryResult'
       summary: docker registry repositories api
+  /test:
+    get:
+      description: test
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      summary: test api
 swagger: "2.0"
