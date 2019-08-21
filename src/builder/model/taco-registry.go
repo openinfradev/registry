@@ -10,11 +10,15 @@ type BuildLogRow struct {
 	Seq     int    `json:"seq"`
 	Message string `json:"message"`
 	Type    string `json:"type"`
+	Valid   bool
 }
 
 // Parse is raw log parsing
 func (b *BuildLogRow) Parse(buildID string, seq int, raw string) {
-	m, _ := regexp.MatchString("(Step)\\s+[0-9]+(/)[0-9]+\\s+(:)", raw)
+	v, _ := regexp.MatchString("^(Sending build context to Docker daemon)", raw)
+	b.Valid = !v
+
+	m, _ := regexp.MatchString("^(Step)\\s+[0-9]+(/)[0-9]+\\s+(:)", raw)
 	if m {
 		b.Type = "command"
 	}

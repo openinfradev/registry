@@ -65,9 +65,11 @@ func (a *RegistryRepository) InsertBuildLogBatch(rows []model.BuildLogRow) {
 
 	// rows count -> failed count??
 	for _, row := range rows {
-		_, err := dbconn.Exec("insert into build_log (build_id, seq, type, message, datetime) values ($1, $2, $3, $4, now())", row.BuildID, row.Seq, row.Type, row.Message)
-		if err != nil {
-			logger.ERROR("repository/taco-registry.go", "InsertBuildLog", err.Error())
+		if row.Valid {
+			_, err := dbconn.Exec("insert into build_log (build_id, seq, type, message, datetime) values ($1, $2, $3, $4, now())", row.BuildID, row.Seq, row.Type, row.Message)
+			if err != nil {
+				logger.ERROR("repository/taco-registry.go", "InsertBuildLog", err.Error())
+			}
 		}
 	}
 

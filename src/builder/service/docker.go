@@ -165,7 +165,7 @@ func buildJob(buildID string, repoName string, dockerfilePath string) {
 	logger.DEBUG("service/docker.go", "buildJob", "buildJob start "+repoName)
 
 	repoName = repoName + ":latest"
-	build := exec.Command("docker", "build", "--no-cache", "-t", repoName, dockerfilePath)
+	build := exec.Command("docker", "build", "--no-cache", "--network=host", "-t", repoName, dockerfilePath)
 
 	seq := 0
 	rows := []model.BuildLogRow{}
