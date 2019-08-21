@@ -193,6 +193,10 @@ func buildJob(buildID string, repoName string, dockerfilePath string, useCache b
 	repoName = repoName + ":latest"
 	var build *exec.Cmd
 	if useCache {
+		// phase - checking cache
+		p = tacoutil.MakePhaseLog(buildID, seq, tacoconst.PhaseCheckingCache.Status)
+		registryRepository.InsertBuildLog(p)
+
 		build = exec.Command("docker", "build", "--network=host", "-t", repoName, dockerfilePath)
 	} else {
 		build = exec.Command("docker", "build", "--no-cache", "--network=host", "-t", repoName, dockerfilePath)
