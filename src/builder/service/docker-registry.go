@@ -2,6 +2,7 @@ package service
 
 import (
 	"builder/constant"
+	urlconst "builder/constant/url"
 	"builder/model"
 	"builder/util/logger"
 	"encoding/json"
@@ -23,7 +24,7 @@ func (d *RegistryService) GetCatalog() *model.CatalogResult {
 
 	catalogResult := &model.CatalogResult{}
 
-	resp, err := http.Get(basicinfo.GetRegistryURL(constant.PathRegistryCatalog))
+	resp, err := http.Get(basicinfo.GetRegistryURL(urlconst.PathRegistryCatalog))
 	if err != nil {
 		return catalogResult
 	}
@@ -48,7 +49,7 @@ func (d *RegistryService) GetRepository(repoName string) *model.RepositoryResult
 
 	repositoryResult := &model.RepositoryResult{}
 
-	path := fmt.Sprintf(constant.PathRegistryTagList, repoName)
+	path := fmt.Sprintf(urlconst.PathRegistryTagList, repoName)
 	resp, err := http.Get(basicinfo.GetRegistryURL(path))
 	if err != nil {
 		return repositoryResult
@@ -92,7 +93,7 @@ func (d *RegistryService) GetRepositories() *model.RepositoriesResult {
 func (d *RegistryService) DeleteRepository(repoName string, tag string) *model.BasicResult {
 
 	// get digest
-	path := fmt.Sprintf(constant.PathRegistryManifest, repoName, tag)
+	path := fmt.Sprintf(urlconst.PathRegistryManifest, repoName, tag)
 	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
 	if err != nil {
 		return &model.BasicResult{
@@ -122,7 +123,7 @@ func (d *RegistryService) DeleteRepository(repoName string, tag string) *model.B
 	}
 
 	// delete by digest
-	path = fmt.Sprintf(constant.PathRegistryManifest, repoName, digest)
+	path = fmt.Sprintf(urlconst.PathRegistryManifest, repoName, digest)
 	req, err = http.NewRequest("DELETE", basicinfo.GetRegistryURL(path), nil)
 	if err != nil {
 		return &model.BasicResult{

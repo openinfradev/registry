@@ -55,8 +55,7 @@ func health(c *gin.Context) {
 // @Router /test [get]
 // @Success 200
 func test(c *gin.Context) {
-	t := &model.BuildLogRow{}
-	t.Parse("build-id", 1, "Step    91111114444440   : EXPOSE 22")
+	// t := taco.ParseLog("build-id", 1, "Step    91111114444440   : EXPOSE 22")
 
-	c.JSON(http.StatusOK, t)
+	// c.JSON(http.StatusOK, t)
 }

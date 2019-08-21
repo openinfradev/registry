@@ -2,7 +2,7 @@ package service
 
 import (
 	"bufio"
-	"builder/constant"
+	urlconst "builder/constant/url"
 	"builder/util"
 	"builder/util/logger"
 	"errors"
@@ -43,7 +43,7 @@ func (f *FileManager) WriteDockerfile(contents string) (string, error) {
 // PullGitRepository returns pulled git repository dockerfile path
 func (f *FileManager) PullGitRepository(gitRepo string, userID string, userPW string) (string, error) {
 	dirPath := f.GetTemporaryPath()
-	gitURL := fmt.Sprintf(constant.GitRepositoryURL, url.QueryEscape(userID), url.QueryEscape(userPW), gitRepo)
+	gitURL := fmt.Sprintf(urlconst.GitRepositoryURL, url.QueryEscape(userID), url.QueryEscape(userPW), gitRepo)
 	gitClone := exec.Command("git", "clone", gitURL, dirPath)
 
 	logger.DEBUG("service/file-manager.go", "PullGitRepository", gitURL)

@@ -3,9 +3,11 @@ package service
 import (
 	"bufio"
 	"builder/constant"
+	tacoconst "builder/constant/taco"
 	"builder/model"
 	"builder/repository"
 	"builder/util/logger"
+	tacoutil "builder/util/taco"
 	"encoding/base64"
 	"fmt"
 	"os/exec"
@@ -26,6 +28,10 @@ func init() {
 func (d *DockerService) BuildByDockerfile(params *model.DockerBuildByFileParam) *model.BasicResult {
 	// needs using goroutine
 	// and saving log line by line
+
+	// phase - pulling
+	p := tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhasePulling.StartSeq, tacoconst.PhasePulling.Status)
+	registryRepository.InsertBuildLog(p)
 
 	// decoding contents
 	decoded, err := base64.StdEncoding.DecodeString(params.Contents)
@@ -51,6 +57,10 @@ func (d *DockerService) BuildByDockerfile(params *model.DockerBuildByFileParam) 
 func (d *DockerService) BuildByGitRepository(params *model.DockerBuildByGitParam) *model.BasicResult {
 	// needs using goroutine
 	// and saving log line by line
+
+	// phase - pulling
+	p := tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhasePulling.StartSeq, tacoconst.PhasePulling.Status)
+	registryRepository.InsertBuildLog(p)
 
 	// decoding userPW
 	decoded, err := base64.StdEncoding.DecodeString(params.UserPW)
@@ -164,21 +174,25 @@ func tagJob(ch chan<- model.BasicResult, repoName string, oldTag string, newTag 
 func buildJob(buildID string, repoName string, dockerfilePath string) {
 	logger.DEBUG("service/docker.go", "buildJob", "buildJob start "+repoName)
 
+	seq := tacoconst.PhaseBuilding.StartSeq
+
+	// phase - build
+	p := tacoutil.MakePhaseLog(buildID, seq, tacoconst.PhaseBuilding.Status)
+	registryRepository.InsertBuildLog(p)
+
 	repoName = repoName + ":latest"
 	build := exec.Command("docker", "build", "--no-cache", "--network=host", "-t", repoName, dockerfilePath)
 
-	seq := 0
 	rows := []model.BuildLogRow{}
 	stdout, _ := build.StdoutPipe()
 	build.Start()
 	scanner := bufio.NewScanner(stdout)
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
-		m := scanner.Text()
-		row := &model.BuildLogRow{}
-		row.Parse(buildID, seq, m)
-		rows = append(rows, *row)
 		seq++
+		m := scanner.Text()
+		row := tacoutil.ParseLog(buildID, seq, m)
+		rows = append(rows, *row)
 		logger.DEBUG("service/docker.go", "buildJob", m)
 	}
 	build.Wait()
@@ -191,6 +205,10 @@ func buildJob(buildID string, repoName string, dockerfilePath string) {
 
 	// path removeall
 	fileManager.DeleteDirectory(dockerfilePath)
+
+	// phase - complete
+	p = tacoutil.MakePhaseLog(buildID, tacoconst.PhaseComplete.StartSeq, tacoconst.PhaseComplete.Status)
+	registryRepository.InsertBuildLog(p)
 }
 
 func garbageCollectJob(ch chan<- string) {
