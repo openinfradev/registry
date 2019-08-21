@@ -29,8 +29,8 @@ func (d *DockerService) BuildByDockerfile(params *model.DockerBuildByFileParam) 
 	// needs using goroutine
 	// and saving log line by line
 
-	// phase - pulling
-	p := tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhasePulling.StartSeq, tacoconst.PhasePulling.Status)
+	// phase - preparing
+	p := tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhasePreparing.StartSeq, tacoconst.PhasePreparing.Status)
 	registryRepository.InsertBuildLog(p)
 
 	// decoding contents
@@ -41,6 +41,10 @@ func (d *DockerService) BuildByDockerfile(params *model.DockerBuildByFileParam) 
 			Message: "contents isn't base64 encoded",
 		}
 	}
+
+	// phase - unpacking
+	p = tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhaseUnpacking.StartSeq, tacoconst.PhaseUnpacking.Status)
+	registryRepository.InsertBuildLog(p)
 
 	path, err := fileManager.WriteDockerfile(string(decoded))
 	if err != nil {
@@ -58,8 +62,8 @@ func (d *DockerService) BuildByGitRepository(params *model.DockerBuildByGitParam
 	// needs using goroutine
 	// and saving log line by line
 
-	// phase - pulling
-	p := tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhasePulling.StartSeq, tacoconst.PhasePulling.Status)
+	// phase - preparing
+	p := tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhasePreparing.StartSeq, tacoconst.PhasePreparing.Status)
 	registryRepository.InsertBuildLog(p)
 
 	// decoding userPW
@@ -70,6 +74,10 @@ func (d *DockerService) BuildByGitRepository(params *model.DockerBuildByGitParam
 			Message: "userPW isn't base64 encoded",
 		}
 	}
+
+	// phase - unpacking
+	p = tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhaseUnpacking.StartSeq, tacoconst.PhaseUnpacking.Status)
+	registryRepository.InsertBuildLog(p)
 
 	// not using go-routine (not yet)
 	// ch := make(chan string, 1)	// dirPath
@@ -177,13 +185,15 @@ func buildJob(buildID string, repoName string, dockerfilePath string) {
 	seq := tacoconst.PhaseBuilding.StartSeq
 
 	// phase - build
+	// updating build phase
+	registryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseBuilding.Status)
 	p := tacoutil.MakePhaseLog(buildID, seq, tacoconst.PhaseBuilding.Status)
 	registryRepository.InsertBuildLog(p)
 
 	repoName = repoName + ":latest"
 	build := exec.Command("docker", "build", "--no-cache", "--network=host", "-t", repoName, dockerfilePath)
 
-	rows := []model.BuildLogRow{}
+	// rows := []model.BuildLogRow{}
 	stdout, _ := build.StdoutPipe()
 	build.Start()
 	scanner := bufio.NewScanner(stdout)
@@ -192,14 +202,16 @@ func buildJob(buildID string, repoName string, dockerfilePath string) {
 		seq++
 		m := scanner.Text()
 		row := tacoutil.ParseLog(buildID, seq, m)
-		rows = append(rows, *row)
+		registryRepository.InsertBuildLog(row)
+		// rows = append(rows, *row)
 		logger.DEBUG("service/docker.go", "buildJob", m)
 	}
 	build.Wait()
 
-	if len(rows) > 0 {
-		registryRepository.InsertBuildLogBatch(rows)
-	}
+	// wrong...
+	// if len(rows) > 0 {
+	// 	registryRepository.InsertBuildLogBatch(rows)
+	// }
 
 	logger.DEBUG("service/docker.go", "buildJob", "buildJob end "+repoName)
 
@@ -207,6 +219,8 @@ func buildJob(buildID string, repoName string, dockerfilePath string) {
 	fileManager.DeleteDirectory(dockerfilePath)
 
 	// phase - complete
+	// updating build phase
+	registryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseComplete.Status)
 	p = tacoutil.MakePhaseLog(buildID, tacoconst.PhaseComplete.StartSeq, tacoconst.PhaseComplete.Status)
 	registryRepository.InsertBuildLog(p)
 }

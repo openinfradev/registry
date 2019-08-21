@@ -44,21 +44,36 @@ type RegistryRepository struct{}
 // 	return codeList
 // }
 
+// UpdateBuildPhase is build phase changing
+func (a *RegistryRepository) UpdateBuildPhase(buildID string, phase string) bool {
+	dbconn := CreateDBConnection()
+	defer CloseDBConnection(dbconn)
+
+	_, err := dbconn.Exec("update build set phase=$1 where id=$2", phase, buildID)
+	if err != nil {
+		logger.ERROR("repository/taco-registry.go", "UpdateBuildPhase", err.Error())
+		return false
+	}
+	return true
+}
+
 // InsertBuildLog is build log insert row to row
 func (a *RegistryRepository) InsertBuildLog(row *model.BuildLogRow) bool {
 	dbconn := CreateDBConnection()
 	defer CloseDBConnection(dbconn)
 
-	_, err := dbconn.Exec("insert into build_log (build_id, seq, type, message, datetime) values ($1, $2, $3, $4, now())", row.BuildID, row.Seq, row.Type, row.Message)
-	if err != nil {
-		logger.ERROR("repository/taco-registry.go", "InsertBuildLog", err.Error())
-		return false
+	if row.Valid {
+		_, err := dbconn.Exec("insert into build_log (build_id, seq, type, message, datetime) values ($1, $2, $3, $4, now())", row.BuildID, row.Seq, row.Type, row.Message)
+		if err != nil {
+			logger.ERROR("repository/taco-registry.go", "InsertBuildLog", err.Error())
+			return false
+		}
+		return true
 	}
-
-	return true
+	return false
 }
 
-// InsertBuildLogBatch is build log insert rows batch
+// InsertBuildLogBatch is build log insert rows batch - wrong
 func (a *RegistryRepository) InsertBuildLogBatch(rows []model.BuildLogRow) {
 	dbconn := CreateDBConnection()
 	defer CloseDBConnection(dbconn)
@@ -68,9 +83,8 @@ func (a *RegistryRepository) InsertBuildLogBatch(rows []model.BuildLogRow) {
 		if row.Valid {
 			_, err := dbconn.Exec("insert into build_log (build_id, seq, type, message, datetime) values ($1, $2, $3, $4, now())", row.BuildID, row.Seq, row.Type, row.Message)
 			if err != nil {
-				logger.ERROR("repository/taco-registry.go", "InsertBuildLog", err.Error())
+				logger.ERROR("repository/taco-registry.go", "InsertBuildLogBatch", err.Error())
 			}
 		}
 	}
-
 }

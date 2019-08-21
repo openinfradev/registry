@@ -6,10 +6,22 @@ type Phase struct {
 	StartSeq int
 }
 
-// PhasePulling is pulling phase
-var PhasePulling = &Phase{
-	Status:   "pulling",
+// PhasePreparing is pulling phase
+var PhasePreparing = &Phase{
+	Status:   "build-scheduled",
 	StartSeq: 0,
+}
+
+// PhaseUnpacking is pulling phase
+var PhaseUnpacking = &Phase{
+	Status:   "unpacking",
+	StartSeq: 10,
+}
+
+// PhaseCheckingCache is pulling phase
+var PhaseCheckingCache = &Phase{
+	Status:   "checking-cache",
+	StartSeq: 50,
 }
 
 // PhaseBuilding is building phase
