@@ -285,6 +285,9 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "useCache": {
+                    "type": "boolean"
                 }
             }
         },
@@ -306,6 +309,9 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "useCache": {
+                    "type": "boolean"
                 },
                 "userId": {
                     "type": "string"

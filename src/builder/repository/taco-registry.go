@@ -52,6 +52,7 @@ func (a *RegistryRepository) UpdateBuildPhase(buildID string, phase string) bool
 	_, err := dbconn.Exec("update build set phase=$1 where id=$2", phase, buildID)
 	if err != nil {
 		logger.ERROR("repository/taco-registry.go", "UpdateBuildPhase", err.Error())
+		logger.ERROR("repository/taco-registry.go", "UpdateBuildPhase", buildID+"::"+phase)
 		return false
 	}
 	return true
@@ -66,6 +67,7 @@ func (a *RegistryRepository) InsertBuildLog(row *model.BuildLogRow) bool {
 		_, err := dbconn.Exec("insert into build_log (build_id, seq, type, message, datetime) values ($1, $2, $3, $4, now())", row.BuildID, row.Seq, row.Type, row.Message)
 		if err != nil {
 			logger.ERROR("repository/taco-registry.go", "InsertBuildLog", err.Error())
+			logger.ERROR("repository/taco-registry.go", "InsertBuildLog", row.BuildID+"::"+string(row.Seq)+"::"+row.Message)
 			return false
 		}
 		return true

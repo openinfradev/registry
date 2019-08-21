@@ -93,8 +93,17 @@ func (d *RegistryService) GetRepositories() *model.RepositoriesResult {
 func (d *RegistryService) DeleteRepository(repoName string, tag string) *model.BasicResult {
 
 	// get digest
-	path := fmt.Sprintf(urlconst.PathRegistryManifest, repoName, tag)
-	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
+	digest := d.GetDigest(repoName, tag)
+	if digest == "" {
+		return &model.BasicResult{
+			Code:    constant.ResultFail,
+			Message: "",
+		}
+	}
+
+	// delete by digest
+	path := fmt.Sprintf(urlconst.PathRegistryManifest, repoName, digest)
+	req, err := http.NewRequest("DELETE", basicinfo.GetRegistryURL(path), nil)
 	if err != nil {
 		return &model.BasicResult{
 			Code:    constant.ResultFail,
@@ -106,36 +115,6 @@ func (d *RegistryService) DeleteRepository(repoName string, tag string) *model.B
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
-	if err != nil {
-		return &model.BasicResult{
-			Code:    constant.ResultFail,
-			Message: "",
-		}
-	}
-	defer resp.Body.Close()
-
-	digest := resp.Header.Get("Docker-Content-Digest")
-	if digest == "" {
-		return &model.BasicResult{
-			Code:    constant.ResultFail,
-			Message: "",
-		}
-	}
-
-	// delete by digest
-	path = fmt.Sprintf(urlconst.PathRegistryManifest, repoName, digest)
-	req, err = http.NewRequest("DELETE", basicinfo.GetRegistryURL(path), nil)
-	if err != nil {
-		return &model.BasicResult{
-			Code:    constant.ResultFail,
-			Message: "",
-		}
-	}
-
-	req.Header.Add("Accept", "application/vnd.docker.distribution.manifest.v2+json")
-
-	client = &http.Client{}
-	resp, err = client.Do(req)
 	if err != nil {
 		return &model.BasicResult{
 			Code:    constant.ResultFail,
@@ -163,4 +142,26 @@ func (d *RegistryService) DeleteRepository(repoName string, tag string) *model.B
 		Code:    constant.ResultSuccess,
 		Message: string(r),
 	}
+}
+
+// GetDigest returns repository:tag digest
+func (d *RegistryService) GetDigest(repoName string, tag string) string {
+
+	path := fmt.Sprintf(urlconst.PathRegistryManifest, repoName, tag)
+	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
+	if err != nil {
+		return ""
+	}
+
+	req.Header.Add("Accept", "application/vnd.docker.distribution.manifest.v2+json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return ""
+	}
+	defer resp.Body.Close()
+
+	digest := resp.Header.Get("Docker-Content-Digest")
+	return digest
 }

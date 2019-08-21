@@ -54,7 +54,7 @@ func (d *DockerService) BuildByDockerfile(params *model.DockerBuildByFileParam) 
 		}
 	}
 
-	return d.Build(params.BuildID, params.Name, path)
+	return d.Build(params.BuildID, params.Name, path, params.UseCache)
 }
 
 // BuildByGitRepository is docker building by git repository
@@ -89,14 +89,14 @@ func (d *DockerService) BuildByGitRepository(params *model.DockerBuildByGitParam
 		}
 	}
 
-	return d.Build(params.BuildID, params.Name, path)
+	return d.Build(params.BuildID, params.Name, path, params.UseCache)
 }
 
 // Build is docker building by file path
-func (d *DockerService) Build(buildID string, repoName string, dockerfilePath string) *model.BasicResult {
+func (d *DockerService) Build(buildID string, repoName string, dockerfilePath string, useCache bool) *model.BasicResult {
 
 	// async
-	go buildJob(buildID, repoName, dockerfilePath)
+	go buildJob(buildID, repoName, dockerfilePath, useCache)
 
 	// only ok
 	return &model.BasicResult{
@@ -179,7 +179,7 @@ func tagJob(ch chan<- model.BasicResult, repoName string, oldTag string, newTag 
 	}
 }
 
-func buildJob(buildID string, repoName string, dockerfilePath string) {
+func buildJob(buildID string, repoName string, dockerfilePath string, useCache bool) {
 	logger.DEBUG("service/docker.go", "buildJob", "buildJob start "+repoName)
 
 	seq := tacoconst.PhaseBuilding.StartSeq
@@ -191,9 +191,13 @@ func buildJob(buildID string, repoName string, dockerfilePath string) {
 	registryRepository.InsertBuildLog(p)
 
 	repoName = repoName + ":latest"
-	build := exec.Command("docker", "build", "--no-cache", "--network=host", "-t", repoName, dockerfilePath)
+	var build *exec.Cmd
+	if useCache {
+		build = exec.Command("docker", "build", "--network=host", "-t", repoName, dockerfilePath)
+	} else {
+		build = exec.Command("docker", "build", "--no-cache", "--network=host", "-t", repoName, dockerfilePath)
+	}
 
-	// rows := []model.BuildLogRow{}
 	stdout, _ := build.StdoutPipe()
 	build.Start()
 	scanner := bufio.NewScanner(stdout)
@@ -203,15 +207,10 @@ func buildJob(buildID string, repoName string, dockerfilePath string) {
 		m := scanner.Text()
 		row := tacoutil.ParseLog(buildID, seq, m)
 		registryRepository.InsertBuildLog(row)
-		// rows = append(rows, *row)
+
 		logger.DEBUG("service/docker.go", "buildJob", m)
 	}
 	build.Wait()
-
-	// wrong...
-	// if len(rows) > 0 {
-	// 	registryRepository.InsertBuildLogBatch(rows)
-	// }
 
 	logger.DEBUG("service/docker.go", "buildJob", "buildJob end "+repoName)
 
