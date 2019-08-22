@@ -18,10 +18,12 @@ type DockerService struct{}
 
 var fileManager *FileManager
 var registryRepository *repository.RegistryRepository
+var registryService *RegistryService
 
 func init() {
 	fileManager = new(FileManager)
 	registryRepository = new(repository.RegistryRepository)
+	registryService = new(RegistryService)
 }
 
 // BuildByDockerfile is docker building by dockerfile
@@ -112,6 +114,8 @@ func (d *DockerService) Build(buildID string, repoName string, dockerfilePath st
 
 // BuildAndPush is docker build and push
 func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName string, dockerfilePath string, useCache bool) {
+	// fixed "latest"
+	tag := "latest"
 
 	proc := make(chan string)
 	// build
@@ -123,7 +127,7 @@ func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName 
 	}
 
 	// tag
-	go tagJob(proc, repoName, "latest", "latest")
+	go tagJob(proc, repoName, tag, tag)
 	r = <-proc
 	if r == constant.ResultFail {
 		procBuildError(buildID)
@@ -136,7 +140,7 @@ func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName 
 	p := tacoutil.MakePhaseLog(buildID, tacoconst.PhasePushing.StartSeq, tacoconst.PhasePushing.Status)
 	registryRepository.InsertBuildLog(p)
 
-	go pushJob(proc, repoName, "latest")
+	go pushJob(proc, repoName, tag)
 	r = <-proc
 	if r == constant.ResultFail {
 		procBuildError(buildID)
@@ -144,7 +148,7 @@ func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName 
 	}
 
 	// phase - complete
-	procBuildComplete(buildID)
+	procBuildComplete(buildID, repoName, tag)
 	ch <- constant.ResultSuccess
 }
 
@@ -314,14 +318,34 @@ func garbageCollectJob(ch chan<- string) {
 	ch <- r
 }
 
-func procBuildComplete(buildID string) {
+func procBuildComplete(buildID string, repoName string, tag string) {
+	// digest & size
+	digest := registryService.GetDigest(repoName, tag)
+	size := getImageSize(repoName, tag)
+	registryRepository.UpdateTagDigest(buildID, digest, size)
+
 	registryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseComplete.Status)
 	p := tacoutil.MakePhaseLog(buildID, tacoconst.PhaseComplete.StartSeq, tacoconst.PhaseComplete.Status)
 	registryRepository.InsertBuildLog(p)
 }
 
 func procBuildError(buildID string) {
+	registryRepository.DeleteUsageLog(buildID)
+	registryRepository.DeleteTag(buildID)
+
 	registryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseError.Status)
 	p := tacoutil.MakePhaseLog(buildID, tacoconst.PhaseError.StartSeq, tacoconst.PhaseError.Status)
 	registryRepository.InsertBuildLog(p)
+}
+
+func getImageSize(repoName string, tag string) string {
+
+	repo := basicinfo.RegistryEndpoint + "/" + repoName + ":" + tag
+	cmd := "docker images --filter=reference='" + repo + "' --format \"{{.Size}}\""
+	stdout, err := exec.Command("/bin/sh", "-c", cmd).Output()
+	if err != nil {
+		logger.ERROR("service/docker.go", "getImageSize", err.Error())
+		return "0"
+	}
+	return string(stdout)
 }

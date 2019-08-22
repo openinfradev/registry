@@ -67,7 +67,7 @@ func (a *RegistryRepository) InsertBuildLog(row *model.BuildLogRow) bool {
 		_, err := dbconn.Exec("insert into build_log (build_id, seq, type, message, datetime) values ($1, $2, $3, $4, now())", row.BuildID, row.Seq, row.Type, row.Message)
 		if err != nil {
 			logger.ERROR("repository/taco-registry.go", "InsertBuildLog", err.Error())
-			logger.ERROR("repository/taco-registry.go", "InsertBuildLog", row.BuildID+"::"+string(row.Seq)+"::"+row.Message)
+			logger.ERROR("repository/taco-registry.go", "InsertBuildLog", row.BuildID+"::"+row.Message)
 			return false
 		}
 		return true
@@ -89,4 +89,43 @@ func (a *RegistryRepository) InsertBuildLogBatch(rows []model.BuildLogRow) {
 			}
 		}
 	}
+}
+
+// UpdateTagDigest is digest and size updating in tag table
+func (a *RegistryRepository) UpdateTagDigest(buildID string, digest string, size string) bool {
+	dbconn := CreateDBConnection()
+	defer CloseDBConnection(dbconn)
+
+	_, err := dbconn.Exec("update tag set manifest_digest=$1, size=$2 where build_id=$3 and name='latest' and (end_time is null or end_time > now())", digest, size, buildID)
+	if err != nil {
+		logger.ERROR("repository/taco-registry.go", "UpdateTagDigest", err.Error())
+		return false
+	}
+	return true
+}
+
+// DeleteUsageLog is usage log deleting
+func (a *RegistryRepository) DeleteUsageLog(buildID string) bool {
+	dbconn := CreateDBConnection()
+	defer CloseDBConnection(dbconn)
+
+	_, err := dbconn.Exec("delete from usage_log where build_id=$1 and kind='create_tag' and tag='latest'", buildID)
+	if err != nil {
+		logger.ERROR("repository/taco-registry.go", "DeleteUsageLog", err.Error())
+		return false
+	}
+	return true
+}
+
+// DeleteTag is tag deleting
+func (a *RegistryRepository) DeleteTag(buildID string) bool {
+	dbconn := CreateDBConnection()
+	defer CloseDBConnection(dbconn)
+
+	_, err := dbconn.Exec("delete from tag where build_id=$1 and name='latest'", buildID)
+	if err != nil {
+		logger.ERROR("repository/taco-registry.go", "DeleteTag", err.Error())
+		return false
+	}
+	return true
 }
