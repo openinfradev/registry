@@ -5,7 +5,8 @@ type DockerBuildByFileParam struct {
 	BuildID  string `json:"build" binding:"required"`
 	Name     string `json:"name" binding:"required"`
 	Contents string `json:"contents" binding:"required"`
-	UseCache bool   `json:"useCache"`
+	UseCache bool   `json:"useCache" binding:"required"`
+	Push     bool   `json:"push" binding:"required"`
 }
 
 // DockerBuildByGitParam is parameters for docker api
@@ -15,7 +16,8 @@ type DockerBuildByGitParam struct {
 	GitRepository string `json:"gitRepo" binding:"required"`
 	UserID        string `json:"userId" binding:"required"`
 	UserPW        string `json:"userPw" binding:"required"`
-	UseCache      bool   `json:"useCache"`
+	UseCache      bool   `json:"useCache" binding:"required"`
+	Push          bool   `json:"push" binding:"required"`
 }
 
 // DockerTagParam is parameters for docker api

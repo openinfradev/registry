@@ -54,7 +54,7 @@ func (d *DockerService) BuildByDockerfile(params *model.DockerBuildByFileParam) 
 		}
 	}
 
-	return d.Build(params.BuildID, params.Name, path, params.UseCache)
+	return d.Build(params.BuildID, params.Name, path, params.UseCache, params.Push)
 }
 
 // BuildByGitRepository is docker building by git repository
@@ -89,20 +89,63 @@ func (d *DockerService) BuildByGitRepository(params *model.DockerBuildByGitParam
 		}
 	}
 
-	return d.Build(params.BuildID, params.Name, path, params.UseCache)
+	return d.Build(params.BuildID, params.Name, path, params.UseCache, params.Push)
 }
 
 // Build is docker building by file path
-func (d *DockerService) Build(buildID string, repoName string, dockerfilePath string, useCache bool) *model.BasicResult {
+func (d *DockerService) Build(buildID string, repoName string, dockerfilePath string, useCache bool, push bool) *model.BasicResult {
 
 	// async
-	go buildJob(buildID, repoName, dockerfilePath, useCache)
+	ch := make(chan string)
+	if push {
+		go d.BuildAndPush(ch, buildID, repoName, dockerfilePath, useCache)
+	} else {
+		go buildJob(ch, buildID, repoName, dockerfilePath, useCache)
+	}
 
 	// only ok
 	return &model.BasicResult{
 		Code:    constant.ResultSuccess,
 		Message: "",
 	}
+}
+
+// BuildAndPush is docker build and push
+func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName string, dockerfilePath string, useCache bool) {
+
+	proc := make(chan string)
+	// build
+	go buildJob(proc, buildID, repoName, dockerfilePath, useCache)
+	r := <-proc
+	if r == constant.ResultFail {
+		procBuildError(buildID)
+		ch <- constant.ResultFail
+	}
+
+	// tag
+	go tagJob(proc, repoName, "latest", "latest")
+	r = <-proc
+	if r == constant.ResultFail {
+		procBuildError(buildID)
+		ch <- constant.ResultFail
+	}
+
+	// push
+	// phase - push
+	registryRepository.UpdateBuildPhase(buildID, tacoconst.PhasePushing.Status)
+	p := tacoutil.MakePhaseLog(buildID, tacoconst.PhasePushing.StartSeq, tacoconst.PhasePushing.Status)
+	registryRepository.InsertBuildLog(p)
+
+	go pushJob(proc, repoName, "latest")
+	r = <-proc
+	if r == constant.ResultFail {
+		procBuildError(buildID)
+		ch <- constant.ResultFail
+	}
+
+	// phase - complete
+	procBuildComplete(buildID)
+	ch <- constant.ResultSuccess
 }
 
 // Tag is image tagging
@@ -112,11 +155,14 @@ func (d *DockerService) Tag(params *model.DockerTagParam) *model.BasicResult {
 	// and saving log line by line
 
 	// sync
-	ch := make(chan model.BasicResult, 1)
+	ch := make(chan string)
 	go tagJob(ch, params.Name, params.OldTag, params.NewTag)
 	r := <-ch
 
-	return &r
+	return &model.BasicResult{
+		Code:    r,
+		Message: "",
+	}
 }
 
 // Push is docker image pushing
@@ -125,7 +171,8 @@ func (d *DockerService) Push(params *model.DockerPushParam) *model.BasicResult {
 	// and saving log line by line
 
 	// async
-	go pushJob(params.Name, params.Tag)
+	ch := make(chan string)
+	go pushJob(ch, params.Name, params.Tag)
 
 	// only ok
 	return &model.BasicResult{
@@ -134,7 +181,7 @@ func (d *DockerService) Push(params *model.DockerPushParam) *model.BasicResult {
 	}
 }
 
-func pushJob(repoName string, tag string) {
+func pushJob(ch chan<- string, repoName string, tag string) {
 	logger.DEBUG("service/docker.go", "pushJob", fmt.Sprintf("pushJob start [%s:%s]", repoName, tag))
 
 	repoName = basicinfo.RegistryEndpoint + "/" + repoName + ":" + tag
@@ -142,6 +189,7 @@ func pushJob(repoName string, tag string) {
 
 	r := ""
 	stdout, _ := push.StdoutPipe()
+	stderr, _ := push.StderrPipe()
 	push.Start()
 	scanner := bufio.NewScanner(stdout)
 	scanner.Split(bufio.ScanLines)
@@ -150,15 +198,23 @@ func pushJob(repoName string, tag string) {
 		r += m + "\n"
 		logger.DEBUG("service/docker.go", "pushJob", m)
 	}
+	errscan := bufio.NewScanner(stderr)
+	errscan.Split(bufio.ScanLines)
+	for errscan.Scan() {
+		m := errscan.Text()
+		logger.ERROR("service/docker.go", "buildJob", m)
+
+		ch <- constant.ResultFail
+	}
 	push.Wait()
+
+	ch <- constant.ResultSuccess
 
 	logger.DEBUG("service/docker.go", "pushJob", fmt.Sprintf("pushJob end [%s]", repoName))
 }
 
-func tagJob(ch chan<- model.BasicResult, repoName string, oldTag string, newTag string) {
+func tagJob(ch chan<- string, repoName string, oldTag string, newTag string) {
 	logger.DEBUG("service/docker.go", "tagJob", fmt.Sprintf("tagJob [%s] [%s] to [%s]", repoName, oldTag, newTag))
-
-	result := &model.BasicResult{}
 
 	oldRepo := repoName + ":" + oldTag
 	newRepo := basicinfo.RegistryEndpoint + "/" + repoName + ":" + newTag
@@ -168,18 +224,14 @@ func tagJob(ch chan<- model.BasicResult, repoName string, oldTag string, newTag 
 	err := tag.Run()
 	if err != nil {
 		logger.ERROR("service/docker.go", "tagJob", "tagJob is failed")
-		result.Code = constant.ResultFail
-		result.Message = ""
-		ch <- *result
+		ch <- constant.ResultFail
 	} else {
 		logger.DEBUG("service/docker.go", "tagJob", "tagJob is success")
-		result.Code = constant.ResultSuccess
-		result.Message = ""
-		ch <- *result
+		ch <- constant.ResultSuccess
 	}
 }
 
-func buildJob(buildID string, repoName string, dockerfilePath string, useCache bool) {
+func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath string, useCache bool) {
 	logger.DEBUG("service/docker.go", "buildJob", "buildJob start "+repoName)
 
 	seq := tacoconst.PhaseBuilding.StartSeq
@@ -203,6 +255,7 @@ func buildJob(buildID string, repoName string, dockerfilePath string, useCache b
 	}
 
 	stdout, _ := build.StdoutPipe()
+	stderr, _ := build.StderrPipe()
 	build.Start()
 	scanner := bufio.NewScanner(stdout)
 	scanner.Split(bufio.ScanLines)
@@ -214,18 +267,29 @@ func buildJob(buildID string, repoName string, dockerfilePath string, useCache b
 
 		logger.DEBUG("service/docker.go", "buildJob", m)
 	}
-	build.Wait()
+	errscan := bufio.NewScanner(stderr)
+	errscan.Split(bufio.ScanLines)
+	for errscan.Scan() {
+		seq++
+		m := errscan.Text()
+		errrow := tacoutil.ParseLog(buildID, seq, m)
+		errrow.Type = "error"
+		registryRepository.InsertBuildLog(errrow)
+		logger.ERROR("service/docker.go", "buildJob", m)
+		// path removeall - because of breaking
+		fileManager.DeleteDirectory(dockerfilePath)
 
-	logger.DEBUG("service/docker.go", "buildJob", "buildJob end "+repoName)
+		ch <- constant.ResultFail
+	}
+
+	build.Wait()
 
 	// path removeall
 	fileManager.DeleteDirectory(dockerfilePath)
 
-	// phase - complete
-	// updating build phase
-	registryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseComplete.Status)
-	p = tacoutil.MakePhaseLog(buildID, tacoconst.PhaseComplete.StartSeq, tacoconst.PhaseComplete.Status)
-	registryRepository.InsertBuildLog(p)
+	ch <- constant.ResultSuccess
+
+	logger.DEBUG("service/docker.go", "buildJob", "buildJob end "+repoName)
 }
 
 func garbageCollectJob(ch chan<- string) {
@@ -248,4 +312,16 @@ func garbageCollectJob(ch chan<- string) {
 	logger.DEBUG("service/docker.go", "garbageCollectJob", "garbage collect end")
 
 	ch <- r
+}
+
+func procBuildComplete(buildID string) {
+	registryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseComplete.Status)
+	p := tacoutil.MakePhaseLog(buildID, tacoconst.PhaseComplete.StartSeq, tacoconst.PhaseComplete.Status)
+	registryRepository.InsertBuildLog(p)
+}
+
+func procBuildError(buildID string) {
+	registryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseError.Status)
+	p := tacoutil.MakePhaseLog(buildID, tacoconst.PhaseError.StartSeq, tacoconst.PhaseError.Status)
+	registryRepository.InsertBuildLog(p)
 }
