@@ -152,15 +152,45 @@ func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName 
 	ch <- constant.ResultSuccess
 }
 
+// PullAndTag is docker image pulling and tagging
+func (d *DockerService) PullAndTag(ch chan<- string, params *model.DockerTagParam) {
+	proc := make(chan string)
+	logger.DEBUG("service/docker.go", "PullAndTag", fmt.Sprintf("start %s from %s to %s", params.Name, params.OldTag, params.NewTag))
+
+	// 1. pull
+	go pullJob(proc, params.Name, params.OldTag)
+	r := <-proc
+	if r == constant.ResultFail {
+		logger.ERROR("service/docker.go", "PullAndTag", "failed to pulling docker image")
+		ch <- constant.ResultFail
+	}
+
+	// 2. tag
+	go tagJob(proc, params.Name, params.OldTag, params.NewTag)
+	r = <-proc
+	if r == constant.ResultFail {
+		logger.ERROR("service/docker.go", "PullAndTag", "failed to tagging docker image")
+		ch <- constant.ResultFail
+	}
+
+	// 3. push
+	go pushJob(proc, params.Name, params.NewTag)
+	r = <-proc
+	if r == constant.ResultFail {
+		logger.ERROR("service/docker.go", "PullAndTag", "failed to pushing docker image")
+		ch <- constant.ResultFail
+	}
+
+	logger.DEBUG("service/docker.go", "PullAndTag", fmt.Sprintf("end %s from %s to %s", params.Name, params.OldTag, params.NewTag))
+	ch <- constant.ResultSuccess
+}
+
 // Tag is image tagging
 func (d *DockerService) Tag(params *model.DockerTagParam) *model.BasicResult {
 
-	// needs using goroutine
-	// and saving log line by line
-
 	// sync
 	ch := make(chan string)
-	go tagJob(ch, params.Name, params.OldTag, params.NewTag)
+	go d.PullAndTag(ch, params)
 	r := <-ch
 
 	return &model.BasicResult{
@@ -185,6 +215,38 @@ func (d *DockerService) Push(params *model.DockerPushParam) *model.BasicResult {
 	}
 }
 
+func pullJob(ch chan<- string, repoName string, tag string) {
+	logger.DEBUG("service/docker.go", "pullJob", fmt.Sprintf("pullJob start [%s:%s]", repoName, tag))
+
+	repoName = basicinfo.RegistryEndpoint + "/" + repoName + ":" + tag
+	pull := exec.Command("docker", "pull", repoName)
+
+	r := ""
+	stdout, _ := pull.StdoutPipe()
+	stderr, _ := pull.StderrPipe()
+	pull.Start()
+	scanner := bufio.NewScanner(stdout)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		m := scanner.Text()
+		r += m + "\n"
+		logger.DEBUG("service/docker.go", "pullJob", m)
+	}
+	errscan := bufio.NewScanner(stderr)
+	errscan.Split(bufio.ScanLines)
+	for errscan.Scan() {
+		m := errscan.Text()
+		logger.ERROR("service/docker.go", "pullJob", m)
+
+		ch <- constant.ResultFail
+	}
+	pull.Wait()
+
+	ch <- constant.ResultSuccess
+
+	logger.DEBUG("service/docker.go", "pullJob", fmt.Sprintf("pullJob end [%s]", repoName))
+}
+
 func pushJob(ch chan<- string, repoName string, tag string) {
 	logger.DEBUG("service/docker.go", "pushJob", fmt.Sprintf("pushJob start [%s:%s]", repoName, tag))
 
@@ -206,7 +268,7 @@ func pushJob(ch chan<- string, repoName string, tag string) {
 	errscan.Split(bufio.ScanLines)
 	for errscan.Scan() {
 		m := errscan.Text()
-		logger.ERROR("service/docker.go", "buildJob", m)
+		logger.ERROR("service/docker.go", "pushJob", m)
 
 		ch <- constant.ResultFail
 	}
