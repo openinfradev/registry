@@ -1,4 +1,3 @@
-basePath: '{{.BasePath}}'
 definitions:
   model.BasicResult:
     properties:
@@ -22,12 +21,16 @@ definitions:
         type: string
       name:
         type: string
+      push:
+        type: boolean
       useCache:
         type: boolean
     required:
     - build
     - contents
     - name
+    - push
+    - useCache
     type: object
   model.DockerBuildByGitParam:
     properties:
@@ -37,6 +40,8 @@ definitions:
         type: string
       name:
         type: string
+      push:
+        type: boolean
       useCache:
         type: boolean
       userId:
@@ -47,6 +52,8 @@ definitions:
     - build
     - gitRepo
     - name
+    - push
+    - useCache
     - userId
     - userPw
     type: object
@@ -95,13 +102,9 @@ definitions:
           type: string
         type: array
     type: object
-host: '{{.Host}}'
 info:
   contact: {}
-  description: '{{.Description}}'
   license: {}
-  title: '{{.Title}}'
-  version: '{{.Version}}'
 paths:
   /docker/build/file:
     post:

@@ -1,14 +1,9 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "{{.Description}}",
-        "title": "{{.Title}}",
         "contact": {},
-        "license": {},
-        "version": "{{.Version}}"
+        "license": {}
     },
-    "host": "{{.Host}}",
-    "basePath": "{{.BasePath}}",
     "paths": {
         "/docker/build/file": {
             "post": {
@@ -274,7 +269,9 @@
             "required": [
                 "build",
                 "contents",
-                "name"
+                "name",
+                "push",
+                "useCache"
             ],
             "properties": {
                 "build": {
@@ -285,6 +282,9 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "push": {
+                    "type": "boolean"
                 },
                 "useCache": {
                     "type": "boolean"
@@ -297,6 +297,8 @@
                 "build",
                 "gitRepo",
                 "name",
+                "push",
+                "useCache",
                 "userId",
                 "userPw"
             ],
@@ -309,6 +311,9 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "push": {
+                    "type": "boolean"
                 },
                 "useCache": {
                     "type": "boolean"
