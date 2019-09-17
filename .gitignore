@@ -7,4 +7,6 @@ src/gopkg.in/
 
 src/builder/__debug_bin
 
+src/auth_server/
+
 .DS_Store
