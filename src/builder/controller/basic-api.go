@@ -3,6 +3,9 @@ package controller
 import (
 	"builder/constant"
 	"builder/model"
+	"builder/util/logger"
+	tokenutil "builder/util/token"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -41,6 +44,10 @@ func init() {
 // @Router /health [get]
 // @Success 200 {object} model.BasicResult
 func health(c *gin.Context) {
+	t := "Basic ZXhudHU6ZXhudHUxMjM="
+	bt, _ := tokenutil.ParseBasicToken(t)
+	logger.DEBUG("controller/basic-api.go", "health", fmt.Sprintf("raw[%s] username[%s] password[%s]", bt.Raw, bt.Username, bt.Password))
+
 	c.JSON(http.StatusOK, &model.BasicResult{
 		Code:    constant.ResultSuccess,
 		Message: "taco-registry-builder is healthy",
