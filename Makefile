@@ -14,4 +14,4 @@ build:
 	CGO_ENABLED=0 go build -v --ldflags=--s -o builder src/builder/main.go
 
 docker-build:
-	docker build --network host -t taco/builder:latest .
+	docker build --network=host --no-cache -t taco/builder:latest .
