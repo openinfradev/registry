@@ -11,7 +11,7 @@ deps:
 	go get -u github.com/alecthomas/template
 
 build:
-	CGO_ENABLED=0 go build -v --ldflags=--s -o builder src/builder/main.go
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -v --ldflags=--s -o builder src/builder/main.go
 
 docker-build:
-	docker build --network=host --no-cache -t taco/builder:latest .
+	docker build --network=host --no-cache -t taco-registry/builder:latest .

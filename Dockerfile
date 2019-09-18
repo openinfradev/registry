@@ -1,16 +1,19 @@
 # Taco-Registry Builder
 FROM golang:latest
-
 LABEL maintainer="linus lee <linus@exntu.com>"
 
-WORKDIR /go/src/builder
+RUN mkdir -p /work
+ENV GOPATH /work
+WORKDIR /work
 
-ADD src src
-#COPY ./src/builder ./
+COPY . .
 
-#RUN go mod download
+RUN make deps
+RUN make build
 
-RUN go build -o builder ./src/builder/main.go
+RUN cp ./builder /
+WORKDIR /
+RUN rm -rf /work
 
 EXPOSE 4000
 
