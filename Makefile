@@ -14,7 +14,7 @@ build:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --ldflags=--s -o builder src/builder/main.go
 
 dbuild:
-	docker build --network=host --no-cache -t taco-registry/builder:latest ./Dockerfile
+	docker build --network=host --no-cache -t taco-registry/builder:latest . -f ./Dockerfile
 
 dbuild-slim:
-	docker build --network=host --no-cache -t taco-registry/builder:latest ./Dockerfile_slim
+	docker build --network=host --no-cache -t taco-registry/builder:latest . -f ./Dockerfile_slim

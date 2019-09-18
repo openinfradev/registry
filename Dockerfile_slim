@@ -2,7 +2,7 @@
 FROM scratch
 LABEL maintainer="linus lee <linus@exntu.com>"
 
-WORDIR /
+WORKDIR /
 COPY ./builder .
 
 EXPOSE 4000
