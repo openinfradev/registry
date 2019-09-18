@@ -1,0 +1,10 @@
+# Taco-Registry Builder slim
+FROM scratch
+LABEL maintainer="linus lee <linus@exntu.com>"
+
+WORDIR /
+COPY ./builder .
+
+EXPOSE 4000
+
+CMD ["./builder"]
