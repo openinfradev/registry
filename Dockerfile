@@ -7,4 +7,4 @@ COPY ./builder .
 
 EXPOSE 4000
 
-CMD ["./builder"]
+ENTRYPOINT ["./builder"]
