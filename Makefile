@@ -12,4 +12,6 @@ deps:
 
 build:
 	CGO_ENABLED=0 go build -v --ldflags=--s -o builder src/builder/main.go
-	
+
+docker-build:
+	docker build --network host -t taco/builder:latest .
