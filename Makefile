@@ -1,5 +1,6 @@
 
 deps:
+	@echo "Pulling dependency libraries."
 	go get -u github.com/go-sql-driver/mysql
 	go get -u github.com/lib/pq
 	go get -u github.com/gin-gonic/gin
@@ -11,10 +12,9 @@ deps:
 	go get -u github.com/alecthomas/template
 
 build:
+	@echo "Building taco-registry Builder."
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --ldflags=--s -o builder src/builder/main.go
 
-dbuild:
-	docker build --network=host --no-cache -t taco-registry/builder:latest . -f ./Dockerfile
-
-dbuild-slim:
-	docker build --network=host --no-cache -t taco-registry/builder:latest . -f ./Dockerfile_slim
+docker-build: deps build
+	@echo "Making Builder docker image."
+	docker build --network=host --no-cache -t taco-registry/builder:latest .

@@ -1,19 +1,9 @@
 # Taco-Registry Builder
-FROM golang:latest
+FROM scratch
 LABEL maintainer="linus lee <linus@exntu.com>"
 
-RUN mkdir -p /work
-ENV GOPATH /work
-WORKDIR /work
-
-COPY . .
-
-RUN make deps
-RUN make build
-
-RUN cp ./builder /
 WORKDIR /
-RUN rm -rf /work
+COPY ./builder .
 
 EXPOSE 4000
 
