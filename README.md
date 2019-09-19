@@ -19,7 +19,7 @@ $ sudo apt install -y build-essential
 
 #### Docker build
 ```
-move taco-registry-builder directory
+(move taco-registry-builder directory)
 $ make docker-build
 ```
 
