@@ -11,6 +11,7 @@ type BasicInfo struct {
 	RegistryEndpoint string
 	TemporaryPath    string
 	RedisEndpoint    string
+	ServiceDomain    string
 	ServicePort      string
 }
 

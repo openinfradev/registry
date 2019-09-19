@@ -27,12 +27,13 @@ func ParseFlags() (*service.BasicInfo, *repository.DBInfo) {
 
 	redisEndpoint := flag.String("redis.endpoint", "localhost:6379", "Redis Endpoint")
 
+	domain := flag.String("service.domain", "localhost", "Builder Service Domain")
 	port := flag.String("service.port", "4000", "Builder Service Port")
 	tmpPath := flag.String("service.tmp", "/tmp/builder", "Builder Service Temporary Path")
 
 	flag.Parse()
 
-	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings basic\n log.level[%d]\n service.port[%v]\n service.tmp[%v]", *loglevel, *port, *tmpPath))
+	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings basic\n log.level[%d]\n service.domain[%v]\n service.port[%v]\n service.tmp[%v]", *loglevel, *domain, *port, *tmpPath))
 	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings database\n db.host[%v]\n db.port[%v]\n db.user[%v]\n db.pass[%v]\n db.name[%v]\n db.xarg[%v]", *dbhost, *dbport, *dbuser, *dbpass, *dbname, *dbxarg))
 	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings registry\n registry.name[%v]\n registry.insecure[%v]\n registry.endpoint[%v]", *registryName, *registryInsecure, *registryEndpoint))
 	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings redis\n redis.endpoint[%v]", *redisEndpoint))
@@ -60,6 +61,7 @@ func ParseFlags() (*service.BasicInfo, *repository.DBInfo) {
 		RegistryEndpoint: *registryEndpoint,
 		TemporaryPath:    *tmpPath,
 		RedisEndpoint:    *redisEndpoint,
+		ServiceDomain:    *domain,
 		ServicePort:      *port,
 	}
 	return &basicinfo, &dbinfo

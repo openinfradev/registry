@@ -2,7 +2,6 @@ package service
 
 import (
 	"builder/model"
-	"builder/util"
 	"builder/util/logger"
 	"encoding/json"
 	"strconv"
@@ -42,8 +41,12 @@ func (g *RegisterService) Regist() {
 	builderList := &model.BuilderList{}
 	json.Unmarshal([]byte(builderListJSON), &builderList)
 	port, _ := strconv.Atoi(basicinfo.ServicePort)
+	// self := &model.Builder{
+	// 	Host: util.GetOutboundIP(),
+	// 	Port: port,
+	// }
 	self := &model.Builder{
-		Host: util.GetOutboundIP(),
+		Host: basicinfo.ServiceDomain,
 		Port: port,
 	}
 	exist := false

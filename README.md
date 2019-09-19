@@ -46,6 +46,7 @@ $ docker run -d -p 4000:4000 \
     -registry.insecure=true \
     -registry.endpoint=exntu.kr:25000 \
     -redis.endpoint=exntu.kr:26379 \
+    -service.domain=localhost \
     -service.port=4000 \
     -service.tmp=/tmp
 ```
