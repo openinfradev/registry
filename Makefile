@@ -17,6 +17,10 @@ build:
 
 docker-build:
 	@echo "### Making Builder docker image."
-	docker build --network=host --no-cache -t taco-registry/builder:latest .
+	docker build --network=host --no-cache -t taco-registry/builder:latest . -f ./Dockerfile.multi
 
 all: deps build docker-build
+
+docker-build-single:
+	@echo "### Making Builder docker image."
+	docker build --network=host --no-cache -t taco-registry/builder:latest . -f ./Dockerfile
