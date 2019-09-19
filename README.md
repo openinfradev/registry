@@ -6,11 +6,15 @@ Docker Build
 ------------
 
 #### Git clone
-> $ git clone https://starlkj@tde.sktelecom.com/stash/scm/oreotools/taco-registry-builder.git
+<code> 
+    $ git clone https://starlkj@tde.sktelecom.com/stash/scm/oreotools/taco-registry-builder.git
+</code>
 
 #### GCC
-> $ sudo apt -y update
-  $ sudo apt install -y build-essential
+``` 
+$ sudo apt -y update
+$ sudo apt install -y build-essential
+```
 
 #### Docker build
 > move taco-registry-builder directory
