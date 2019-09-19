@@ -1,14 +1,15 @@
 Taco-Registry Builder Project
 =============================
 
+---------------------------------------
 
 Docker Build
 ------------
 
 #### Git clone
-<code> 
-    $ git clone https://starlkj@tde.sktelecom.com/stash/scm/oreotools/taco-registry-builder.git
-</code>
+``` 
+$ git clone https://starlkj@tde.sktelecom.com/stash/scm/oreotools/taco-registry-builder.git
+```
 
 #### GCC
 ``` 
@@ -17,15 +18,19 @@ $ sudo apt install -y build-essential
 ```
 
 #### Docker build
-> move taco-registry-builder directory
-  $ make docker-build
+```
+move taco-registry-builder directory
+$ make docker-build
+```
 
+---------------------------------------
 
 Docker Deploy
 -------------
 
 #### Docker run
-> $ docker run -d -p 4000:4000 \
+```
+$ docker run -d -p 4000:4000 \
     -v /var/run/docker.sock:/var/run/docker.sock \
     --restart=always --name builder \
     taco-registry/builder:v2 \
@@ -43,3 +48,4 @@ Docker Deploy
     -redis.endpoint=exntu.kr:26379 \
     -service.port=4000 \
     -service.tmp=/tmp
+```
