@@ -50,3 +50,28 @@ $ docker run -d -p 4000:4000 \
     -service.port=4000 \
     -service.tmp=/tmp
 ```
+
+---------------------------------------
+
+Binary Deploy
+-------------
+
+#### Run (Only : Ubuntu 18.04 amd64 arch)
+```
+$ ./builder \
+    -log.level=0 \
+    -db.type=postgres \
+    -db.host=exntu.kr \
+    -db.port=25432 \
+    -db.user=registry \
+    -db.pass=registry1234\$\$ \
+    -db.name=registry \
+    -db.xarg= \
+    -registry.name=taco-registry \
+    -registry.insecure=true \
+    -registry.endpoint=exntu.kr:25000 \
+    -redis.endpoint=exntu.kr:26379 \
+    -service.domain=localhost \
+    -service.port=4000 \
+    -service.tmp=/tmp
+```
