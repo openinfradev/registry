@@ -33,6 +33,17 @@ $ sudo apt install -y build-essential
 $ make deps
 ```
 
+## Swagger Documents
+* generate documents
+```
+$ cd src/builder
+$ ../../bin/swag init
+```
+* swagger documents page url
+```
+http://<builder domain>:<builder port>/swagger/index.html
+```
+
 ## Binary Build
 
 #### Build
