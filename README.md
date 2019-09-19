@@ -1,6 +1,7 @@
 Taco-Registry Builder Project
 =============================
-
+\n
+---------------------------------------
 
 Docker Build
 ------------
@@ -21,7 +22,8 @@ $ sudo apt install -y build-essential
 (move taco-registry-builder directory)
 $ make docker-build
 ```
-
+\n
+---------------------------------------
 
 Docker Deploy
 -------------
@@ -48,7 +50,8 @@ $ docker run -d -p 4000:4000 \
     -service.port=4000 \
     -service.tmp=/tmp
 ```
-
+\n
+---------------------------------------
 
 Binary Deploy
 -------------
