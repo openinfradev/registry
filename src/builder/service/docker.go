@@ -11,6 +11,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os/exec"
+	"strings"
 )
 
 // DockerService is docker command relative service
@@ -28,8 +29,6 @@ func init() {
 
 // BuildByDockerfile is docker building by dockerfile
 func (d *DockerService) BuildByDockerfile(params *model.DockerBuildByFileParam) *model.BasicResult {
-	// needs using goroutine
-	// and saving log line by line
 
 	// phase - preparing
 	p := tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhasePreparing.StartSeq, tacoconst.PhasePreparing.Status)
@@ -61,8 +60,6 @@ func (d *DockerService) BuildByDockerfile(params *model.DockerBuildByFileParam) 
 
 // BuildByGitRepository is docker building by git repository
 func (d *DockerService) BuildByGitRepository(params *model.DockerBuildByGitParam) *model.BasicResult {
-	// needs using goroutine
-	// and saving log line by line
 
 	// phase - preparing
 	p := tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhasePreparing.StartSeq, tacoconst.PhasePreparing.Status)
@@ -201,8 +198,6 @@ func (d *DockerService) Tag(params *model.DockerTagParam) *model.BasicResult {
 
 // Push is docker image pushing
 func (d *DockerService) Push(params *model.DockerPushParam) *model.BasicResult {
-	// needs using goroutine
-	// and saving log line by line
 
 	// async
 	ch := make(chan string)
@@ -212,6 +207,42 @@ func (d *DockerService) Push(params *model.DockerPushParam) *model.BasicResult {
 	return &model.BasicResult{
 		Code:    constant.ResultSuccess,
 		Message: "",
+	}
+}
+
+// Login is registry logged in
+func (d *DockerService) Login() *model.BasicResult {
+
+	ch := make(chan string)
+	go loginJob(ch)
+	r := <-ch
+
+	return &model.BasicResult{
+		Code:    r,
+		Message: "",
+	}
+}
+
+func loginJob(ch chan<- string) {
+
+	login := exec.Command("docker", "login", basicinfo.RegistryEndpoint, "--username", tacoconst.BuilderUser, "--password", tacoconst.BuilderPass)
+	r := ""
+	stdout, _ := login.StdoutPipe()
+	login.Start()
+	scanner := bufio.NewScanner(stdout)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		m := scanner.Text()
+		r += m + "\n"
+	}
+	login.Wait()
+
+	if strings.Contains(r, tacoconst.LoginSucceeded) {
+		logger.DEBUG("service/docker.go", "loginJob", fmt.Sprintf("[%s] logged in succeeded", basicinfo.RegistryEndpoint))
+		ch <- constant.ResultSuccess
+	} else {
+		logger.DEBUG("service/docker.go", "loginJob", fmt.Sprintf("[%s] logged in failed", basicinfo.RegistryEndpoint))
+		ch <- constant.ResultFail
 	}
 }
 

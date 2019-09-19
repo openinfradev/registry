@@ -14,19 +14,6 @@ import (
 
 func main() {
 
-	// generate swagger documents
-	// if runtime.GOOS != "windows" {
-	// 	swag := exec.Command("../../bin/swag", "init")
-	// 	err := swag.Run()
-	// 	if err != nil {
-	// 		logger.ERROR("main.go", "Failed to generate swagger documents")
-	// 	} else {
-	// 		logger.INFO("main.go", "Generate Swagger Documents")
-	// 	}
-	// } else {
-	// 	logger.INFO("main.go", "Skipped Generate Swagger Documents in Windows")
-	// }
-
 	basicinfo, dbinfo := config.ParseFlags()
 
 	// programatically set swagger info
@@ -52,6 +39,10 @@ func main() {
 	// redis builder list sync
 	registerService := new(service.RegisterService)
 	go registerService.Sync()
+
+	// docker login
+	dockerService := new(service.DockerService)
+	go dockerService.Login()
 
 	// server run
 	server.Run(basicinfo.ServicePort)

@@ -41,6 +41,7 @@ func (g *RegisterService) Regist() {
 	builderList := &model.BuilderList{}
 	json.Unmarshal([]byte(builderListJSON), &builderList)
 	port, _ := strconv.Atoi(basicinfo.ServicePort)
+	// ???
 	// self := &model.Builder{
 	// 	Host: util.GetOutboundIP(),
 	// 	Port: port,

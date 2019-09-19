@@ -19,8 +19,6 @@ func init() {
 
 // GetCatalog returns docker registry catalog
 func (d *RegistryService) GetCatalog() *model.CatalogResult {
-	// needs admin logon
-	// needs token
 
 	catalogResult := &model.CatalogResult{}
 
@@ -44,8 +42,6 @@ func (d *RegistryService) GetCatalog() *model.CatalogResult {
 
 // GetRepository returns repository included tags
 func (d *RegistryService) GetRepository(repoName string) *model.RepositoryResult {
-	// needs admin logon
-	// needs token
 
 	repositoryResult := &model.RepositoryResult{}
 
@@ -70,8 +66,6 @@ func (d *RegistryService) GetRepository(repoName string) *model.RepositoryResult
 
 // GetRepositories returns repositories included tags
 func (d *RegistryService) GetRepositories() *model.RepositoriesResult {
-	// needs admin logon
-	// needs token
 
 	repositories := []model.RepositoryResult{}
 	catalog := d.GetCatalog()

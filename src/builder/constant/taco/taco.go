@@ -1,5 +1,14 @@
 package taco
 
+// BuilderUser is builder registry user
+const BuilderUser string = "builder"
+
+// BuilderPass is builder registry user password
+const BuilderPass string = "YnVpbGRlcg=="
+
+// LoginSucceeded is docker login success result string
+const LoginSucceeded string = "Login Succeeded"
+
 // Phase is taco registry build log phase
 type Phase struct {
 	Status   string
