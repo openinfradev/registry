@@ -43,6 +43,7 @@ func (d *RegistryService) GetCatalog() *model.CatalogResult {
 // GetRepository returns repository included tags
 func (d *RegistryService) GetRepository(repoName string) *model.RepositoryResult {
 
+	repositoryRaw := &model.RepositoryRaw{}
 	repositoryResult := &model.RepositoryResult{}
 
 	path := fmt.Sprintf(urlconst.PathRegistryTagList, repoName)
@@ -59,7 +60,21 @@ func (d *RegistryService) GetRepository(repoName string) *model.RepositoryResult
 	}
 
 	// err ignore
-	json.Unmarshal(r, repositoryResult)
+	json.Unmarshal(r, repositoryRaw)
+	repositoryResult.Name = repositoryRaw.Name
+	tags := []model.TagResult{}
+	if repositoryRaw.Tags != nil && len(repositoryRaw.Tags) > 0 {
+		for _, tagName := range repositoryRaw.Tags {
+			digest := d.GetDigest(repoName, tagName)
+			logger.DEBUG("service/docker-registry.go", "GetRepository", fmt.Sprintf("%s:%s : digest [%s]", repoName, tagName, digest))
+			tag := &model.TagResult{
+				Name:   tagName,
+				Digest: digest,
+			}
+			tags = append(tags, *tag)
+		}
+	}
+	repositoryResult.Tags = tags
 
 	return repositoryResult
 }
@@ -72,7 +87,7 @@ func (d *RegistryService) GetRepositories() *model.RepositoriesResult {
 	for _, repoName := range catalog.Repositories {
 		repository := d.GetRepository(repoName)
 		// skipped tag which is null(or nil)
-		if repository.Tags != nil {
+		if repository.Tags != nil && len(repository.Tags) > 0 {
 			repositories = append(repositories, *repository)
 		}
 	}

@@ -35,7 +35,7 @@ func (b *BasicInfo) GetRegistryURL(path string) string {
 	url += basicinfo.RegistryEndpoint
 	url += path
 
-	logger.DEBUG("service/service.go", "GetRegistryURL", url)
+	// logger.DEBUG("service/service.go", "GetRegistryURL", url)
 
 	return url
 }
