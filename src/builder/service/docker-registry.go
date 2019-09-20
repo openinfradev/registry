@@ -99,7 +99,25 @@ func (d *RegistryService) GetRepositories() *model.RepositoriesResult {
 }
 
 // DeleteRepository is repository deleting
-func (d *RegistryService) DeleteRepository(repoName string, tag string) *model.BasicResult {
+func (d *RegistryService) DeleteRepository(repoName string) *model.BasicResult {
+	repo := d.GetRepository(repoName)
+	if repo.Tags == nil || len(repo.Tags) < 1 {
+		return &model.BasicResult{
+			Code:    constant.ResultFail,
+			Message: "",
+		}
+	}
+	for _, tag := range repo.Tags {
+		d.DeleteRepositoryTag(repoName, tag.Name)
+	}
+	return &model.BasicResult{
+		Code:    constant.ResultSuccess,
+		Message: "",
+	}
+}
+
+// DeleteRepositoryTag is repository tag deleting
+func (d *RegistryService) DeleteRepositoryTag(repoName string, tag string) *model.BasicResult {
 
 	// get digest
 	digest := d.GetDigest(repoName, tag)
@@ -173,4 +191,66 @@ func (d *RegistryService) GetDigest(repoName string, tag string) string {
 
 	digest := resp.Header.Get("Docker-Content-Digest")
 	return digest
+}
+
+// GetManifestV1 returns registry manifest v1
+func (d *RegistryService) GetManifestV1(repoName string, tag string) *model.RegistryManifestV1 {
+
+	manifestV1 := &model.RegistryManifestV1{}
+
+	path := fmt.Sprintf(urlconst.PathRegistryManifest, repoName, tag)
+	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
+	if err != nil {
+		return manifestV1
+	}
+
+	req.Header.Add("Accept", "application/vnd.docker.distribution.manifest.v1+prettyjws")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return manifestV1
+	}
+	defer resp.Body.Close()
+
+	r, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return manifestV1
+	}
+
+	// err ignore
+	json.Unmarshal(r, manifestV1)
+
+	return manifestV1
+}
+
+// GetManifestV2 returns registry manifest v2
+func (d *RegistryService) GetManifestV2(repoName string, tag string) *model.RegistryManifestV2 {
+
+	manifestV2 := &model.RegistryManifestV2{}
+
+	path := fmt.Sprintf(urlconst.PathRegistryManifest, repoName, tag)
+	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
+	if err != nil {
+		return manifestV2
+	}
+
+	req.Header.Add("Accept", "application/vnd.docker.distribution.manifest.v2+json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return manifestV2
+	}
+	defer resp.Body.Close()
+
+	r, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return manifestV2
+	}
+
+	// err ignore
+	json.Unmarshal(r, manifestV2)
+
+	return manifestV2
 }

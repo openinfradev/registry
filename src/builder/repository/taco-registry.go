@@ -56,11 +56,11 @@ func (a *RegistryRepository) InsertBuildLogBatch(rows []model.BuildLogRow) {
 }
 
 // UpdateTagDigest is digest and size updating in tag table
-func (a *RegistryRepository) UpdateTagDigest(buildID string, digest string, size string) bool {
+func (a *RegistryRepository) UpdateTagDigest(buildID string, tag string, digest string, size string) bool {
 	dbconn := CreateDBConnection()
 	defer CloseDBConnection(dbconn)
 
-	_, err := dbconn.Exec("update tag set manifest_digest=$1, size=$2 where build_id=$3 and name='latest' and (end_time is null or end_time > now())", digest, size, buildID)
+	_, err := dbconn.Exec("update tag set manifest_digest=$1, size=$2 where build_id=$3 and name=$4 and (end_time is null or end_time > now())", digest, size, buildID, tag)
 	if err != nil {
 		logger.ERROR("repository/taco-registry.go", "UpdateTagDigest", err.Error())
 		return false
@@ -82,11 +82,11 @@ func (a *RegistryRepository) DeleteUsageLog(buildID string) bool {
 }
 
 // DeleteTag is tag deleting
-func (a *RegistryRepository) DeleteTag(buildID string) bool {
+func (a *RegistryRepository) DeleteTag(buildID string, tag string) bool {
 	dbconn := CreateDBConnection()
 	defer CloseDBConnection(dbconn)
 
-	_, err := dbconn.Exec("delete from tag where build_id=$1 and name='latest'", buildID)
+	_, err := dbconn.Exec("delete from tag where build_id=$1 and name=$2", buildID, tag)
 	if err != nil {
 		logger.ERROR("repository/taco-registry.go", "DeleteTag", err.Error())
 		return false

@@ -164,6 +164,80 @@
                 }
             }
         },
+        "/registry/manifest-v1/{name}": {
+            "get": {
+                "description": "docker registry manifest v1 api",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "docker registry manifest v1 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "",
+                        "description": "Repository Name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Tag Name",
+                        "name": "tag",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.RegistryManifestV1"
+                        }
+                    }
+                }
+            }
+        },
+        "/registry/manifest-v2/{name}": {
+            "get": {
+                "description": "docker registry manifest v2 api",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "docker registry manifest v2 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "",
+                        "description": "Repository Name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Tag Name",
+                        "name": "tag",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.RegistryManifestV2"
+                        }
+                    }
+                }
+            }
+        },
         "/registry/repositories/{name}": {
             "get": {
                 "description": "docker registry repositories api",
@@ -214,8 +288,7 @@
                         "type": "string",
                         "description": "Tag Name",
                         "name": "tag",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -368,6 +441,104 @@
                 }
             }
         },
+        "model.RegistryManifestV1": {
+            "type": "object",
+            "properties": {
+                "architecture": {
+                    "type": "string"
+                },
+                "fsLayers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.RegistryManifestV1Layer"
+                    }
+                },
+                "history": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.RegistryManifestV1History"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "schemaVersion": {
+                    "type": "integer"
+                },
+                "signatures": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.RegistryManifestV1Signature"
+                    }
+                },
+                "tag": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.RegistryManifestV1History": {
+            "type": "object",
+            "properties": {
+                "v1Compatibility": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.RegistryManifestV1Layer": {
+            "type": "object",
+            "properties": {
+                "blobSum": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.RegistryManifestV1Signature": {
+            "type": "object",
+            "properties": {
+                "protected": {
+                    "type": "string"
+                },
+                "signature": {
+                    "description": "Header    string `json:\"header\"`",
+                    "type": "string"
+                }
+            }
+        },
+        "model.RegistryManifestV2": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "type": "object",
+                    "$ref": "#/definitions/model.RegistryManifestV2Item"
+                },
+                "layers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.RegistryManifestV2Item"
+                    }
+                },
+                "mediaType": {
+                    "type": "string"
+                },
+                "schemaVersion": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.RegistryManifestV2Item": {
+            "type": "object",
+            "properties": {
+                "digest": {
+                    "type": "string"
+                },
+                "mediaType": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.RepositoriesResult": {
             "type": "object",
             "properties": {
@@ -388,8 +559,19 @@
                 "tags": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/model.TagResult"
                     }
+                }
+            }
+        },
+        "model.TagResult": {
+            "type": "object",
+            "properties": {
+                "digest": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         }

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"builder/model"
 	"builder/service"
 	"net/http"
 	"strings"
@@ -38,6 +39,24 @@ func init() {
 			Method:  "DELETE",
 			Path:    "/registry/repositories/*name",
 			Request: deleteRegistryRepository,
+		},
+	)
+
+	// registry manifest v1
+	addRequestMapping(
+		RequestMapper{
+			Method:  "GET",
+			Path:    "/registry/manifest-v1/*name",
+			Request: getRegistryManifestV1,
+		},
+	)
+
+	// registry manifest v2
+	addRequestMapping(
+		RequestMapper{
+			Method:  "GET",
+			Path:    "/registry/manifest-v2/*name",
+			Request: getRegistryManifestV2,
 		},
 	)
 
@@ -89,7 +108,7 @@ func getRegistryRepositories(c *gin.Context) {
 // @Description docker registry repository delete api
 // @Name deleteRegistryRepository
 // @Param name path string true "Repository Name" default()
-// @Param tag query string true "Tag Name"
+// @Param tag query string false "Tag Name"
 // @Accept json
 // @Produce  json
 // @Router /registry/repositories/{name} [delete]
@@ -99,7 +118,51 @@ func deleteRegistryRepository(c *gin.Context) {
 	repoName = strings.Replace(repoName, "/", "", 1)
 
 	tag := c.Query("tag")
+	r := &model.BasicResult{}
+	if tag == "" {
+		r = registryService.DeleteRepository(repoName)
+	} else {
+		r = registryService.DeleteRepositoryTag(repoName, tag)
+	}
+	c.JSON(http.StatusOK, r)
+}
 
-	r := registryService.DeleteRepository(repoName, tag)
+// getRegistryManifestV1
+// @Summary docker registry manifest v1 api
+// @Description docker registry manifest v1 api
+// @Name getRegistryManifestV1
+// @Param name path string true "Repository Name" default()
+// @Param tag query string true "Tag Name"
+// @Accept json
+// @Produce  json
+// @Router /registry/manifest-v1/{name} [get]
+// @Success 200 {object} model.RegistryManifestV1
+func getRegistryManifestV1(c *gin.Context) {
+	repoName := c.Params.ByName("name")
+	repoName = strings.Replace(repoName, "/", "", 1)
+
+	tag := c.Query("tag")
+
+	r := registryService.GetManifestV1(repoName, tag)
+	c.JSON(http.StatusOK, r)
+}
+
+// getRegistryManifestV2
+// @Summary docker registry manifest v2 api
+// @Description docker registry manifest v2 api
+// @Name getRegistryManifestV2
+// @Param name path string true "Repository Name" default()
+// @Param tag query string true "Tag Name"
+// @Accept json
+// @Produce  json
+// @Router /registry/manifest-v2/{name} [get]
+// @Success 200 {object} model.RegistryManifestV2
+func getRegistryManifestV2(c *gin.Context) {
+	repoName := c.Params.ByName("name")
+	repoName = strings.Replace(repoName, "/", "", 1)
+
+	tag := c.Query("tag")
+
+	r := registryService.GetManifestV2(repoName, tag)
 	c.JSON(http.StatusOK, r)
 }

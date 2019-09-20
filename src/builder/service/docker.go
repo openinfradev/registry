@@ -159,6 +159,7 @@ func (d *DockerService) PullAndTag(ch chan<- string, params *model.DockerTagPara
 	r := <-proc
 	if r == constant.ResultFail {
 		logger.ERROR("service/docker.go", "PullAndTag", "failed to pulling docker image")
+		procTagError(params.BuildID, params.NewTag)
 		ch <- constant.ResultFail
 	}
 
@@ -167,6 +168,7 @@ func (d *DockerService) PullAndTag(ch chan<- string, params *model.DockerTagPara
 	r = <-proc
 	if r == constant.ResultFail {
 		logger.ERROR("service/docker.go", "PullAndTag", "failed to tagging docker image")
+		procTagError(params.BuildID, params.NewTag)
 		ch <- constant.ResultFail
 	}
 
@@ -175,10 +177,12 @@ func (d *DockerService) PullAndTag(ch chan<- string, params *model.DockerTagPara
 	r = <-proc
 	if r == constant.ResultFail {
 		logger.ERROR("service/docker.go", "PullAndTag", "failed to pushing docker image")
+		procTagError(params.BuildID, params.NewTag)
 		ch <- constant.ResultFail
 	}
 
 	logger.DEBUG("service/docker.go", "PullAndTag", fmt.Sprintf("end %s from %s to %s", params.Name, params.OldTag, params.NewTag))
+	procTagComplete(params.BuildID, params.Name, params.NewTag)
 	ch <- constant.ResultSuccess
 }
 
@@ -415,7 +419,7 @@ func procBuildComplete(buildID string, repoName string, tag string) {
 	// digest & size
 	digest := registryService.GetDigest(repoName, tag)
 	size := getImageSize(repoName, tag)
-	registryRepository.UpdateTagDigest(buildID, digest, size)
+	registryRepository.UpdateTagDigest(buildID, "latest", digest, size)
 
 	registryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseComplete.Status)
 	p := tacoutil.MakePhaseLog(buildID, tacoconst.PhaseComplete.StartSeq, tacoconst.PhaseComplete.Status)
@@ -424,11 +428,22 @@ func procBuildComplete(buildID string, repoName string, tag string) {
 
 func procBuildError(buildID string) {
 	registryRepository.DeleteUsageLog(buildID)
-	registryRepository.DeleteTag(buildID)
+	registryRepository.DeleteTag(buildID, "latest")
 
 	registryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseError.Status)
 	p := tacoutil.MakePhaseLog(buildID, tacoconst.PhaseError.StartSeq, tacoconst.PhaseError.Status)
 	registryRepository.InsertBuildLog(p)
+}
+
+func procTagComplete(buildID string, repoName string, tag string) {
+	// digest & size
+	digest := registryService.GetDigest(repoName, tag)
+	size := getImageSize(repoName, tag)
+	registryRepository.UpdateTagDigest(buildID, tag, digest, size)
+}
+
+func procTagError(buildID string, tag string) {
+	registryRepository.DeleteTag(buildID, tag)
 }
 
 func getImageSize(repoName string, tag string) string {
