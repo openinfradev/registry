@@ -194,14 +194,12 @@ func (d *RegistryService) GetDigest(repoName string, tag string) string {
 }
 
 // GetManifestV1 returns registry manifest v1
-func (d *RegistryService) GetManifestV1(repoName string, tag string) *model.RegistryManifestV1 {
-
-	manifestV1 := &model.RegistryManifestV1{}
+func (d *RegistryService) GetManifestV1(repoName string, tag string) map[string]interface{} {
 
 	path := fmt.Sprintf(urlconst.PathRegistryManifest, repoName, tag)
 	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
 	if err != nil {
-		return manifestV1
+		return nil
 	}
 
 	req.Header.Add("Accept", "application/vnd.docker.distribution.manifest.v1+prettyjws")
@@ -209,30 +207,29 @@ func (d *RegistryService) GetManifestV1(repoName string, tag string) *model.Regi
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return manifestV1
+		return nil
 	}
 	defer resp.Body.Close()
 
 	r, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return manifestV1
+		return nil
 	}
 
 	// err ignore
-	json.Unmarshal(r, manifestV1)
+	result := make(map[string]interface{})
+	json.Unmarshal(r, &result)
 
-	return manifestV1
+	return result
 }
 
 // GetManifestV2 returns registry manifest v2
-func (d *RegistryService) GetManifestV2(repoName string, tag string) *model.RegistryManifestV2 {
-
-	manifestV2 := &model.RegistryManifestV2{}
+func (d *RegistryService) GetManifestV2(repoName string, tag string) map[string]interface{} {
 
 	path := fmt.Sprintf(urlconst.PathRegistryManifest, repoName, tag)
 	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
 	if err != nil {
-		return manifestV2
+		return nil
 	}
 
 	req.Header.Add("Accept", "application/vnd.docker.distribution.manifest.v2+json")
@@ -240,17 +237,18 @@ func (d *RegistryService) GetManifestV2(repoName string, tag string) *model.Regi
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return manifestV2
+		return nil
 	}
 	defer resp.Body.Close()
 
 	r, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return manifestV2
+		return nil
 	}
 
 	// err ignore
-	json.Unmarshal(r, manifestV2)
+	result := make(map[string]interface{})
+	json.Unmarshal(r, &result)
 
-	return manifestV2
+	return result
 }

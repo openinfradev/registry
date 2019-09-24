@@ -301,6 +301,73 @@
                 }
             }
         },
+        "/sescan/layer/{name}": {
+            "get": {
+                "description": "security scanning layer api",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "security scanning layer api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "",
+                        "description": "Layer(history) ID",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SecurityScanLayerResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/sescan/repository/{name}": {
+            "patch": {
+                "description": "security scan api",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "security scan api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "",
+                        "description": "Repository Name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Tag Name",
+                        "name": "tag",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResult"
+                        }
+                    }
+                }
+            }
+        },
         "/test": {
             "get": {
                 "description": "test",
@@ -561,6 +628,20 @@
                     "items": {
                         "$ref": "#/definitions/model.TagResult"
                     }
+                }
+            }
+        },
+        "model.SecurityScanLayerResult": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object"
+                    }
+                },
+                "status": {
+                    "type": "string"
                 }
             }
         },

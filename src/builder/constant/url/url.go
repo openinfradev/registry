@@ -11,3 +11,9 @@ const PathRegistryManifest string = "/v2/%s/manifests/%s"
 
 // GitRepositoryURL is git repository url
 const GitRepositoryURL string = "https://%s:%s@%s"
+
+// SecurityScanLayer is Clair
+const SecurityScanLayer string = "http://%s/v1/layers/%s"
+
+// SecurityScanLayerParam is Clair extra param
+const SecurityScanLayerParam string = "features&vulnerabilities"

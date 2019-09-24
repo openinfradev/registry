@@ -45,6 +45,18 @@ type RegistryManifestV1History struct {
 	V1Compatibility string `json:"v1Compatibility"`
 }
 
+// RegistryManifestV1HistoryValue is id, parent only
+type RegistryManifestV1HistoryValue struct {
+	ID     string `json:"id"`
+	Parent string `json:"parent"`
+}
+
+/////////////////////////////////////////////////////////////////////
+//
+// Deprecated : currently using map interface instead of struct
+//
+/////////////////////////////////////////////////////////////////////
+
 // RegistryManifestV1Signature is item
 type RegistryManifestV1Signature struct {
 	// Header    string `json:"header"`

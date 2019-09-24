@@ -24,6 +24,7 @@
                 "-registry.name=taco-registry",
                 "-registry.insecure=true",
                 "-registry.endpoint=exntu.kr:25000",
+                "-clair.endpoint=exntu.kr:26060",
                 "-redis.endpoint=exntu.kr:26379",
                 "-service.domain=192.168.201.2",
                 "-service.port=4000",

@@ -27,6 +27,8 @@ func ParseFlags() (*service.BasicInfo, *repository.DBInfo) {
 
 	redisEndpoint := flag.String("redis.endpoint", "localhost:6379", "Redis Endpoint")
 
+	clairEndpoint := flag.String("clair.endpoint", "localhost:6060", "Clair Endpoint")
+
 	domain := flag.String("service.domain", "localhost", "Builder Service Domain")
 	port := flag.String("service.port", "4000", "Builder Service Port")
 	tmpPath := flag.String("service.tmp", "/tmp/builder", "Builder Service Temporary Path")
@@ -37,6 +39,7 @@ func ParseFlags() (*service.BasicInfo, *repository.DBInfo) {
 	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings database\n db.host[%v]\n db.port[%v]\n db.user[%v]\n db.pass[%v]\n db.name[%v]\n db.xarg[%v]", *dbhost, *dbport, *dbuser, *dbpass, *dbname, *dbxarg))
 	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings registry\n registry.name[%v]\n registry.insecure[%v]\n registry.endpoint[%v]", *registryName, *registryInsecure, *registryEndpoint))
 	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings redis\n redis.endpoint[%v]", *redisEndpoint))
+	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings clair\n clair.endpoint[%v]", *clairEndpoint))
 
 	if *dbhost == "" {
 		logger.FATAL("config/config.go", "ParseFlags", "Required Database Host Name")
@@ -61,6 +64,7 @@ func ParseFlags() (*service.BasicInfo, *repository.DBInfo) {
 		RegistryEndpoint: *registryEndpoint,
 		TemporaryPath:    *tmpPath,
 		RedisEndpoint:    *redisEndpoint,
+		ClairEndpoint:    *clairEndpoint,
 		ServiceDomain:    *domain,
 		ServicePort:      *port,
 	}

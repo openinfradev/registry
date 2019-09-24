@@ -166,6 +166,15 @@ definitions:
           $ref: '#/definitions/model.TagResult'
         type: array
     type: object
+  model.SecurityScanLayerResult:
+    properties:
+      data:
+        additionalProperties:
+          type: object
+        type: object
+      status:
+        type: string
+    type: object
   model.TagResult:
     properties:
       digest:
@@ -373,6 +382,51 @@ paths:
           schema:
             $ref: '#/definitions/model.RepositoryResult'
       summary: docker registry repositories api
+  /sescan/layer/{name}:
+    get:
+      consumes:
+      - application/json
+      description: security scanning layer api
+      parameters:
+      - default: ""
+        description: Layer(history) ID
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SecurityScanLayerResult'
+      summary: security scanning layer api
+  /sescan/repository/{name}:
+    patch:
+      consumes:
+      - application/json
+      description: security scan api
+      parameters:
+      - default: ""
+        description: Repository Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Tag Name
+        in: query
+        name: tag
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
+      summary: security scan api
   /test:
     get:
       description: test
