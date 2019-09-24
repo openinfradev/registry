@@ -9,6 +9,9 @@ const PathRegistryTagList string = "/v2/%s/tags/list"
 // PathRegistryManifest is repository manifests path
 const PathRegistryManifest string = "/v2/%s/manifests/%s"
 
+// PathRegistryBlobs is repository layer blob path
+const PathRegistryBlobs string = "/v2/%s/blobs/%s"
+
 // GitRepositoryURL is git repository url
 const GitRepositoryURL string = "https://%s:%s@%s"
 
