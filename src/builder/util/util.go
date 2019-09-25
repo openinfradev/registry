@@ -59,12 +59,12 @@ func GetOutboundIP() string {
 }
 
 // MapToStruct returns raw map to target struct type
-func MapToStruct(raw interface{}, target interface{}) error {
+func MapToStruct(raw interface{}, dist interface{}) error {
 	jsonbody, err := json.Marshal(raw)
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(jsonbody, target)
+	err = json.Unmarshal(jsonbody, dist)
 	if err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ import (
 	"builder/model"
 	"builder/util"
 	"builder/util/logger"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -66,10 +67,16 @@ func (s *SecurityService) Scan(repoName string, tag string) *model.BasicResult {
 }
 
 func scanJob(ch chan<- string, repoName string, tag string) {
+	logger.DEBUG("service/security-scan.go", "scanJob", fmt.Sprintf("start [%s:%s]", repoName, tag))
 
 	// 1. get manifest
 	registryService := new(RegistryService)
 	manifest := registryService.GetManifestV1(repoName, tag)
+	if manifest == nil {
+		logger.ERROR("service/security-scan.go", "scanJob", fmt.Sprintf("Not exists manifest [%s:%s]", repoName, tag))
+		ch <- constant.ResultFail
+		return
+	}
 	fsLayersMap := manifest["fsLayers"]
 	historyMap := manifest["history"]
 
@@ -103,6 +110,66 @@ func scanJob(ch chan<- string, repoName string, tag string) {
 	}
 
 	// 4. scan layer loop
+	if len(params) > 0 {
+		params = hierarchySort(params)
+		for _, param := range params {
+			requestScan(&param)
+		}
+		logger.DEBUG("service/security-scan.go", "scanJob", fmt.Sprintf("end [%s:%s] %d layers [%s]", repoName, tag, len(params), params[len(params)-1].Layer.Name))
+		ch <- constant.ResultSuccess
+	} else {
+		logger.DEBUG("service/security-scan.go", "scanJob", fmt.Sprintf("end [%s:%s] not exists layers", repoName, tag))
+		ch <- constant.ResultFail
+	}
+}
 
-	logger.DEBUG("service/security-scan.go", "scanJob", "aaa")
+func requestScan(param *model.SecurityScanParam) {
+	b, _ := json.Marshal(param)
+	buff := bytes.NewBuffer(b)
+	path := fmt.Sprintf(urlconst.SecurityScan, basicinfo.ClairEndpoint)
+	resp, err := http.Post(path, "application/json", buff)
+	if err != nil {
+		logger.ERROR("service/security-scan.go", "requestScan", err.Error())
+		return
+	}
+
+	defer resp.Body.Close()
+
+	// It's not necessary.
+	// r, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	logger.ERROR("service/security-scan.go", "requestScan", err.Error())
+	// 	return
+	// }
+	// logger.DEBUG("service/security-scan.go", "requestScan", string(r))
+}
+
+func hierarchySort(raw []model.SecurityScanParam) []model.SecurityScanParam {
+
+	var root model.SecurityScanParam
+	for _, p := range raw {
+		if p.Layer.ParentName == "" {
+			root = p
+			break
+		}
+	}
+
+	dist := []model.SecurityScanParam{}
+	dist = append(dist, root)
+
+	target := root
+	loop := true
+	for loop {
+		exist := false
+		for _, p := range raw {
+			if target.Layer.Name == p.Layer.ParentName {
+				target = p
+				dist = append(dist, p)
+				exist = true
+				break
+			}
+		}
+		loop = exist
+	}
+	return dist
 }

@@ -18,5 +18,8 @@ const GitRepositoryURL string = "https://%s:%s@%s"
 // SecurityScanLayer is Clair
 const SecurityScanLayer string = "http://%s/v1/layers/%s"
 
+// SecurityScan is Clair
+const SecurityScan string = "http://%s/v1/layers"
+
 // SecurityScanLayerParam is Clair extra param
 const SecurityScanLayerParam string = "features&vulnerabilities"

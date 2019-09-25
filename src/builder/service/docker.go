@@ -20,11 +20,13 @@ type DockerService struct{}
 var fileManager *FileManager
 var registryRepository *repository.RegistryRepository
 var registryService *RegistryService
+var securityService *SecurityService
 
 func init() {
 	fileManager = new(FileManager)
 	registryRepository = new(repository.RegistryRepository)
 	registryService = new(RegistryService)
+	securityService = new(SecurityService)
 }
 
 // BuildByDockerfile is docker building by dockerfile
@@ -121,6 +123,7 @@ func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName 
 	if r == constant.ResultFail {
 		procBuildError(buildID)
 		ch <- constant.ResultFail
+		return
 	}
 
 	// tag
@@ -129,6 +132,7 @@ func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName 
 	if r == constant.ResultFail {
 		procBuildError(buildID)
 		ch <- constant.ResultFail
+		return
 	}
 
 	// push
@@ -142,7 +146,12 @@ func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName 
 	if r == constant.ResultFail {
 		procBuildError(buildID)
 		ch <- constant.ResultFail
+		return
 	}
+
+	// security scan (optional??)
+	// returned value isn't necessary.
+	securityService.Scan(repoName, tag)
 
 	// phase - complete
 	procBuildComplete(buildID, repoName, tag)
@@ -161,6 +170,7 @@ func (d *DockerService) PullAndTag(ch chan<- string, params *model.DockerTagPara
 		logger.ERROR("service/docker.go", "PullAndTag", "failed to pulling docker image")
 		procTagError(params.BuildID, params.NewTag)
 		ch <- constant.ResultFail
+		return
 	}
 
 	// 2. tag
@@ -170,6 +180,7 @@ func (d *DockerService) PullAndTag(ch chan<- string, params *model.DockerTagPara
 		logger.ERROR("service/docker.go", "PullAndTag", "failed to tagging docker image")
 		procTagError(params.BuildID, params.NewTag)
 		ch <- constant.ResultFail
+		return
 	}
 
 	// 3. push
@@ -179,6 +190,7 @@ func (d *DockerService) PullAndTag(ch chan<- string, params *model.DockerTagPara
 		logger.ERROR("service/docker.go", "PullAndTag", "failed to pushing docker image")
 		procTagError(params.BuildID, params.NewTag)
 		ch <- constant.ResultFail
+		return
 	}
 
 	logger.DEBUG("service/docker.go", "PullAndTag", fmt.Sprintf("end %s from %s to %s", params.Name, params.OldTag, params.NewTag))
