@@ -166,7 +166,7 @@ definitions:
           $ref: '#/definitions/model.TagResult'
         type: array
     type: object
-  model.SecurityScanLayerResult:
+  model.SecurityScanLayer:
     properties:
       data:
         additionalProperties:
@@ -400,7 +400,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.SecurityScanLayerResult'
+            $ref: '#/definitions/model.SecurityScanLayer'
       summary: security scanning layer api
   /sescan/repository/{name}:
     patch:

@@ -325,7 +325,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.SecurityScanLayerResult"
+                            "$ref": "#/definitions/model.SecurityScanLayer"
                         }
                     }
                 }
@@ -631,7 +631,7 @@
                 }
             }
         },
-        "model.SecurityScanLayerResult": {
+        "model.SecurityScanLayer": {
             "type": "object",
             "properties": {
                 "data": {

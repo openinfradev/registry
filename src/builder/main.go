@@ -7,6 +7,7 @@ import (
 	"builder/network/server"
 	"builder/repository"
 	"builder/service"
+	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
@@ -20,7 +21,7 @@ func main() {
 	docs.SwaggerInfo.Title = "Builder API"
 	docs.SwaggerInfo.Description = "This is a sample server for Builder."
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "localhost:" + basicinfo.ServicePort
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", basicinfo.ServiceDomain, basicinfo.ServicePort)
 	docs.SwaggerInfo.BasePath = "/v1"
 
 	// server ready
