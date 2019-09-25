@@ -29,6 +29,8 @@ func ParseFlags() (*service.BasicInfo, *repository.DBInfo) {
 
 	clairEndpoint := flag.String("clair.endpoint", "localhost:6060", "Clair Endpoint")
 
+	authURL := flag.String("auth.url", "", "Authorization url")
+
 	domain := flag.String("service.domain", "localhost", "Builder Service Domain")
 	port := flag.String("service.port", "4000", "Builder Service Port")
 	tmpPath := flag.String("service.tmp", "/tmp/builder", "Builder Service Temporary Path")
@@ -65,6 +67,7 @@ func ParseFlags() (*service.BasicInfo, *repository.DBInfo) {
 		TemporaryPath:    *tmpPath,
 		RedisEndpoint:    *redisEndpoint,
 		ClairEndpoint:    *clairEndpoint,
+		AuthURL:          *authURL,
 		ServiceDomain:    *domain,
 		ServicePort:      *port,
 	}

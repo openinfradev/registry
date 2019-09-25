@@ -12,6 +12,7 @@ type BasicInfo struct {
 	TemporaryPath    string
 	RedisEndpoint    string
 	ClairEndpoint    string
+	AuthURL          string
 	ServiceDomain    string
 	ServicePort      string
 }

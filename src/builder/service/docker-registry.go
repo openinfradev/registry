@@ -2,10 +2,13 @@ package service
 
 import (
 	"builder/constant"
+	"builder/constant/scope"
 	urlconst "builder/constant/url"
 	"builder/model"
 	"builder/util/logger"
+	tokenutil "builder/util/token"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -22,7 +25,24 @@ func (d *RegistryService) GetCatalog() *model.CatalogResult {
 
 	catalogResult := &model.CatalogResult{}
 
-	resp, err := http.Get(basicinfo.GetRegistryURL(urlconst.PathRegistryCatalog))
+	token, err := d.Authorization(&scope.Scope{
+		Type:     scope.TypeRegistry,
+		Resource: scope.ResourceCatalog,
+		Action:   scope.ActionWildCard,
+	})
+	if err != nil {
+		logger.ERROR("service/docker-registry.go", "GetCatalog", err.Error())
+		return catalogResult
+	}
+	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(urlconst.PathRegistryCatalog), nil)
+	if err != nil {
+		return catalogResult
+	}
+
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return catalogResult
 	}
@@ -251,4 +271,35 @@ func (d *RegistryService) GetManifestV2(repoName string, tag string) map[string]
 	json.Unmarshal(r, &result)
 
 	return result
+}
+
+// Authorization returns docker registry authorization token
+func (d *RegistryService) Authorization(scope *scope.Scope) (string, error) {
+	if basicinfo.AuthURL == "" {
+		return "", errors.New("Authorization endpoint argument is empty")
+	}
+
+	path := fmt.Sprintf(basicinfo.AuthURL + "?scope=" + scope.String() + "&service=Docker%20registry")
+	req, err := http.NewRequest("GET", path, nil)
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Add("Authorization", tokenutil.BuilderBasicToken())
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	r, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	m := make(map[string]string)
+	json.Unmarshal(r, &m)
+	return m["token"], nil
 }

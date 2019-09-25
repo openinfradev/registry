@@ -4,11 +4,12 @@ import (
 	"builder/model"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"strings"
 )
 
-// ParseBasicToken returns parsed basic token
-func ParseBasicToken(token string) (*model.BasicToken, error) {
+// DecodeBasicToken returns parsed basic token
+func DecodeBasicToken(token string) (*model.BasicToken, error) {
 	splitted := strings.Split(token, " ")
 
 	if len(splitted) < 2 || strings.ToLower(splitted[0]) != "basic" {
@@ -27,4 +28,19 @@ func ParseBasicToken(token string) (*model.BasicToken, error) {
 		Username: splitted[0],
 		Password: splitted[1],
 	}, nil
+}
+
+// EncodeBasicToken returns encoded token string
+func EncodeBasicToken(basicToken *model.BasicToken) string {
+	raw := fmt.Sprintf("%s:%s", basicToken.Username, basicToken.Password)
+	encoded := base64.StdEncoding.EncodeToString([]byte(raw))
+	return fmt.Sprintf("Basic %s", encoded)
+}
+
+// BuilderBasicToken returns builder account basic token
+func BuilderBasicToken() string {
+	return EncodeBasicToken(&model.BasicToken{
+		Username: "builder",
+		Password: "builder",
+	})
 }
