@@ -17,12 +17,13 @@ build:
 	@echo "==================================="
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --ldflags=--s -o builder src/builder/main.go
 
+
 docker-build:
-	@echo "### Making Builder docker image."
+	@echo "### Making Builder docker image. Multi-Stage"
 	@echo "================================"
-	docker build --network=host --no-cache -t taco-registry/builder:latest . -f ./Dockerfile.multi
+	docker build --network=host --no-cache -t taco-registry/builder:latest . -f ./Dockerfile
 
 docker-build-single:
 	@echo "### Making Builder docker image."
 	@echo "================================"
-	docker build --network=host --no-cache -t taco-registry/builder:latest . -f ./Dockerfile
+	docker build --network=host --no-cache -t taco-registry/builder:latest . -f ./Dockerfile.single
