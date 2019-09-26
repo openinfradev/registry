@@ -403,6 +403,30 @@ paths:
             $ref: '#/definitions/model.SecurityScanLayer'
       summary: security scanning layer api
   /sescan/repository/{name}:
+    get:
+      consumes:
+      - application/json
+      description: security scanning layer api
+      parameters:
+      - default: ""
+        description: Repository Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Tag Name
+        in: query
+        name: tag
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SecurityScanLayer'
+      summary: security scanning layer api
     patch:
       consumes:
       - application/json

@@ -55,6 +55,27 @@ func (s *SecurityService) GetLayer(layerID string) *model.SecurityScanLayer {
 	return layerScanResult
 }
 
+// GetLayerByRepo returns scanned layer vulnerabilities
+func (s *SecurityService) GetLayerByRepo(repoName string, tag string) *model.SecurityScanLayer {
+
+	registryService := new(RegistryService)
+	manifest := registryService.GetManifestV1(repoName, tag)
+	if manifest == nil {
+		logger.ERROR("service/security-scan.go", "GetLayerByRepo", fmt.Sprintf("Not exists manifest [%s:%s]", repoName, tag))
+		return nil
+	}
+	historyMap := manifest["history"]
+	history := []model.RegistryManifestV1History{}
+	util.MapToStruct(historyMap, &history)
+
+	if len(history) > 0 {
+		h0 := &model.RegistryManifestV1HistoryValue{}
+		json.Unmarshal([]byte(history[0].V1Compatibility), h0)
+		return s.GetLayer(h0.ID)
+	}
+	return nil
+}
+
 // Scan is security scanning to clair. layer scan using manifests
 func (s *SecurityService) Scan(repoName string, tag string) *model.BasicResult {
 

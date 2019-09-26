@@ -67,7 +67,9 @@ $ ./builder \
     -registry.name=taco-registry \
     -registry.insecure=true \
     -registry.endpoint=exntu.kr:25000 \
+    -clair.endpoint=exntu.kr:26060 \
     -redis.endpoint=exntu.kr:26379 \
+    -auth.url=http://exntu.kr:38383/api/oauth/token \
     -service.domain=localhost \
     -service.port=4000 \
     -service.tmp=/tmp
@@ -106,6 +108,8 @@ $ docker run -d -p 4000:4000 \
     -registry.insecure=true \
     -registry.endpoint=exntu.kr:25000 \
     -redis.endpoint=exntu.kr:26379 \
+    -clair.endpoint=exntu.kr:26060 \
+    -auth.url=http://exntu.kr:38383/api/oauth/token \
     -service.domain=localhost \
     -service.port=4000 \
     -service.tmp=/tmp

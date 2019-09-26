@@ -332,6 +332,41 @@
             }
         },
         "/sescan/repository/{name}": {
+            "get": {
+                "description": "security scanning layer api",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "security scanning layer api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "",
+                        "description": "Repository Name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Tag Name",
+                        "name": "tag",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SecurityScanLayer"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "description": "security scan api",
                 "consumes": [
