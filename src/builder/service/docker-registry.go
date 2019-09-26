@@ -31,7 +31,6 @@ func (d *RegistryService) GetCatalog() *model.CatalogResult {
 		Action:   scope.ActionWildCard,
 	})
 	if err != nil {
-		logger.ERROR("service/docker-registry.go", "GetCatalog", err.Error())
 		return catalogResult
 	}
 	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(urlconst.PathRegistryCatalog), nil)
@@ -39,11 +38,12 @@ func (d *RegistryService) GetCatalog() *model.CatalogResult {
 		return catalogResult
 	}
 
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	req.Header.Add("Authorization", token)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
+		logger.ERROR("service/docker-registry.go", "GetCatalog", err.Error())
 		return catalogResult
 	}
 
@@ -67,7 +67,24 @@ func (d *RegistryService) GetRepository(repoName string) *model.RepositoryResult
 	repositoryResult := &model.RepositoryResult{}
 
 	path := fmt.Sprintf(urlconst.PathRegistryTagList, repoName)
-	resp, err := http.Get(basicinfo.GetRegistryURL(path))
+
+	token, err := d.Authorization(&scope.Scope{
+		Type:     scope.TypeRepository,
+		Resource: repoName,
+		Action:   scope.ActionPull,
+	})
+	if err != nil {
+		return repositoryResult
+	}
+	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
+	if err != nil {
+		return repositoryResult
+	}
+
+	req.Header.Add("Authorization", token)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return repositoryResult
 	}
@@ -78,6 +95,8 @@ func (d *RegistryService) GetRepository(repoName string) *model.RepositoryResult
 	if err != nil {
 		return repositoryResult
 	}
+
+	logger.DEBUG("service/docker-registry.go", "GetRepository", string(r))
 
 	// err ignore
 	json.Unmarshal(r, repositoryRaw)
@@ -139,6 +158,18 @@ func (d *RegistryService) DeleteRepository(repoName string) *model.BasicResult {
 // DeleteRepositoryTag is repository tag deleting
 func (d *RegistryService) DeleteRepositoryTag(repoName string, tag string) *model.BasicResult {
 
+	token, err := d.Authorization(&scope.Scope{
+		Type:     scope.TypeRepository,
+		Resource: repoName,
+		Action:   scope.ActionWildCard,
+	})
+	if err != nil {
+		return &model.BasicResult{
+			Code:    constant.ResultFail,
+			Message: "",
+		}
+	}
+
 	// get digest
 	digest := d.GetDigest(repoName, tag)
 	if digest == "" {
@@ -159,6 +190,7 @@ func (d *RegistryService) DeleteRepositoryTag(repoName string, tag string) *mode
 	}
 
 	req.Header.Add("Accept", "application/vnd.docker.distribution.manifest.v2+json")
+	req.Header.Add("Authorization", token)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -178,6 +210,8 @@ func (d *RegistryService) DeleteRepositoryTag(repoName string, tag string) *mode
 		}
 	}
 
+	logger.DEBUG("service/docker-registry.go", "DeleteRepositoryTag", string(r))
+
 	// garbage collect (go-routine)
 	// sync (???)
 	ch := make(chan string, 1)
@@ -194,6 +228,15 @@ func (d *RegistryService) DeleteRepositoryTag(repoName string, tag string) *mode
 // GetDigest returns repository:tag digest
 func (d *RegistryService) GetDigest(repoName string, tag string) string {
 
+	token, err := d.Authorization(&scope.Scope{
+		Type:     scope.TypeRepository,
+		Resource: repoName,
+		Action:   scope.ActionPull,
+	})
+	if err != nil {
+		return ""
+	}
+
 	path := fmt.Sprintf(urlconst.PathRegistryManifest, repoName, tag)
 	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
 	if err != nil {
@@ -201,6 +244,7 @@ func (d *RegistryService) GetDigest(repoName string, tag string) string {
 	}
 
 	req.Header.Add("Accept", "application/vnd.docker.distribution.manifest.v2+json")
+	req.Header.Add("Authorization", token)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -216,6 +260,15 @@ func (d *RegistryService) GetDigest(repoName string, tag string) string {
 // GetManifestV1 returns registry manifest v1
 func (d *RegistryService) GetManifestV1(repoName string, tag string) map[string]interface{} {
 
+	token, err := d.Authorization(&scope.Scope{
+		Type:     scope.TypeRepository,
+		Resource: repoName,
+		Action:   scope.ActionPull,
+	})
+	if err != nil {
+		return nil
+	}
+
 	path := fmt.Sprintf(urlconst.PathRegistryManifest, repoName, tag)
 	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
 	if err != nil {
@@ -223,6 +276,7 @@ func (d *RegistryService) GetManifestV1(repoName string, tag string) map[string]
 	}
 
 	req.Header.Add("Accept", "application/vnd.docker.distribution.manifest.v1+prettyjws")
+	req.Header.Add("Authorization", token)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -246,6 +300,15 @@ func (d *RegistryService) GetManifestV1(repoName string, tag string) map[string]
 // GetManifestV2 returns registry manifest v2
 func (d *RegistryService) GetManifestV2(repoName string, tag string) map[string]interface{} {
 
+	token, err := d.Authorization(&scope.Scope{
+		Type:     scope.TypeRepository,
+		Resource: repoName,
+		Action:   scope.ActionPull,
+	})
+	if err != nil {
+		return nil
+	}
+
 	path := fmt.Sprintf(urlconst.PathRegistryManifest, repoName, tag)
 	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
 	if err != nil {
@@ -253,6 +316,7 @@ func (d *RegistryService) GetManifestV2(repoName string, tag string) map[string]
 	}
 
 	req.Header.Add("Accept", "application/vnd.docker.distribution.manifest.v2+json")
+	req.Header.Add("Authorization", token)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -279,7 +343,8 @@ func (d *RegistryService) Authorization(scope *scope.Scope) (string, error) {
 		return "", errors.New("Authorization endpoint argument is empty")
 	}
 
-	path := fmt.Sprintf(basicinfo.AuthURL + "?scope=" + scope.String() + "&service=Docker%20registry")
+	path := fmt.Sprintf(basicinfo.AuthURL+"?scope=%s&service=%s", scope.String(), basicinfo.RegistryName)
+	// logger.DEBUG("service/docker-registry.go", "Authorization", path)
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {
 		return "", err
@@ -290,6 +355,7 @@ func (d *RegistryService) Authorization(scope *scope.Scope) (string, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
+		logger.ERROR("service/docker-registry.go", "Authorization", err.Error())
 		return "", err
 	}
 	defer resp.Body.Close()
@@ -301,5 +367,8 @@ func (d *RegistryService) Authorization(scope *scope.Scope) (string, error) {
 
 	m := make(map[string]string)
 	json.Unmarshal(r, &m)
-	return m["token"], nil
+
+	// logger.DEBUG("service/docker-registry.go", "Authorization", m["token"])
+
+	return fmt.Sprintf("Bearer %s", m["token"]), nil
 }

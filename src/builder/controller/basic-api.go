@@ -55,5 +55,8 @@ func health(c *gin.Context) {
 // @Router /test [get]
 // @Success 200
 func test(c *gin.Context) {
-
+	c.JSON(http.StatusOK, &model.BasicResult{
+		Code:    constant.ResultSuccess,
+		Message: "OK",
+	})
 }

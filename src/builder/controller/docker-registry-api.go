@@ -67,7 +67,7 @@ func init() {
 // @Description docker registry catalog api
 // @Name getRegistryCatalog
 // @Accept json
-// @Produce  json
+// @Produce json
 // @Router /registry/catalog [get]
 // @Success 200 {object} model.CatalogResult
 func getRegistryCatalog(c *gin.Context) {

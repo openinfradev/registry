@@ -2,6 +2,7 @@ package service
 
 import (
 	"builder/constant"
+	"builder/constant/scope"
 	urlconst "builder/constant/url"
 	"builder/model"
 	"builder/util"
@@ -69,8 +70,19 @@ func (s *SecurityService) Scan(repoName string, tag string) *model.BasicResult {
 func scanJob(ch chan<- string, repoName string, tag string) {
 	logger.DEBUG("service/security-scan.go", "scanJob", fmt.Sprintf("start [%s:%s]", repoName, tag))
 
-	// 1. get manifest
+	// 0. authorization token
 	registryService := new(RegistryService)
+	token, err := registryService.Authorization(&scope.Scope{
+		Type:     scope.TypeRepository,
+		Resource: repoName,
+		Action:   scope.ActionPull,
+	})
+	if err != nil {
+		ch <- constant.ResultFail
+		return
+	}
+
+	// 1. get manifest
 	manifest := registryService.GetManifestV1(repoName, tag)
 	if manifest == nil {
 		logger.ERROR("service/security-scan.go", "scanJob", fmt.Sprintf("Not exists manifest [%s:%s]", repoName, tag))
@@ -102,6 +114,12 @@ func scanJob(ch chan<- string, repoName string, tag string) {
 		layer.ParentName = c.Parent
 		layer.Path = path
 		layer.Format = "Docker"
+
+		headers := &model.SecurityScanLayerHeaderParam{
+			Authorization: token,
+		}
+		layer.Headers = headers
+
 		param := &model.SecurityScanParam{
 			Layer: layer,
 		}
@@ -136,12 +154,12 @@ func requestScan(param *model.SecurityScanParam) {
 	defer resp.Body.Close()
 
 	// It's not necessary.
-	// r, err := ioutil.ReadAll(resp.Body)
-	// if err != nil {
-	// 	logger.ERROR("service/security-scan.go", "requestScan", err.Error())
-	// 	return
-	// }
-	// logger.DEBUG("service/security-scan.go", "requestScan", string(r))
+	r, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		logger.ERROR("service/security-scan.go", "requestScan", err.Error())
+		return
+	}
+	logger.DEBUG("service/security-scan.go", "requestScan", string(r))
 }
 
 func hierarchySort(raw []model.SecurityScanParam) []model.SecurityScanParam {

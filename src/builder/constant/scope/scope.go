@@ -26,6 +26,12 @@ const ResourceBlob string = "blob"
 // ActionWildCard is action wildcard
 const ActionWildCard string = "*"
 
+// ActionPull is action pull
+const ActionPull string = "pull"
+
+// ActionPush is action push
+const ActionPush string = "push"
+
 // Scope is scope struct
 type Scope struct {
 	Type     string
