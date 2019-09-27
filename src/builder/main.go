@@ -15,7 +15,7 @@ import (
 
 func main() {
 
-	basicinfo, dbinfo := config.ParseFlags()
+	basicinfo, dbinfo := config.LoadConfig()
 
 	// programatically set swagger info
 	docs.SwaggerInfo.Title = "Builder API"

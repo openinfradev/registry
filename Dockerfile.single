@@ -5,6 +5,9 @@ LABEL maintainer="linus lee <linus@exntu.com>"
 WORKDIR /
 COPY ./builder .
 
+RUN mkdir /conf
+COPY ./src/builder/conf/config.yml /conf
+
 EXPOSE 4000
 
 ENTRYPOINT ["./builder"]

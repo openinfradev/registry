@@ -13,23 +13,6 @@
             "program": "${fileDirname}",
             "env": {},
             "args": [
-                "-log.level=0",
-                "-db.type=postgres",
-                "-db.host=exntu.kr",
-                "-db.port=25432",
-                "-db.user=registry",
-                "-db.pass=registry1234$$",
-                "-db.name=registry",
-                "-db.xarg=",
-                "-registry.name=taco-registry",
-                "-registry.insecure=true",
-                "-registry.endpoint=exntu.kr:25000",
-                "-clair.endpoint=exntu.kr:26060",
-                "-redis.endpoint=exntu.kr:26379",
-                "-auth.url=http://exntu.kr:38383/api/oauth/token",
-                "-service.domain=192.168.201.2",
-                "-service.port=4000",
-                "-service.tmp=/home/linus/tmp"
             ]
         }
     ]

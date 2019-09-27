@@ -6,70 +6,107 @@ import (
 	"builder/util/logger"
 	"flag"
 	"fmt"
+	"io/ioutil"
+	"path/filepath"
+
+	"gopkg.in/yaml.v2"
 )
 
-// ParseFlags is all flags parsing and returns basicinfo & dbinfo
-func ParseFlags() (*service.BasicInfo, *repository.DBInfo) {
-	// flags
-	loglevel := flag.Int("log.level", 0, "Log Level 0:debug 1:info 2:error")
+// Configuration is builder configure yaml
+type Configuration struct {
+	Default  *Default  `yaml:"default"`
+	Database *Database `yaml:"database"`
+	Registry *Registry `yaml:"registry"`
+	Redis    *Redis    `yaml:"redis"`
+	Clair    *Clair    `yaml:"clair"`
+}
 
-	dbtype := flag.String("db.type", "mysql", "Database Type (mysql, postgres)")
-	dbhost := flag.String("db.host", "", "Database Host Name")
-	dbport := flag.String("db.port", "", "Database Port")
-	dbuser := flag.String("db.user", "", "Database User Name")
-	dbpass := flag.String("db.pass", "", "Database User Password")
-	dbname := flag.String("db.name", "", "Database Name")
-	dbxarg := flag.String("db.xarg", "", "Database Extra Arguments")
+// Print is printing log Configuration values
+func (c *Configuration) Print() {
+	logger.DEBUG("config/config.go", "Configuration", fmt.Sprintf("Default\n domain[%s]\n port[%s]\n tmp[%s]\n loglevel[%d]", c.Default.Domain, c.Default.Port, c.Default.TmpDir, c.Default.LogLevel))
+	logger.DEBUG("config/config.go", "Configuration", fmt.Sprintf("Database\n type[%s]\n host[%s]\n port[%s]\n user[%s]\n password[%s]\n name[%s]\n xargs[%s]", c.Database.Type, c.Database.Host, c.Database.Port, c.Database.User, c.Database.Password, c.Database.Name, c.Database.Xargs))
+	logger.DEBUG("config/config.go", "Configuration", fmt.Sprintf("Registry\n name[%s]\n insecure[%v]\n endpoint[%s]\n auth[%s]", c.Registry.Name, c.Registry.Insecure, c.Registry.Endpoint, c.Registry.Auth))
+	logger.DEBUG("config/config.go", "Configuration", fmt.Sprintf("Redis\n endpoint[%s]", c.Redis.Endpoint))
+	logger.DEBUG("config/config.go", "Configuration", fmt.Sprintf("Clair\n endpoint[%s]", c.Clair.Endpoint))
+}
 
-	registryName := flag.String("registry.name", "registry", "Docker Registry Container Name")
-	registryInsecure := flag.Bool("registry.insecure", false, "Docker Registry Insecure")
-	registryEndpoint := flag.String("registry.endpoint", "localhost:5000", "Docker Registry Endpoint")
+// Database is db config
+type Database struct {
+	Type     string `yaml:"type"`
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Name     string `yaml:"name"`
+	Xargs    string `yaml:"xargs"`
+}
 
-	redisEndpoint := flag.String("redis.endpoint", "localhost:6379", "Redis Endpoint")
+// Registry is registry config
+type Registry struct {
+	Name     string `yaml:"name"`
+	Insecure bool   `yaml:"insecure"`
+	Endpoint string `yaml:"endpoint"`
+	Auth     string `yaml:"auth"`
+}
 
-	clairEndpoint := flag.String("clair.endpoint", "localhost:6060", "Clair Endpoint")
+// Default is default config
+type Default struct {
+	Domain   string `yaml:"domain"`
+	Port     string `yaml:"port"`
+	TmpDir   string `yaml:"tmp"`
+	LogLevel int    `yaml:"loglevel"`
+}
 
-	authURL := flag.String("auth.url", "", "Authorization url")
+// Redis is redis config
+type Redis struct {
+	Endpoint string `yaml:"endpoint"`
+}
 
-	domain := flag.String("service.domain", "localhost", "Builder Service Domain")
-	port := flag.String("service.port", "4000", "Builder Service Port")
-	tmpPath := flag.String("service.tmp", "/tmp/builder", "Builder Service Temporary Path")
+// Clair is Clair config
+type Clair struct {
+	Endpoint string `yaml:"endpoint"`
+}
 
-	flag.Parse()
+// LoadConfig returns basicinfo & dbinfo
+func LoadConfig() (*service.BasicInfo, *repository.DBInfo) {
 
-	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings basic\n log.level[%d]\n service.domain[%v]\n service.port[%v]\n service.tmp[%v]", *loglevel, *domain, *port, *tmpPath))
-	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings database\n db.host[%v]\n db.port[%v]\n db.user[%v]\n db.pass[%v]\n db.name[%v]\n db.xarg[%v]", *dbhost, *dbport, *dbuser, *dbpass, *dbname, *dbxarg))
-	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings registry\n registry.name[%v]\n registry.insecure[%v]\n registry.endpoint[%v]", *registryName, *registryInsecure, *registryEndpoint))
-	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings redis\n redis.endpoint[%v]", *redisEndpoint))
-	logger.DEBUG("config/config.go", "ParseFlags", fmt.Sprintf("settings clair\n clair.endpoint[%v]", *clairEndpoint))
-
-	if *dbhost == "" {
-		logger.FATAL("config/config.go", "ParseFlags", "Required Database Host Name")
+	configFile := flag.String("config", "conf/config.yml", "config.yml file location (optional)")
+	file, _ := filepath.Abs(*configFile)
+	yamlFile, err := ioutil.ReadFile(file)
+	if err != nil {
+		logger.FATAL("config/config.go", "LoadConfig", err.Error())
+	}
+	conf := &Configuration{}
+	err = yaml.Unmarshal(yamlFile, conf)
+	if err != nil {
+		logger.FATAL("config/config.go", "LoadConfig", err.Error())
 	}
 
+	conf.Print()
+
 	// log level
-	logger.SetLevel(*loglevel)
+	logger.SetLevel(conf.Default.LogLevel)
 
 	dbinfo := repository.DBInfo{
-		DBtype: *dbtype,
-		DBhost: *dbhost,
-		DBport: *dbport,
-		DBuser: *dbuser,
-		DBpass: *dbpass,
-		DBname: *dbname,
-		DBxarg: *dbxarg,
+		DBtype: conf.Database.Type,
+		DBhost: conf.Database.Host,
+		DBport: conf.Database.Port,
+		DBuser: conf.Database.User,
+		DBpass: conf.Database.Password,
+		DBname: conf.Database.Name,
+		DBxarg: conf.Database.Xargs,
 	}
 
 	basicinfo := service.BasicInfo{
-		RegistryName:     *registryName,
-		RegistryInsecure: *registryInsecure,
-		RegistryEndpoint: *registryEndpoint,
-		TemporaryPath:    *tmpPath,
-		RedisEndpoint:    *redisEndpoint,
-		ClairEndpoint:    *clairEndpoint,
-		AuthURL:          *authURL,
-		ServiceDomain:    *domain,
-		ServicePort:      *port,
+		RegistryName:     conf.Registry.Name,
+		RegistryInsecure: conf.Registry.Insecure,
+		RegistryEndpoint: conf.Registry.Endpoint,
+		TemporaryPath:    conf.Default.TmpDir,
+		RedisEndpoint:    conf.Redis.Endpoint,
+		ClairEndpoint:    conf.Clair.Endpoint,
+		AuthURL:          conf.Registry.Auth,
+		ServiceDomain:    conf.Default.Domain,
+		ServicePort:      conf.Default.Port,
 	}
 	return &basicinfo, &dbinfo
 }

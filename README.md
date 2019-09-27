@@ -114,3 +114,72 @@ $ docker run -d -p 4000:4000 \
     -service.port=4000 \
     -service.tmp=/tmp
 ```
+
+## Configuration
+
+#### configuration yaml
+```
+<project dir>/src/builder/conf/config.yml
+```
+
+#### configuration yaml fields
+| section | field | type | description |
+| ------ | ------ | ------ | ------ |
+| default | domain | string | service domain |
+| default | port | string | service port |
+| default | loglevel | int | 0 is DEBUG, 1 is INFO, 2 is ERROR |
+| default | tmp | string | temporary directory |
+| database | type | string | database type : mysql, postgres |
+| database | host | string | database hostname(domain) |
+| database | port | string | database port |
+| database | name | string | database name |
+| database | user | string | database user ID |
+| database | password | string | database user password |
+| database | xargs | string | database connection extra arguments |
+| registry | name | string | registry name |
+| registry | insecure | bool | insecure flag |
+| registry | endpoint | string | registry endpoint |
+| registry | auth | string | registry authorization token api url |
+| redis | endpoint | string | redis endpoint |
+| clair | endpoint | string | clair endpoint |
+
+#### configuration example
+```
+#####################################
+# Taco-registry builder configuration
+#####################################
+
+# default configuration
+default:
+  domain: 192.168.201.2
+  port: 4000
+  # 0 is DEBUG, 1 is INFO, 2 is ERROR
+  loglevel: 0
+  tmp: "/tmp"
+
+# database configuration
+database:
+  # postgres, mysql
+  type: postgres
+  host: exntu.kr
+  port: 25432
+  name: registry
+  user: registry
+  password: "registry1234$$"
+  xargs:
+
+# docker private registry configuration
+registry:
+  name: taco-registry
+  insecure: true
+  endpoint: "exntu.kr:25000"
+  auth: "http://exntu.kr:38383/api/oauth/token"
+
+# redis configuration
+redis:
+  endpoint: "exntu.kr:26379"
+
+# clair configuration
+clair:
+  endpoint: "exntu.kr:26060"
+```

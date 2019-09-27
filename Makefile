@@ -11,8 +11,13 @@ deps:
 	go get -u github.com/swaggo/gin-swagger
 	go get -u github.com/swaggo/gin-swagger/swaggerFiles
 	go get -u github.com/alecthomas/template
+	go get -u gopkg.in/yaml.v2
 
-build:
+swag:
+	@echo "### Generating taco-registry Builder Swagger Docs."
+	cd ./src/builder; ../../bin/swag init
+
+build: swag
 	@echo "### Building taco-registry Builder."
 	@echo "==================================="
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --ldflags=--s -o builder src/builder/main.go
