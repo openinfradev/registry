@@ -7,8 +7,17 @@ import (
 var level int
 
 // SetLevel is log level
-func SetLevel(lv int) {
-	level = lv
+func SetLevel(lv string) {
+	switch lv {
+	case "DEBUG":
+		level = 0
+	case "INFO":
+		level = 1
+	case "ERROR":
+		level = 2
+	default:
+		level = 2
+	}
 }
 
 // DEBUG is debug level log

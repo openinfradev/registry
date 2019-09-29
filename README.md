@@ -55,24 +55,7 @@ $ make build
 
 #### Run (Only : Ubuntu 18.04 amd64 arch)
 ```
-$ ./builder \
-    -log.level=0 \
-    -db.type=postgres \
-    -db.host=exntu.kr \
-    -db.port=25432 \
-    -db.user=registry \
-    -db.pass=registry1234\$\$ \
-    -db.name=registry \
-    -db.xarg= \
-    -registry.name=taco-registry \
-    -registry.insecure=true \
-    -registry.endpoint=exntu.kr:25000 \
-    -clair.endpoint=exntu.kr:26060 \
-    -redis.endpoint=exntu.kr:26379 \
-    -auth.url=http://exntu.kr:38383/api/oauth/token \
-    -service.domain=localhost \
-    -service.port=4000 \
-    -service.tmp=/tmp
+$ ./builder
 ```
 
 ## Docker Build
@@ -95,25 +78,17 @@ $ make docker-build
 $ docker run -d -p 4000:4000 \
     -v /var/run/docker.sock:/var/run/docker.sock \
     --restart=always --name builder \
-    taco-registry/builder:v2 \
-    -log.level=0 \
-    -db.type=postgres \
-    -db.host=exntu.kr \
-    -db.port=25432 \
-    -db.user=registry \
-    -db.pass=registry1234\$\$ \
-    -db.name=registry \
-    -db.xarg= \
-    -registry.name=taco-registry \
-    -registry.insecure=true \
-    -registry.endpoint=exntu.kr:25000 \
-    -redis.endpoint=exntu.kr:26379 \
-    -clair.endpoint=exntu.kr:26060 \
-    -auth.url=http://exntu.kr:38383/api/oauth/token \
-    -service.domain=localhost \
-    -service.port=4000 \
-    -service.tmp=/tmp
+    taco-registry/builder:v2 
 ```
+
+## Environment Variables
+
+> optional value : override configuration
+
+| variable | description |
+| ------ | ------ |
+| BUILDER_CONFIG | configuration file path |
+| BUILDER_LOG_LEVEL | log level : DEBUG, INFO, ERROR(default) | 
 
 ## Configuration
 
@@ -153,8 +128,8 @@ $ docker run -d -p 4000:4000 \
 default:
   domain: 192.168.201.2
   port: 4000
-  # 0 is DEBUG, 1 is INFO, 2 is ERROR
-  loglevel: 0
+  # DEBUG, INFO, ERROR
+  loglevel: DEBUG
   tmp: "/tmp"
 
 # database configuration

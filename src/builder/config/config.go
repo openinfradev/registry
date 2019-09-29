@@ -4,9 +4,9 @@ import (
 	"builder/repository"
 	"builder/service"
 	"builder/util/logger"
-	"flag"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"gopkg.in/yaml.v2"
@@ -23,7 +23,7 @@ type Configuration struct {
 
 // Print is printing log Configuration values
 func (c *Configuration) Print() {
-	logger.DEBUG("config/config.go", "Configuration", fmt.Sprintf("Default\n domain[%s]\n port[%s]\n tmp[%s]\n loglevel[%d]", c.Default.Domain, c.Default.Port, c.Default.TmpDir, c.Default.LogLevel))
+	logger.DEBUG("config/config.go", "Configuration", fmt.Sprintf("Default\n domain[%s]\n port[%s]\n tmp[%s]\n loglevel[%s]", c.Default.Domain, c.Default.Port, c.Default.TmpDir, c.Default.LogLevel))
 	logger.DEBUG("config/config.go", "Configuration", fmt.Sprintf("Database\n type[%s]\n host[%s]\n port[%s]\n user[%s]\n password[%s]\n name[%s]\n xargs[%s]", c.Database.Type, c.Database.Host, c.Database.Port, c.Database.User, c.Database.Password, c.Database.Name, c.Database.Xargs))
 	logger.DEBUG("config/config.go", "Configuration", fmt.Sprintf("Registry\n name[%s]\n insecure[%v]\n endpoint[%s]\n auth[%s]", c.Registry.Name, c.Registry.Insecure, c.Registry.Endpoint, c.Registry.Auth))
 	logger.DEBUG("config/config.go", "Configuration", fmt.Sprintf("Redis\n endpoint[%s]", c.Redis.Endpoint))
@@ -54,7 +54,7 @@ type Default struct {
 	Domain   string `yaml:"domain"`
 	Port     string `yaml:"port"`
 	TmpDir   string `yaml:"tmp"`
-	LogLevel int    `yaml:"loglevel"`
+	LogLevel string `yaml:"loglevel"`
 }
 
 // Redis is redis config
@@ -70,8 +70,14 @@ type Clair struct {
 // LoadConfig returns basicinfo & dbinfo
 func LoadConfig() (*service.BasicInfo, *repository.DBInfo) {
 
-	configFile := flag.String("config", "conf/config.yml", "config.yml file location (optional)")
-	file, _ := filepath.Abs(*configFile)
+	configFile := os.Getenv("BUILDER_CONFIG")
+	loglevel := os.Getenv("BUILDER_LOG_LEVEL")
+	if configFile == "" {
+		configFile = "conf/config.yml"
+	}
+
+	// configFile := flag.String("config", "conf/config.yml", "config.yml file location (optional)")
+	file, _ := filepath.Abs(configFile)
 	yamlFile, err := ioutil.ReadFile(file)
 	if err != nil {
 		logger.FATAL("config/config.go", "LoadConfig", err.Error())
@@ -85,7 +91,10 @@ func LoadConfig() (*service.BasicInfo, *repository.DBInfo) {
 	conf.Print()
 
 	// log level
-	logger.SetLevel(conf.Default.LogLevel)
+	if loglevel == "" {
+		loglevel = conf.Default.LogLevel
+	}
+	logger.SetLevel(loglevel)
 
 	dbinfo := repository.DBInfo{
 		DBtype: conf.Database.Type,
