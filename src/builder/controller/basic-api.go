@@ -3,6 +3,8 @@ package controller
 import (
 	"builder/constant"
 	"builder/model"
+	"builder/util"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -55,8 +57,11 @@ func health(c *gin.Context) {
 // @Router /test [get]
 // @Success 200
 func test(c *gin.Context) {
+
+	sample := "linus@github.com/repo/aaaa.git"
+	gitRepo := util.ExtractGitRepositoryURL(sample)
 	c.JSON(http.StatusOK, &model.BasicResult{
 		Code:    constant.ResultSuccess,
-		Message: "OK",
+		Message: fmt.Sprintf("protocol[%s] url[%s]", gitRepo.Protocol, gitRepo.URL),
 	})
 }

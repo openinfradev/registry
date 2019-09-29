@@ -41,9 +41,10 @@ func (f *FileManager) WriteDockerfile(contents string) (string, error) {
 }
 
 // PullGitRepository returns pulled git repository dockerfile path
-func (f *FileManager) PullGitRepository(gitRepo string, userID string, userPW string) (string, error) {
+func (f *FileManager) PullGitRepository(gitRepoURL string, userID string, userPW string) (string, error) {
 	dirPath := f.GetTemporaryPath()
-	gitURL := fmt.Sprintf(urlconst.GitRepositoryURL, url.QueryEscape(userID), url.QueryEscape(userPW), gitRepo)
+	gitRepo := util.ExtractGitRepositoryURL(gitRepoURL)
+	gitURL := fmt.Sprintf(urlconst.GitRepositoryURL, gitRepo.Protocol, url.QueryEscape(userID), url.QueryEscape(userPW), gitRepo.URL)
 	gitClone := exec.Command("git", "clone", gitURL, dirPath)
 
 	logger.DEBUG("service/file-manager.go", "PullGitRepository", gitURL)
