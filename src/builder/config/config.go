@@ -73,7 +73,7 @@ func LoadConfig() (*service.BasicInfo, *repository.DBInfo) {
 	configFile := os.Getenv("BUILDER_CONFIG")
 	loglevel := os.Getenv("BUILDER_LOG_LEVEL")
 	if configFile == "" {
-		configFile = "conf/config.yml"
+		configFile = "conf/config.local.yml"
 	}
 
 	// configFile := flag.String("config", "conf/config.yml", "config.yml file location (optional)")

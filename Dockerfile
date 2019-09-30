@@ -20,7 +20,7 @@ WORKDIR /
 COPY --from=build /work/builder .
 
 RUN mkdir /conf
-COPY --from=build /work/src/builder/conf/config.yml /conf
+COPY --from=build /work/src/builder/conf/* /conf
 
 EXPOSE 4000
 
