@@ -62,7 +62,9 @@ func (s *SecurityService) GetLayerByRepo(repoName string, tag string) *model.Sec
 	manifest := registryService.GetManifestV1(repoName, tag)
 	if manifest == nil {
 		logger.ERROR("service/security-scan.go", "GetLayerByRepo", fmt.Sprintf("Not exists manifest [%s:%s]", repoName, tag))
-		return nil
+		return &model.SecurityScanLayer{
+			Status: "queued",
+		}
 	}
 	historyMap := manifest["history"]
 	history := []model.RegistryManifestV1History{}
@@ -73,7 +75,9 @@ func (s *SecurityService) GetLayerByRepo(repoName string, tag string) *model.Sec
 		json.Unmarshal([]byte(history[0].V1Compatibility), h0)
 		return s.GetLayer(h0.ID)
 	}
-	return nil
+	return &model.SecurityScanLayer{
+		Status: "queued",
+	}
 }
 
 // Scan is security scanning to clair. layer scan using manifests
