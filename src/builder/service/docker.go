@@ -230,11 +230,11 @@ func (d *DockerService) Push(params *model.DockerPushParam) *model.BasicResult {
 // Login is registry logged in
 func (d *DockerService) Login() {
 
+	ch := make(chan string)
 	ticker := time.NewTicker(time.Second * 10)
 	go func() {
 		for t := range ticker.C {
 			logger.DEBUG("service/docker.go", "Login", t.String())
-			ch := make(chan string)
 			loginJob(ch)
 			r := <-ch
 			if r == constant.ResultSuccess {
