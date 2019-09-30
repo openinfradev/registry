@@ -12,8 +12,11 @@ const PathRegistryManifest string = "/v2/%s/manifests/%s"
 // PathRegistryBlobs is repository layer blob path
 const PathRegistryBlobs string = "/v2/%s/blobs/%s"
 
-// GitRepositoryURL is git repository url
-const GitRepositoryURL string = "%s://%s:%s@%s"
+// GitRepositoryPrivateURL is git repository url
+const GitRepositoryPrivateURL string = "%s://%s:%s@%s"
+
+// GitRepositoryPublicURL is git repository url
+const GitRepositoryPublicURL string = "%s://%s"
 
 // SecurityScanLayer is Clair
 const SecurityScanLayer string = "http://%s/v1/layers/%s"
