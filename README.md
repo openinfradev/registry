@@ -5,16 +5,16 @@ Taco-Registry Builder Project
 
 * golang sdk download & install : https://golang.org/dl/
 * export GOROOT, GOPATH
-```
-$ vi ~/.profile
-  # golang path
-  export GOROOT=<go sdk path>
-  export GOPATH=<project path>
-  export PATH=$GOROOT:$GOPATH/bin:$PATH
+   ```
+   $ vi ~/.profile
+     # golang path
+     export GOROOT=<go sdk path>
+     export GOPATH=<project path>
+     export PATH=$GOROOT:$GOPATH/bin:$PATH
 
-$ source ~/.profile
-$ go env
-```
+   $ source ~/.profile
+   $ go env
+   ```
 
 ## IDE (Visual Studio Code)
 
@@ -24,25 +24,25 @@ $ go env
 ## Environment
 
 * gcc install (ubuntu amd64)
-```
-$ sudo apt -y update
-$ sudo apt install -y build-essential
-```
+   ```
+   $ sudo apt -y update
+   $ sudo apt install -y build-essential
+   ```
 * project dependency library
-```
-$ make deps
-```
+   ```
+   $ make deps
+   ```
 
 ## Swagger Documents
 * generate documents
-```
-$ cd src/builder
-$ ../../bin/swag init
-```
+   ```
+   $ cd src/builder
+   $ ../../bin/swag init
+   ```
 * swagger documents page url
-```
-http://<builder domain>:<builder port>/swagger/index.html
-```
+   ```
+   http://<builder domain>:<builder port>/swagger/index.html
+   ```
 
 ## Binary Build
 
@@ -85,10 +85,10 @@ $ docker run -d -p 4000:4000 \
 
 > optional value : override configuration
 
-| variable | description |
-| ------ | ------ |
-| BUILDER_CONFIG | configuration file path |
-| BUILDER_LOG_LEVEL | log level : DEBUG, INFO, ERROR(default) | 
+| variable | default value | description |
+| ------ | ------ | ------ |
+| BUILDER_CONFIG | conf/config.yml | configuration file path |
+| BUILDER_LOG_LEVEL | DEBUG | log level : DEBUG, INFO, ERROR(default) | 
 
 ## Configuration
 
