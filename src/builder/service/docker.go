@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 // DockerService is docker command relative service
@@ -227,16 +228,20 @@ func (d *DockerService) Push(params *model.DockerPushParam) *model.BasicResult {
 }
 
 // Login is registry logged in
-func (d *DockerService) Login() *model.BasicResult {
+func (d *DockerService) Login() {
 
-	ch := make(chan string)
-	go loginJob(ch)
-	r := <-ch
-
-	return &model.BasicResult{
-		Code:    r,
-		Message: "",
-	}
+	ticker := time.NewTicker(time.Second * 10)
+	go func() {
+		for t := range ticker.C {
+			logger.DEBUG("service/docker.go", "Login", t.String())
+			ch := make(chan string)
+			loginJob(ch)
+			r := <-ch
+			if r == constant.ResultSuccess {
+				ticker.Stop()
+			}
+		}
+	}()
 }
 
 func loginJob(ch chan<- string) {
