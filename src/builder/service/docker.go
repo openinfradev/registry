@@ -231,17 +231,16 @@ func (d *DockerService) Push(params *model.DockerPushParam) *model.BasicResult {
 func (d *DockerService) Login() {
 
 	ch := make(chan string)
-	ticker := time.NewTicker(time.Second * 10)
-	go func() {
-		for t := range ticker.C {
-			logger.DEBUG("service/docker.go", "Login", t.String())
-			loginJob(ch)
-			r := <-ch
-			if r == constant.ResultSuccess {
-				ticker.Stop()
-			}
+	ticker := time.NewTicker(time.Second * 5)
+	for t := range ticker.C {
+		logger.DEBUG("service/docker.go", "Login", "try "+t.String())
+		go loginJob(ch)
+		r := <-ch
+		if r == constant.ResultSuccess {
+			logger.DEBUG("service/docker.go", "Login", "complete")
+			ticker.Stop()
 		}
-	}()
+	}
 }
 
 func loginJob(ch chan<- string) {
