@@ -158,6 +158,8 @@ func (d *RegistryService) DeleteRepository(repoName string) *model.BasicResult {
 // DeleteRepositoryTag is repository tag deleting
 func (d *RegistryService) DeleteRepositoryTag(repoName string, tag string) *model.BasicResult {
 
+	logger.DEBUG("service/docker-registry.go", "DeleteRepositoryTag", fmt.Sprintf("repoName[%s] tag[%s]", repoName, tag))
+
 	token, err := d.Authorization(&scope.Scope{
 		Type:     scope.TypeRepository,
 		Resource: repoName,
@@ -214,10 +216,10 @@ func (d *RegistryService) DeleteRepositoryTag(repoName string, tag string) *mode
 
 	// garbage collect (go-routine)
 	// sync (???)
-	ch := make(chan string, 1)
-	go garbageCollectJob(ch)
-	rr := <-ch
-	logger.DEBUG("service/docker-registry.go", "DeleteRepository", rr)
+	// ch := make(chan string, 1)
+	// go garbageCollectJob(ch)
+	// rr := <-ch
+	// logger.DEBUG("service/docker-registry.go", "DeleteRepository", rr)
 
 	return &model.BasicResult{
 		Code:    constant.ResultSuccess,

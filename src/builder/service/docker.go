@@ -422,7 +422,7 @@ func garbageCollectJob(ch chan<- string) {
 	for scanner.Scan() {
 		m := scanner.Text()
 		r += m + "\n"
-		logger.DEBUG("service/docker.go", "garbageCollectJob", m)
+		// logger.DEBUG("service/docker.go", "garbageCollectJob", m)
 	}
 	gc.Wait()
 
