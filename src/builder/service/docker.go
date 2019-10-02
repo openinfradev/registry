@@ -409,27 +409,28 @@ func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath 
 	logger.DEBUG("service/docker.go", "buildJob", "buildJob end "+repoName)
 }
 
-func garbageCollectJob(ch chan<- string) {
-	logger.DEBUG("service/docker.go", "garbageCollectJob", "garbage collect start")
+// deprecated : has a problem
+// func garbageCollectJob(ch chan<- string) {
+// 	logger.DEBUG("service/docker.go", "garbageCollectJob", "garbage collect start")
 
-	gc := exec.Command("docker", "exec", basicinfo.RegistryName, "bin/registry", "garbage-collect", "/etc/docker/registry/config.yml")
+// 	gc := exec.Command("docker", "exec", basicinfo.RegistryName, "bin/registry", "garbage-collect", "/etc/docker/registry/config.yml")
 
-	r := ""
-	stdout, _ := gc.StdoutPipe()
-	gc.Start()
-	scanner := bufio.NewScanner(stdout)
-	scanner.Split(bufio.ScanLines)
-	for scanner.Scan() {
-		m := scanner.Text()
-		r += m + "\n"
-		// logger.DEBUG("service/docker.go", "garbageCollectJob", m)
-	}
-	gc.Wait()
+// 	r := ""
+// 	stdout, _ := gc.StdoutPipe()
+// 	gc.Start()
+// 	scanner := bufio.NewScanner(stdout)
+// 	scanner.Split(bufio.ScanLines)
+// 	for scanner.Scan() {
+// 		m := scanner.Text()
+// 		r += m + "\n"
+// 		// logger.DEBUG("service/docker.go", "garbageCollectJob", m)
+// 	}
+// 	gc.Wait()
 
-	logger.DEBUG("service/docker.go", "garbageCollectJob", "garbage collect end")
+// 	logger.DEBUG("service/docker.go", "garbageCollectJob", "garbage collect end")
 
-	ch <- r
-}
+// 	ch <- r
+// }
 
 func procBuildComplete(buildID string, repoName string, tag string) {
 	// digest & size

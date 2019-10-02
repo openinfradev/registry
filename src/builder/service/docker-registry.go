@@ -215,7 +215,7 @@ func (d *RegistryService) DeleteRepositoryTag(repoName string, tag string) *mode
 	logger.DEBUG("service/docker-registry.go", "DeleteRepositoryTag", string(r))
 
 	// garbage collect (go-routine)
-	// sync (???)
+	// deprecated : has a problem
 	// ch := make(chan string, 1)
 	// go garbageCollectJob(ch)
 	// rr := <-ch
