@@ -128,13 +128,13 @@ func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName 
 	}
 
 	// tag
-	go tagJob(proc, repoName, tag, tag)
-	r = <-proc
-	if r == constant.ResultFail {
-		procBuildError(buildID)
-		ch <- constant.ResultFail
-		return
-	}
+	// go tagJob(proc, repoName, tag, tag)
+	// r = <-proc
+	// if r == constant.ResultFail {
+	// 	procBuildError(buildID)
+	// 	ch <- constant.ResultFail
+	// 	return
+	// }
 
 	// push
 	// phase - push
@@ -333,7 +333,7 @@ func pushJob(ch chan<- string, repoName string, tag string) {
 func tagJob(ch chan<- string, repoName string, oldTag string, newTag string) {
 	logger.DEBUG("service/docker.go", "tagJob", fmt.Sprintf("tagJob [%s] [%s] to [%s]", repoName, oldTag, newTag))
 
-	oldRepo := repoName + ":" + oldTag
+	oldRepo := basicinfo.RegistryEndpoint + "/" + repoName + ":" + oldTag
 	newRepo := basicinfo.RegistryEndpoint + "/" + repoName + ":" + newTag
 
 	tag := exec.Command("docker", "tag", oldRepo, newRepo)
@@ -359,7 +359,7 @@ func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath 
 	p := tacoutil.MakePhaseLog(buildID, seq, tacoconst.PhaseBuilding.Status)
 	registryRepository.InsertBuildLog(p)
 
-	repoName = repoName + ":latest"
+	repoName = basicinfo.RegistryEndpoint + "/" + repoName + ":latest"
 	var build *exec.Cmd
 	if useCache {
 		// phase - checking cache
