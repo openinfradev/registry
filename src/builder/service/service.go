@@ -21,7 +21,7 @@ var basicinfo *BasicInfo
 
 // SetBasicInfo is setting service information
 func SetBasicInfo(info *BasicInfo) {
-	logger.DEBUG("service/service.go", "SetBasicInfo", "setting service information")
+	logger.INFO("service/service.go", "SetBasicInfo", "setting service information")
 
 	basicinfo = info
 }

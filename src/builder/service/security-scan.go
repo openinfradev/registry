@@ -179,12 +179,12 @@ func requestScan(param *model.SecurityScanParam) {
 	defer resp.Body.Close()
 
 	// It's not necessary.
-	r, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		logger.ERROR("service/security-scan.go", "requestScan", err.Error())
-		return
-	}
-	logger.DEBUG("service/security-scan.go", "requestScan", string(r))
+	// r, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	logger.ERROR("service/security-scan.go", "requestScan", err.Error())
+	// 	return
+	// }
+	// logger.DEBUG("service/security-scan.go", "requestScan", string(r))
 }
 
 func hierarchySort(raw []model.SecurityScanParam) []model.SecurityScanParam {

@@ -23,11 +23,11 @@ type Configuration struct {
 
 // Print is printing log Configuration values
 func (c *Configuration) Print() {
-	logger.DEBUG("config/config.go", "Configuration", fmt.Sprintf("Default\n domain[%s]\n port[%s]\n tmp[%s]\n loglevel[%s]", c.Default.Domain, c.Default.Port, c.Default.TmpDir, c.Default.LogLevel))
-	logger.DEBUG("config/config.go", "Configuration", fmt.Sprintf("Database\n type[%s]\n host[%s]\n port[%s]\n user[%s]\n password[%s]\n name[%s]\n xargs[%s]", c.Database.Type, c.Database.Host, c.Database.Port, c.Database.User, c.Database.Password, c.Database.Name, c.Database.Xargs))
-	logger.DEBUG("config/config.go", "Configuration", fmt.Sprintf("Registry\n name[%s]\n insecure[%v]\n endpoint[%s]\n auth[%s]", c.Registry.Name, c.Registry.Insecure, c.Registry.Endpoint, c.Registry.Auth))
-	logger.DEBUG("config/config.go", "Configuration", fmt.Sprintf("Redis\n endpoint[%s]", c.Redis.Endpoint))
-	logger.DEBUG("config/config.go", "Configuration", fmt.Sprintf("Clair\n endpoint[%s]", c.Clair.Endpoint))
+	logger.INFO("config/config.go", "Configuration", fmt.Sprintf("Default\n domain[%s]\n port[%s]\n tmp[%s]\n loglevel[%s]", c.Default.Domain, c.Default.Port, c.Default.TmpDir, c.Default.LogLevel))
+	logger.INFO("config/config.go", "Configuration", fmt.Sprintf("Database\n type[%s]\n host[%s]\n port[%s]\n user[%s]\n password[%s]\n name[%s]\n xargs[%s]", c.Database.Type, c.Database.Host, c.Database.Port, c.Database.User, c.Database.Password, c.Database.Name, c.Database.Xargs))
+	logger.INFO("config/config.go", "Configuration", fmt.Sprintf("Registry\n name[%s]\n insecure[%v]\n endpoint[%s]\n auth[%s]", c.Registry.Name, c.Registry.Insecure, c.Registry.Endpoint, c.Registry.Auth))
+	logger.INFO("config/config.go", "Configuration", fmt.Sprintf("Redis\n endpoint[%s]", c.Redis.Endpoint))
+	logger.INFO("config/config.go", "Configuration", fmt.Sprintf("Clair\n endpoint[%s]", c.Clair.Endpoint))
 }
 
 // Database is db config

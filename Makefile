@@ -17,15 +17,20 @@ swag:
 	@echo "### Generating taco-registry Builder Swagger Docs."
 	cd ./src/builder; ../../bin/swag init
 
-build: swag
+build:
 	@echo "### Building taco-registry Builder."
 	@echo "==================================="
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --ldflags=--s -o builder src/builder/main.go
 
+build-cross:
+	@echo "### Cross-Compiling taco-registry Builder."
+	@echo "Darwin amd64(OSX), Windows amd64, Linux arm64, Linux amd64"
+	@echo "=========================================================="
+	./cross-compile.sh
 
 docker-build:
 	@echo "### Making Builder docker image. Multi-Stage"
-	@echo "================================"
+	@echo "============================================"
 	docker build --network=host --no-cache -t taco-registry/builder:latest . -f ./Dockerfile
 
 docker-build-single:

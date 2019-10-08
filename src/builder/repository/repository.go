@@ -21,7 +21,7 @@ var dbinfo *DBInfo
 
 // SetDBConnectionInfo is setting database basically information
 func SetDBConnectionInfo(info *DBInfo) {
-	logger.DEBUG("repository/repository.go", "SetDBConnectionInfo", "setting database connection information")
+	logger.INFO("repository/repository.go", "SetDBConnectionInfo", "setting database connection information")
 
 	dbinfo = info
 }

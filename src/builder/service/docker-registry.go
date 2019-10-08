@@ -96,7 +96,7 @@ func (d *RegistryService) GetRepository(repoName string) *model.RepositoryResult
 		return repositoryResult
 	}
 
-	logger.DEBUG("service/docker-registry.go", "GetRepository", string(r))
+	// logger.DEBUG("service/docker-registry.go", "GetRepository", string(r))
 
 	// err ignore
 	json.Unmarshal(r, repositoryRaw)
@@ -105,7 +105,7 @@ func (d *RegistryService) GetRepository(repoName string) *model.RepositoryResult
 	if repositoryRaw.Tags != nil && len(repositoryRaw.Tags) > 0 {
 		for _, tagName := range repositoryRaw.Tags {
 			digest := d.GetDigest(repoName, tagName)
-			logger.DEBUG("service/docker-registry.go", "GetRepository", fmt.Sprintf("%s:%s : digest [%s]", repoName, tagName, digest))
+			// logger.DEBUG("service/docker-registry.go", "GetRepository", fmt.Sprintf("%s:%s : digest [%s]", repoName, tagName, digest))
 			tag := &model.TagResult{
 				Name:   tagName,
 				Digest: digest,
@@ -212,7 +212,7 @@ func (d *RegistryService) DeleteRepositoryTag(repoName string, tag string) *mode
 		}
 	}
 
-	logger.DEBUG("service/docker-registry.go", "DeleteRepositoryTag", string(r))
+	// logger.DEBUG("service/docker-registry.go", "DeleteRepositoryTag", string(r))
 
 	// garbage collect (go-routine)
 	// deprecated : has a problem

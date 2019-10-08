@@ -258,10 +258,10 @@ func loginJob(ch chan<- string) {
 	login.Wait()
 
 	if strings.Contains(r, tacoconst.LoginSucceeded) {
-		logger.DEBUG("service/docker.go", "loginJob", fmt.Sprintf("[%s] logged in succeeded", basicinfo.RegistryEndpoint))
+		logger.INFO("service/docker.go", "loginJob", fmt.Sprintf("[%s] logged in succeeded", basicinfo.RegistryEndpoint))
 		ch <- constant.ResultSuccess
 	} else {
-		logger.DEBUG("service/docker.go", "loginJob", fmt.Sprintf("[%s] logged in failed", basicinfo.RegistryEndpoint))
+		logger.INFO("service/docker.go", "loginJob", fmt.Sprintf("[%s] logged in failed", basicinfo.RegistryEndpoint))
 		ch <- constant.ResultFail
 	}
 }
@@ -281,7 +281,7 @@ func pullJob(ch chan<- string, repoName string, tag string) {
 	for scanner.Scan() {
 		m := scanner.Text()
 		r += m + "\n"
-		logger.DEBUG("service/docker.go", "pullJob", m)
+		// logger.DEBUG("service/docker.go", "pullJob", m)
 	}
 	errscan := bufio.NewScanner(stderr)
 	errscan.Split(bufio.ScanLines)
@@ -313,7 +313,7 @@ func pushJob(ch chan<- string, repoName string, tag string) {
 	for scanner.Scan() {
 		m := scanner.Text()
 		r += m + "\n"
-		logger.DEBUG("service/docker.go", "pushJob", m)
+		// logger.DEBUG("service/docker.go", "pushJob", m)
 	}
 	errscan := bufio.NewScanner(stderr)
 	errscan.Split(bufio.ScanLines)
@@ -382,7 +382,7 @@ func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath 
 		row := tacoutil.ParseLog(buildID, seq, m)
 		registryRepository.InsertBuildLog(row)
 
-		logger.DEBUG("service/docker.go", "buildJob", m)
+		// logger.DEBUG("service/docker.go", "buildJob", m)
 	}
 	errscan := bufio.NewScanner(stderr)
 	errscan.Split(bufio.ScanLines)

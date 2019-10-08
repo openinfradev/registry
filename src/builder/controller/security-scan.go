@@ -2,8 +2,6 @@ package controller
 
 import (
 	"builder/service"
-	"builder/util/logger"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -99,9 +97,6 @@ func scanLayers(c *gin.Context) {
 	repoName = strings.Replace(repoName, "/", "", 1)
 
 	tag := c.Query("tag")
-
-	log := fmt.Sprintf("security scanning : repo[%s] tag[%s]", repoName, tag)
-	logger.DEBUG("controller/security-scan.go", "scanLayers", log)
 
 	r := securityService.Scan(repoName, tag)
 
