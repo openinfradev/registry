@@ -15,7 +15,7 @@ mkdir -p $output
 platforms=(
 "darwin/amd64"
 "linux/amd64"
-"linux/arm64"
+# "linux/arm64"
 "windows/amd64" )
 
 # cross compile
