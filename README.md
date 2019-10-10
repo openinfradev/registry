@@ -45,7 +45,7 @@ Taco-Registry Builder Project
    ```
 
 ## Binary Build
-
+> To run this binary, Docker Engine must be installed.
 #### Build
 ```
 $ make build
@@ -59,7 +59,7 @@ $ ./builder
 ```
 
 ## Binary Cross-Compile
-
+> To run this binary, Docker Engine must be installed.
 * darwin-amd64 (OSX)
 * linux-amd64
 * windows-amd64
@@ -71,7 +71,12 @@ $ make build-cross
 
 #### Location
 ```
-$ ls -l ./dist
+$ ls -l ./distdrwxrwxr-x 3 linus linus     4096 10월 10 10:54 ./
+drwxr-xr-x 8 linus linus     4096 10월 10 10:53 ../
+-rwxrwxr-x 1 linus linus 38358520 10월 10 10:53 builder-darwin-amd64*
+-rwxrwxr-x 1 linus linus 33144832 10월 10 10:54 builder-linux-amd64*
+-rwxrwxr-x 1 linus linus 33121792 10월 10 10:54 builder-windows-amd64.exe*
+drwxrwxr-x 2 linus linus     4096 10월 10 10:54 conf/
 drwxrwxr-x 3 linus linus     4096 10월 10 10:54 ./
 drwxr-xr-x 8 linus linus     4096 10월 10 10:53 ../
 -rwxrwxr-x 1 linus linus 38358520 10월 10 10:53 builder-darwin-amd64*
