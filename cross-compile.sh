@@ -4,18 +4,21 @@
 package_name="builder"
 target="./src/builder/main.go"
 output="./dist/"
+conf="./src/builder/conf"
 
 if [ -d "$output" ]; then
     rm -rf $output
 fi
 mkdir -p $output
 
+# cross platform
 platforms=(
 "darwin/amd64"
 "linux/amd64"
 "linux/arm64"
 "windows/amd64" )
 
+# cross compile
 for platform in "${platforms[@]}"
 do
     platform_split=(${platform//\// })
@@ -37,3 +40,6 @@ do
         exit 1
     fi
 done
+
+# default config
+cp -rf $conf $output
