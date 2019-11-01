@@ -71,12 +71,7 @@ $ make build-cross
 
 #### Location
 ```
-$ ls -l ./distdrwxrwxr-x 3 linus linus     4096 10월 10 10:54 ./
-drwxr-xr-x 8 linus linus     4096 10월 10 10:53 ../
--rwxrwxr-x 1 linus linus 38358520 10월 10 10:53 builder-darwin-amd64*
--rwxrwxr-x 1 linus linus 33144832 10월 10 10:54 builder-linux-amd64*
--rwxrwxr-x 1 linus linus 33121792 10월 10 10:54 builder-windows-amd64.exe*
-drwxrwxr-x 2 linus linus     4096 10월 10 10:54 conf/
+$ ls -l 
 drwxrwxr-x 3 linus linus     4096 10월 10 10:54 ./
 drwxr-xr-x 8 linus linus     4096 10월 10 10:53 ../
 -rwxrwxr-x 1 linus linus 38358520 10월 10 10:53 builder-darwin-amd64*
