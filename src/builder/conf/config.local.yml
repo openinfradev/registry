@@ -35,3 +35,7 @@ redis:
 # clair configuration
 clair:
   endpoint: "exntu.kr:26060"
+
+# minio configuration
+minio:
+  dir: /home/ubuntu/minio/data

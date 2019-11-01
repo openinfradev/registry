@@ -144,6 +144,35 @@
                 }
             }
         },
+        "/minio": {
+            "post": {
+                "description": "create minio",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "create minio",
+                "parameters": [
+                    {
+                        "description": "Json Parameters",
+                        "name": "contents",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.MinioParam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResult"
+                        }
+                    }
+                }
+            }
+        },
         "/registry/catalog": {
             "get": {
                 "description": "docker registry catalog api",
@@ -539,6 +568,17 @@
                     "type": "string"
                 },
                 "oldTag": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MinioParam": {
+            "type": "object",
+            "properties": {
+                "userID": {
+                    "type": "string"
+                },
+                "userPW": {
                     "type": "string"
                 }
             }
