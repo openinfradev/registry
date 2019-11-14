@@ -38,4 +38,5 @@ clair:
 
 # minio configuration
 minio:
-  dir: /home/ubuntu/minio/data
+  domain: taco-registry
+  dir: /home/linus/minio/data

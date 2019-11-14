@@ -71,6 +71,7 @@ type Clair struct {
 
 // Minio is minio config
 type Minio struct {
+	Domain    string `yaml:"domain"`
 	Directory string `yaml:"dir"`
 }
 
@@ -124,6 +125,7 @@ func LoadConfig() (*service.BasicInfo, *repository.DBInfo) {
 		ServiceDomain:    conf.Default.Domain,
 		ServicePort:      conf.Default.Port,
 		MinioDirectory:   conf.Minio.Directory,
+		MinioDomain:      conf.Minio.Domain,
 	}
 	return &basicinfo, &dbinfo
 }

@@ -16,6 +16,7 @@ type BasicInfo struct {
 	ServiceDomain    string
 	ServicePort      string
 	MinioDirectory   string
+	MinioDomain      string
 }
 
 var basicinfo *BasicInfo

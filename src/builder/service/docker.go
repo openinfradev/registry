@@ -30,6 +30,17 @@ func init() {
 	securityService = new(SecurityService)
 }
 
+// BuildByCopiedMinioBucket is docker buiding by copied minio bucket
+func (d *DockerService) BuildByCopiedMinioBucket() *model.BasicResult {
+	return nil
+}
+
+// BuildByMinioBucket is docker building by minio bucket
+func (d *DockerService) BuildByMinioBucket() *model.BasicResult {
+
+	return nil
+}
+
 // BuildByDockerfile is docker building by dockerfile
 func (d *DockerService) BuildByDockerfile(params *model.DockerBuildByFileParam) *model.BasicResult {
 

@@ -167,6 +167,33 @@
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "$ref": "#/definitions/model.MinioResult"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete minio",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "delete minio",
+                "parameters": [
+                    {
+                        "description": "Json Parameters",
+                        "name": "contents",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.MinioParam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
                             "$ref": "#/definitions/model.BasicResult"
                         }
                     }
@@ -575,11 +602,28 @@
         "model.MinioParam": {
             "type": "object",
             "properties": {
-                "userID": {
+                "userId": {
                     "type": "string"
                 },
-                "userPW": {
+                "userPw": {
                     "type": "string"
+                }
+            }
+        },
+        "model.MinioResult": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "domain": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
                 }
             }
         },

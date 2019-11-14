@@ -88,10 +88,21 @@ definitions:
     type: object
   model.MinioParam:
     properties:
-      userID:
+      userId:
         type: string
-      userPW:
+      userPw:
         type: string
+    type: object
+  model.MinioResult:
+    properties:
+      code:
+        type: string
+      domain:
+        type: string
+      message:
+        type: string
+      port:
+        type: integer
     type: object
   model.RegistryManifestV1:
     properties:
@@ -285,6 +296,24 @@ paths:
             $ref: '#/definitions/model.BasicResult'
       summary: health check api
   /minio:
+    delete:
+      description: delete minio
+      parameters:
+      - description: Json Parameters
+        in: body
+        name: contents
+        required: true
+        schema:
+          $ref: '#/definitions/model.MinioParam'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
+      summary: delete minio
     post:
       description: create minio
       parameters:
@@ -301,7 +330,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.BasicResult'
+            $ref: '#/definitions/model.MinioResult'
       summary: create minio
   /registry/catalog:
     get:
