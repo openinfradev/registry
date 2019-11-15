@@ -35,3 +35,7 @@ redis:
 # clair configuration
 clair:
   endpoint: "taco-clair:6060"
+
+# minio configuration
+minio:
+  dir: /home/ubuntu/minio/data

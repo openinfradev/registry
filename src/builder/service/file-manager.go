@@ -21,6 +21,15 @@ func (f *FileManager) GetTemporaryPath() string {
 	return basicinfo.TemporaryPath + "/" + util.GetTimeMillisecond()
 }
 
+// MakeDirectory is making dir on root
+func (f *FileManager) MakeDirectory(rootDir string, dir string) string {
+	target := fmt.Sprintf("%s/%s", rootDir, dir)
+	if _, err := os.Stat(target); os.IsNotExist(err) {
+		os.Mkdir(target, os.ModeDir)
+	}
+	return target
+}
+
 // DeleteDirectory is path removing all
 func (f *FileManager) DeleteDirectory(path string) {
 	err := os.RemoveAll(path)

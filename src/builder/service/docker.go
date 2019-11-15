@@ -30,6 +30,17 @@ func init() {
 	securityService = new(SecurityService)
 }
 
+// BuildByCopiedMinioBucket is docker buiding by copied minio bucket
+func (d *DockerService) BuildByCopiedMinioBucket() *model.BasicResult {
+	return nil
+}
+
+// BuildByMinioBucket is docker building by minio bucket
+func (d *DockerService) BuildByMinioBucket() *model.BasicResult {
+
+	return nil
+}
+
 // BuildByDockerfile is docker building by dockerfile
 func (d *DockerService) BuildByDockerfile(params *model.DockerBuildByFileParam) *model.BasicResult {
 
@@ -165,7 +176,7 @@ func (d *DockerService) PullAndTag(ch chan<- string, params *model.DockerTagPara
 	logger.DEBUG("service/docker.go", "PullAndTag", fmt.Sprintf("start %s from %s to %s", params.Name, params.OldTag, params.NewTag))
 
 	// 1. pull
-	go pullJob(proc, params.Name, params.OldTag)
+	go pullJob(proc, params.Name, params.OldTag, false)
 	r := <-proc
 	if r == constant.ResultFail {
 		logger.ERROR("service/docker.go", "PullAndTag", "failed to pulling docker image")
@@ -227,6 +238,23 @@ func (d *DockerService) Push(params *model.DockerPushParam) *model.BasicResult {
 	}
 }
 
+// Pull is docker image pulling
+func (d *DockerService) Pull(params *model.DockerPullParam, async bool, external bool) *model.BasicResult {
+
+	// async
+	ch := make(chan string)
+	go pullJob(ch, params.Name, params.Tag, external)
+	r := constant.ResultSuccess
+	if !async {
+		r = <-ch
+	}
+
+	return &model.BasicResult{
+		Code:    r,
+		Message: "",
+	}
+}
+
 // Login is registry logged in
 func (d *DockerService) Login() {
 
@@ -266,10 +294,15 @@ func loginJob(ch chan<- string) {
 	}
 }
 
-func pullJob(ch chan<- string, repoName string, tag string) {
+func pullJob(ch chan<- string, repoName string, tag string, external bool) {
 	logger.DEBUG("service/docker.go", "pullJob", fmt.Sprintf("pullJob start [%s:%s]", repoName, tag))
 
-	repoName = basicinfo.RegistryEndpoint + "/" + repoName + ":" + tag
+	if external {
+		repoName = repoName + ":" + tag
+	} else {
+		repoName = basicinfo.RegistryEndpoint + "/" + repoName + ":" + tag
+	}
+
 	pull := exec.Command("docker", "pull", repoName)
 
 	r := ""

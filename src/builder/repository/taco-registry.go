@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"builder/constant/minio"
 	"builder/model"
 	"builder/util/logger"
+	"fmt"
 )
 
 // RegistryRepository is registry db (postregs)
@@ -92,4 +94,71 @@ func (a *RegistryRepository) DeleteTag(buildID string, tag string) bool {
 		return false
 	}
 	return true
+}
+
+// CreatePortTableIfExists is creating table for port if exists
+func (a *RegistryRepository) CreatePortTableIfExists() bool {
+
+	dbconn := CreateDBConnection()
+	defer CloseDBConnection(dbconn)
+
+	_, err := dbconn.Exec("create table if not exists port_temp (port integer not null, primary key (port) ) ")
+	if err != nil {
+		logger.ERROR("repository/taco-registry.go", "CreatePortTableIfExists", err.Error())
+		return false
+	}
+	return true
+
+}
+
+// GetTopPort returns top port of exists ports
+func (a *RegistryRepository) GetTopPort() int {
+
+	dbconn := CreateDBConnection()
+	defer CloseDBConnection(dbconn)
+
+	// select top. if not exists port then returns minimum port
+	row := dbconn.QueryRow("select port from port_temp order by port desc limit 1")
+	if row == nil {
+		logger.DEBUG("repository/taco-registry.go", "GetTopPort", "Port is not exists")
+		return minio.MinioMinPort
+	}
+	var topPort int
+	err := row.Scan(&topPort)
+	if err != nil {
+		logger.ERROR("repository/taco-registry.go", "GetTopPort", err.Error())
+		return minio.MinioMinPort
+	}
+
+	logger.DEBUG("repository/taco-registry.go", "GetTopPort", fmt.Sprintf("Current Top Port is [%v]", topPort))
+
+	return topPort
+}
+
+// InsertPort is inserting temporary port
+func (a *RegistryRepository) InsertPort(port int) bool {
+	dbconn := CreateDBConnection()
+	defer CloseDBConnection(dbconn)
+
+	_, err := dbconn.Exec("insert into port_temp (port) values ($1)", port)
+	if err != nil {
+		logger.ERROR("repository/taco-registry.go", "InsertPort", err.Error())
+		return false
+	}
+
+	return false
+}
+
+// DeletePort is deleting temporary port
+func (a *RegistryRepository) DeletePort(port int) bool {
+	dbconn := CreateDBConnection()
+	defer CloseDBConnection(dbconn)
+
+	_, err := dbconn.Exec("delete from port_temp where port=$1", port)
+	if err != nil {
+		logger.ERROR("repository/taco-registry.go", "InsertPort", err.Error())
+		return false
+	}
+
+	return false
 }

@@ -34,3 +34,9 @@ type DockerPushParam struct {
 	Name    string `json:"name" binding:"required"`
 	Tag     string `json:"tag" binding:"required"`
 }
+
+// DockerPullParam is parameters for docker api
+type DockerPullParam struct {
+	Name string `json:"name" binding:"required"`
+	Tag  string `json:"tag" binding:"required"`
+}

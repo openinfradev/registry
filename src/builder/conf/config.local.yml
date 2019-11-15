@@ -35,3 +35,8 @@ redis:
 # clair configuration
 clair:
   endpoint: "exntu.kr:26060"
+
+# minio configuration
+minio:
+  domain: taco-registry
+  dir: /home/linus/minio/data
