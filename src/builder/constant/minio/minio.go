@@ -1,5 +1,8 @@
 package minio
 
+// MinioDataPath is data path inside container
+const MinioDataPath string = "/data"
+
 // MinioImageName is minio image repository name
 const MinioImageName string = "minio/minio"
 

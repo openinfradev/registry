@@ -20,6 +20,16 @@ type DockerBuildByGitParam struct {
 	Push          bool   `json:"push" binding:"required"`
 }
 
+// DockerBuildByMinioParam is parameters for docker api
+type DockerBuildByMinioParam struct {
+	BuildID       string `json:"build" binding:"required"`
+	Name          string `json:"name" binding:"required"`
+	UserID        string `json:"userId" binding:"required"`
+	Path          string `json:"path" binding:"required"`
+	UseCache      bool   `json:"useCache" binding:"required"`
+	Push          bool   `json:"push" binding:"required"`
+}
+
 // DockerTagParam is parameters for docker api
 type DockerTagParam struct {
 	BuildID string `json:"build" binding:"required"`

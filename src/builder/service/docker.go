@@ -1,6 +1,7 @@
 package service
 
 import (
+	"builder/constant/minio"
 	"bufio"
 	"builder/constant"
 	tacoconst "builder/constant/taco"
@@ -36,9 +37,17 @@ func (d *DockerService) BuildByCopiedMinioBucket() *model.BasicResult {
 }
 
 // BuildByMinioBucket is docker building by minio bucket
-func (d *DockerService) BuildByMinioBucket() *model.BasicResult {
+func (d *DockerService) BuildByMinioBucket(params *model.DockerBuildByMinioParam) *model.BasicResult {
+	// phase - preparing
+	p := tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhasePreparing.StartSeq, tacoconst.PhasePreparing.Status)
+	registryRepository.InsertBuildLog(p)
 
-	return nil
+	// phase - unpacking
+	p = tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhaseUnpacking.StartSeq, tacoconst.PhaseUnpacking.Status)
+	registryRepository.InsertBuildLog(p)
+
+	path := fmt.Sprintf("%s/%s", minio.MinioDataPath, params.UserID)
+	return d.Build(params.BuildID, params.Name, path, params.UseCache, params.Push)
 }
 
 // BuildByDockerfile is docker building by dockerfile

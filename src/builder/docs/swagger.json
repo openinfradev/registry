@@ -69,6 +69,38 @@
                 }
             }
         },
+        "/docker/build/minio": {
+            "post": {
+                "description": "docker build by minio api",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "docker build by minio",
+                "parameters": [
+                    {
+                        "description": "Json Parameters ",
+                        "name": "contents",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.DockerBuildByMinioParam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResult"
+                        }
+                    }
+                }
+            }
+        },
         "/docker/push": {
             "put": {
                 "description": "docker image push",
@@ -553,6 +585,37 @@
                     "type": "string"
                 },
                 "userPw": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DockerBuildByMinioParam": {
+            "type": "object",
+            "required": [
+                "build",
+                "name",
+                "path",
+                "push",
+                "useCache",
+                "userId"
+            ],
+            "properties": {
+                "build": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "push": {
+                    "type": "boolean"
+                },
+                "useCache": {
+                    "type": "boolean"
+                },
+                "userId": {
                     "type": "string"
                 }
             }

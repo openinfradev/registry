@@ -32,6 +32,15 @@ func init() {
 		},
 	)
 
+	// docker build by minio bucket
+	addRequestMapping(
+		RequestMapper{
+			Method:  "POST",
+			Path:    "/docker/build/minio",
+			Request: buildByMinioBucket,
+		},
+	)
+
 	// docker tag
 	addRequestMapping(
 		RequestMapper{
@@ -85,6 +94,24 @@ func buildByGitRepository(c *gin.Context) {
 	c.BindJSON(&params)
 
 	r := dockerService.BuildByGitRepository(params)
+	c.JSON(http.StatusOK, r)
+}
+
+// buildByMinioBucket
+// @Summary docker build by minio
+// @Description docker build by minio api
+// @Name buildByMinioBucket
+// @Accept json
+// @Produce json
+// @Router /docker/build/minio [post]
+// @Param contents body model.DockerBuildByMinioParam true "Json Parameters "
+// @Success 200 {object} model.BasicResult
+func buildByMinioBucket(c *gin.Context) {
+
+	var params *model.DockerBuildByMinioParam
+	c.BindJSON(&params)
+
+	r := dockerService.BuildByMinioBucket(params)
 	c.JSON(http.StatusOK, r)
 }
 

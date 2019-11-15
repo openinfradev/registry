@@ -39,4 +39,4 @@ clair:
 # minio configuration
 minio:
   domain: taco-registry
-  dir: /home/ubuntu/minio/data
+  data: /home/ubuntu/minio/data

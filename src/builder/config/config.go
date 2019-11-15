@@ -29,7 +29,7 @@ func (c *Configuration) Print() {
 	logger.INFO("config/config.go", "Configuration", fmt.Sprintf("Registry\n name[%s]\n insecure[%v]\n endpoint[%s]\n auth[%s]", c.Registry.Name, c.Registry.Insecure, c.Registry.Endpoint, c.Registry.Auth))
 	logger.INFO("config/config.go", "Configuration", fmt.Sprintf("Redis\n endpoint[%s]", c.Redis.Endpoint))
 	logger.INFO("config/config.go", "Configuration", fmt.Sprintf("Clair\n endpoint[%s]", c.Clair.Endpoint))
-	logger.INFO("config/config.go", "Configuration", fmt.Sprintf("Minio\n dir[%s]", c.Minio.Directory))
+	logger.INFO("config/config.go", "Configuration", fmt.Sprintf("Minio\n data[%s]", c.Minio.Data))
 }
 
 // Database is db config
@@ -72,7 +72,7 @@ type Clair struct {
 // Minio is minio config
 type Minio struct {
 	Domain    string `yaml:"domain"`
-	Directory string `yaml:"dir"`
+	Data      string `yaml:"data"`
 }
 
 // LoadConfig returns basicinfo & dbinfo
@@ -124,7 +124,7 @@ func LoadConfig() (*service.BasicInfo, *repository.DBInfo) {
 		AuthURL:          conf.Registry.Auth,
 		ServiceDomain:    conf.Default.Domain,
 		ServicePort:      conf.Default.Port,
-		MinioDirectory:   conf.Minio.Directory,
+		MinioData:        conf.Minio.Data,
 		MinioDomain:      conf.Minio.Domain,
 	}
 	return &basicinfo, &dbinfo

@@ -15,7 +15,7 @@ type BasicInfo struct {
 	AuthURL          string
 	ServiceDomain    string
 	ServicePort      string
-	MinioDirectory   string
+	MinioData        string
 	MinioDomain      string
 }
 

@@ -57,6 +57,28 @@ definitions:
     - userId
     - userPw
     type: object
+  model.DockerBuildByMinioParam:
+    properties:
+      build:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+      push:
+        type: boolean
+      useCache:
+        type: boolean
+      userId:
+        type: string
+    required:
+    - build
+    - name
+    - path
+    - push
+    - useCache
+    - userId
+    type: object
   model.DockerPushParam:
     properties:
       build:
@@ -246,6 +268,27 @@ paths:
           schema:
             $ref: '#/definitions/model.BasicResult'
       summary: docker build by git
+  /docker/build/minio:
+    post:
+      consumes:
+      - application/json
+      description: docker build by minio api
+      parameters:
+      - description: 'Json Parameters '
+        in: body
+        name: contents
+        required: true
+        schema:
+          $ref: '#/definitions/model.DockerBuildByMinioParam'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
+      summary: docker build by minio
   /docker/push:
     put:
       description: docker image push
