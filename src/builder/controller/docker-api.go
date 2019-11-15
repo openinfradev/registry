@@ -41,6 +41,15 @@ func init() {
 		},
 	)
 
+	// docker build by minio bucket copy as
+	addRequestMapping(
+		RequestMapper{
+			Method:  "POST",
+			Path:    "/docker/build/minio-copyas",
+			Request: buildByMinioBucketCopyAs,
+		},
+	)
+
 	// docker tag
 	addRequestMapping(
 		RequestMapper{
@@ -112,6 +121,24 @@ func buildByMinioBucket(c *gin.Context) {
 	c.BindJSON(&params)
 
 	r := dockerService.BuildByMinioBucket(params)
+	c.JSON(http.StatusOK, r)
+}
+
+// buildByMinioBucketCopyAs
+// @Summary docker build by minio copy as
+// @Description docker build by minio copy as api
+// @Name buildByMinioBucketCopyAs
+// @Accept json
+// @Produce json
+// @Router /docker/build/minio-copyas [post]
+// @Param contents body model.DockerBuildByMinioCopyAsParam true "Json Parameters "
+// @Success 200 {object} model.BasicResult
+func buildByMinioBucketCopyAs(c *gin.Context) {
+
+	var params *model.DockerBuildByMinioCopyAsParam
+	c.BindJSON(&params)
+
+	r := dockerService.BuildByCopiedMinioBucket(params)
 	c.JSON(http.StatusOK, r)
 }
 

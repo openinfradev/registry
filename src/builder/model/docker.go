@@ -30,6 +30,13 @@ type DockerBuildByMinioParam struct {
 	Push          bool   `json:"push" binding:"required"`
 }
 
+// DockerBuildByMinioCopyAsParam is parameters for docker api
+type DockerBuildByMinioCopyAsParam struct {
+	DockerBuildByMinioParam
+	SrcUserID                  string `json:"srcUserId" binding:"required"`
+	SrcPath                    string `json:"srcPath" binding:"required"`
+}
+
 // DockerTagParam is parameters for docker api
 type DockerTagParam struct {
 	BuildID string `json:"build" binding:"required"`

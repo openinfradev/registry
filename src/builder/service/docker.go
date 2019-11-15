@@ -32,8 +32,36 @@ func init() {
 }
 
 // BuildByCopiedMinioBucket is docker buiding by copied minio bucket
-func (d *DockerService) BuildByCopiedMinioBucket() *model.BasicResult {
-	return nil
+func (d *DockerService) BuildByCopiedMinioBucket(params *model.DockerBuildByMinioCopyAsParam) *model.BasicResult {
+
+	// phase - preparing
+	p := tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhasePreparing.StartSeq, tacoconst.PhasePreparing.Status)
+	registryRepository.InsertBuildLog(p)
+
+	// phase - unpacking
+	p = tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhaseUnpacking.StartSeq, tacoconst.PhaseUnpacking.Status)
+	registryRepository.InsertBuildLog(p)
+
+	// copy as
+	src := params.SrcPath
+	if strings.HasPrefix(src, "/") {
+		src = strings.Replace(src, "/", "", 1)
+	}
+	dest := params.Path
+	if strings.HasPrefix(dest, "/") {
+		dest = strings.Replace(dest, "/", "", 1)
+	}
+	srcPath := fmt.Sprintf("%s/%s/%s", minio.MinioDataPath, params.SrcUserID, src)
+	destPath := fmt.Sprintf("%s/%s/%s", minio.MinioDataPath, params.UserID, dest)
+	err := fileManager.CopyDirectory(srcPath, destPath)
+	if err != nil {
+		return &model.BasicResult{
+			Code: constant.ResultFail,
+			Message: "",
+		}
+	}
+
+	return d.Build(params.BuildID, params.Name, destPath, params.UseCache, params.Push)
 }
 
 // BuildByMinioBucket is docker building by minio bucket
@@ -46,8 +74,12 @@ func (d *DockerService) BuildByMinioBucket(params *model.DockerBuildByMinioParam
 	p = tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhaseUnpacking.StartSeq, tacoconst.PhaseUnpacking.Status)
 	registryRepository.InsertBuildLog(p)
 
-	path := fmt.Sprintf("%s/%s", minio.MinioDataPath, params.UserID)
-	return d.Build(params.BuildID, params.Name, path, params.UseCache, params.Push)
+	path := params.Path
+	if strings.HasPrefix(path, "/") {
+		path = strings.Replace(path, "/", "", 1)
+	}
+	fullPath := fmt.Sprintf("%s/%s/%s", minio.MinioDataPath, params.UserID, path)
+	return d.Build(params.BuildID, params.Name, fullPath, params.UseCache, params.Push)
 }
 
 // BuildByDockerfile is docker building by dockerfile

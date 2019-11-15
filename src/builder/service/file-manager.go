@@ -7,6 +7,7 @@ import (
 	"builder/util/logger"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -37,6 +38,72 @@ func (f *FileManager) DeleteDirectory(path string) {
 		logger.ERROR("service/file-manager.go", "DeleteDirectory", err.Error())
 	}
 }
+
+// CopyFile is copy file src to dist
+func (f *FileManager) CopyFile(source string, dest string) (err error) {
+	sourcefile, err := os.Open(source)
+	if err != nil {
+		return err
+	}
+
+	defer sourcefile.Close()
+
+	destfile, err := os.Create(dest)
+	if err != nil {
+		return err
+	}
+
+	defer destfile.Close()
+
+	_, err = io.Copy(destfile, sourcefile)
+	if err == nil {
+		sourceinfo, err := os.Stat(source)
+		if err != nil {
+			err = os.Chmod(dest, sourceinfo.Mode())
+		}
+	}
+	return
+}
+
+// CopyDirectory is directory src to dist
+func (f *FileManager) CopyDirectory(source string, dest string) (err error) {
+
+	// get properties of source dir
+	sourceinfo, err := os.Stat(source)
+	if err != nil {
+		return err
+	}
+
+	// create dest dir
+	err = os.MkdirAll(dest, sourceinfo.Mode())
+	if err != nil {
+		return err
+	}
+
+	directory, _ := os.Open(source)
+	objects, err := directory.Readdir(-1)
+
+	for _, obj := range objects {
+		sourcefilepointer := source + "/" + obj.Name()
+		destinationfilepointer := dest + "/" + obj.Name()
+
+		if obj.IsDir() {
+			// create sub-directories - recursively
+			err = f.CopyDirectory(sourcefilepointer, destinationfilepointer)
+			if err != nil {
+				logger.ERROR("service/file-manager.go", "CopyDirectory", err.Error())
+			}
+		} else {
+			// perform copy
+			err = f.CopyFile(sourcefilepointer, destinationfilepointer)
+			if err != nil {
+				logger.ERROR("service/file-manager.go", "CopyDirectory", err.Error())
+			}
+		}
+	}
+	return
+}
+
 
 // WriteDockerfile returns written dockerfile path
 func (f *FileManager) WriteDockerfile(contents string) (string, error) {

@@ -3,8 +3,7 @@ package controller
 import (
 	"builder/constant"
 	"builder/model"
-	"builder/util"
-	"fmt"
+	// "builder/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -58,10 +57,10 @@ func health(c *gin.Context) {
 // @Success 200
 func test(c *gin.Context) {
 
-	sample := "linus@github.com/repo/aaaa.git"
-	gitRepo := util.ExtractGitRepositoryURL(sample)
+	// dockerService := new(service.DockerService)
+	// dockerService.Test("/home/linus/ngrinder", "/home/linus/ngrinder666")
+	
 	c.JSON(http.StatusOK, &model.BasicResult{
 		Code:    constant.ResultSuccess,
-		Message: fmt.Sprintf("protocol[%s] url[%s]", gitRepo.Protocol, gitRepo.URL),
 	})
 }
