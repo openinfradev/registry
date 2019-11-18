@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
+	"strconv"
 
 	"gopkg.in/yaml.v2"
 )
@@ -27,7 +29,7 @@ func (c *Configuration) Print() {
 	logger.INFO("config/config.go", "Configuration", fmt.Sprintf("Registry\n name[%s]\n insecure[%v]\n endpoint[%s]\n auth[%s]", c.Registry.Name, c.Registry.Insecure, c.Registry.Endpoint, c.Registry.Auth))
 	logger.INFO("config/config.go", "Configuration", fmt.Sprintf("Redis\n endpoint[%s]", c.Redis.Endpoint))
 	logger.INFO("config/config.go", "Configuration", fmt.Sprintf("Clair\n endpoint[%s]", c.Clair.Endpoint))
-	logger.INFO("config/config.go", "Configuration", fmt.Sprintf("Minio\n data[%s]", c.Minio.Data))
+	logger.INFO("config/config.go", "Configuration", fmt.Sprintf("Minio\n data[%s]\n domain[%s]\n ports[from %v to %v]", c.Minio.Data, c.Minio.Domain, c.Minio.StartOfPort, c.Minio.EndOfPort))
 }
 
 // Database is db config
@@ -69,8 +71,11 @@ type Clair struct {
 
 // Minio is minio config
 type Minio struct {
-	Domain    string `yaml:"domain"`
-	Data      string `yaml:"data"`
+	Domain         string `yaml:"domain"`
+	Data           string `yaml:"data"`
+	Ports          string `yaml:"ports"`
+	StartOfPort    int
+	EndOfPort      int
 }
 
 var config *Configuration
@@ -101,6 +106,22 @@ func LoadConfig() {
 		loglevel = config.Default.LogLevel
 	}
 	logger.SetLevel(loglevel)
+
+	// minio port
+	ports := strings.Split(config.Minio.Ports, "-")
+	if len(ports) < 2 {
+		logger.FATAL("config/config.go", "LoadConfig", "Wrong ports in minio configuration")
+	}
+	sp, err := strconv.Atoi(ports[0])
+	if err != nil {
+		logger.FATAL("config/config.go", "LoadConfig", err.Error())
+	}
+	ep, err := strconv.Atoi(ports[1])
+	if err != nil {
+		logger.FATAL("config/config.go", "LoadConfig", err.Error())
+	}
+	config.Minio.StartOfPort = sp
+	config.Minio.EndOfPort = ep
 
 	config.Print()
 }

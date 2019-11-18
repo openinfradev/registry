@@ -40,3 +40,4 @@ clair:
 minio:
   domain: taco-registry
   data: /home/linus/minio/data
+  ports: 9001-10000

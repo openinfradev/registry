@@ -1,6 +1,7 @@
 package main
 
 import (
+	"builder/repository"
 	"builder/config"
 	"builder/controller"
 	"builder/docs"
@@ -39,6 +40,12 @@ func main() {
 	// docker login
 	dockerService := new(service.DockerService)
 	go dockerService.Login()
+
+	// initialize minio port
+	registryRepository := new(repository.RegistryRepository)
+	if !registryRepository.CreatePortTableIfExists() {
+		panic("Failed to create port temporary table for minio")
+	}
 
 	// server run
 	server.Run(config.GetConfig().Default.Port)

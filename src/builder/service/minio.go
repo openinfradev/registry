@@ -64,12 +64,18 @@ func (m *MinioService) CreateMinio(params *model.MinioParam) *model.MinioResult 
 	}
 
 	// 3. minio port process
-	is.RegistryRepository.CreatePortTableIfExists()
-	topPort := is.RegistryRepository.GetTopPort()
-	topPort++
+	availablePort, err := is.RegistryRepository.GetAvailablePort()
+	if err != nil {
+		return &model.MinioResult{
+			BasicResult: model.BasicResult{
+				Code:    constant.ResultFail,
+				Message: err.Error(),
+			},
+		}
+	}
 
 	// 4. run minio container
-	run := exec.Command("/bin/sh", "-c", fmt.Sprintf(minio.MinioDockerRunTemplate, topPort, params.UserID, mountPath, params.UserID, decoded, minio.MinioImageName, minio.MinioImageTag))
+	run := exec.Command("/bin/sh", "-c", fmt.Sprintf(minio.MinioDockerRunTemplate, availablePort, params.UserID, mountPath, params.UserID, decoded, minio.MinioImageName, minio.MinioImageTag))
 	err = run.Run()
 	if err != nil {
 		logger.ERROR("service/minio.go", "CreateMinio", err.Error())
@@ -93,8 +99,8 @@ func (m *MinioService) CreateMinio(params *model.MinioParam) *model.MinioResult 
 		}
 	}
 
-	// 6. insert new port
-	is.RegistryRepository.InsertPort(topPort)
+	// 6. delete port
+	is.RegistryRepository.DeletePort(availablePort)
 
 	// logger.DEBUG("service/minio.go", "CreateMinio", fmt.Sprintf("%s %s %s", params.UserID, decoded, mountPath))
 
@@ -104,7 +110,7 @@ func (m *MinioService) CreateMinio(params *model.MinioParam) *model.MinioResult 
 			Message: "",
 		},
 		Domain: minioinfo.Domain,
-		Port:   topPort,
+		Port:   availablePort,
 	}
 }
 
@@ -116,7 +122,7 @@ func (m *MinioService) DeleteMinio(userID string) bool {
 		// delete temporary port
 		logger.DEBUG("service/minio.go", "DeleteMinio", fmt.Sprintf("Deletion target container port [%s]", port))
 		iport, _ := strconv.Atoi(port)
-		is.RegistryRepository.DeletePort(iport)
+		is.RegistryRepository.InsertPort(iport)
 	}
 
 	// remove minio container

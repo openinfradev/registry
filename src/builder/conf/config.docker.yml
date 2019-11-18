@@ -40,3 +40,5 @@ clair:
 minio:
   domain: taco-registry
   data: /home/ubuntu/minio/data
+  ports: 9001-10000
+  

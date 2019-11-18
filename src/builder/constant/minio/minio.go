@@ -23,6 +23,3 @@ const MinioRemoveContainerTemplate string = "docker rm -f taco-minio-%s"
 
 // MinioGetContainerPortTemplate is getting port number
 const MinioGetContainerPortTemplate string = "docker inspect taco-minio-%s | grep -Ei '\"HostPort\":.+?\"([0-9]+)\"' | grep -oEi '([0-9]+)' | head -1"
-
-// MinioMinPort is minium port
-const MinioMinPort int = 9001

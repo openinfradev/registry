@@ -1,9 +1,10 @@
 package repository
 
 import (
-	"builder/constant/minio"
+	"builder/config"
 	"builder/model"
 	"builder/util/logger"
+	"errors"
 	"fmt"
 )
 
@@ -102,37 +103,66 @@ func (a *RegistryRepository) CreatePortTableIfExists() bool {
 	dbconn := CreateDBConnection()
 	defer CloseDBConnection(dbconn)
 
-	_, err := dbconn.Exec("create table if not exists port_temp (port integer not null, primary key (port) ) ")
-	if err != nil {
-		logger.ERROR("repository/taco-registry.go", "CreatePortTableIfExists", err.Error())
-		return false
+	exists := false
+
+	row := dbconn.QueryRow("select exists (select 1 from pg_tables where schemaname='public' and tablename = 'port_temp')")
+	if row != nil {
+		err := row.Scan(&exists)
+		if err != nil {
+			logger.ERROR("repository/taco-registry.go", "CreatePortTableIfExists", err.Error())
+			exists = false
+		}
+	}
+
+	logger.INFO("repository/taco-registry.go", "CreatePortTableIfExists", fmt.Sprintf("port_temp table is exists [%v]", exists))
+
+	if !exists {
+		_, err := dbconn.Exec("create table if not exists port_temp (port integer not null, primary key (port) ) ")
+		if err != nil {
+			logger.ERROR("repository/taco-registry.go", "CreatePortTableIfExists", err.Error())
+			return false
+		}
+
+		bulks, err := dbconn.Prepare("insert into port_temp (port) values ($1) ")
+		if err != nil {
+			logger.ERROR("repository/taco-registry.go", "CreatePortTableIfExists", err.Error())
+			return false
+		}
+		defer bulks.Close()
+		
+		minioinfo := config.GetConfig().Minio
+		for i := minioinfo.StartOfPort; i<=minioinfo.EndOfPort; i++ {
+			_, err = bulks.Exec(i)
+			if err != nil {
+				logger.DEBUG("repository/taco-registry.go", "CreatePortTableIfExists", err.Error())
+			}
+		}
 	}
 	return true
-
 }
 
-// GetTopPort returns top port of exists ports
-func (a *RegistryRepository) GetTopPort() int {
+// GetAvailablePort returns available port of exists ports
+func (a *RegistryRepository) GetAvailablePort() (int, error) {
 
 	dbconn := CreateDBConnection()
 	defer CloseDBConnection(dbconn)
 
 	// select top. if not exists port then returns minimum port
-	row := dbconn.QueryRow("select port from port_temp order by port desc limit 1")
+	row := dbconn.QueryRow("select port from port_temp order by port asc limit 1")
 	if row == nil {
-		logger.DEBUG("repository/taco-registry.go", "GetTopPort", "Port is not exists")
-		return minio.MinioMinPort
+		logger.DEBUG("repository/taco-registry.go", "GetAvailablePort", "Port is not exists")
+		return 0, errors.New("Port is not exists")
 	}
-	var topPort int
-	err := row.Scan(&topPort)
+	var availablePort int
+	err := row.Scan(&availablePort)
 	if err != nil {
-		logger.ERROR("repository/taco-registry.go", "GetTopPort", err.Error())
-		return minio.MinioMinPort
+		logger.ERROR("repository/taco-registry.go", "GetAvailablePort", err.Error())
+		return 0, errors.New("Port is not exists")
 	}
 
-	logger.DEBUG("repository/taco-registry.go", "GetTopPort", fmt.Sprintf("Current Top Port is [%v]", topPort))
+	logger.DEBUG("repository/taco-registry.go", "GetAvailablePort", fmt.Sprintf("Available Port is [%v]", availablePort))
 
-	return topPort
+	return availablePort, nil
 }
 
 // InsertPort is inserting temporary port
@@ -156,7 +186,7 @@ func (a *RegistryRepository) DeletePort(port int) bool {
 
 	_, err := dbconn.Exec("delete from port_temp where port=$1", port)
 	if err != nil {
-		logger.ERROR("repository/taco-registry.go", "InsertPort", err.Error())
+		logger.ERROR("repository/taco-registry.go", "DeletePort", err.Error())
 		return false
 	}
 
