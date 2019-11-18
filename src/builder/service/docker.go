@@ -1,6 +1,7 @@
 package service
 
 import (
+	"builder/config"
 	"builder/constant/minio"
 	"bufio"
 	"builder/constant"
@@ -302,7 +303,9 @@ func (d *DockerService) Login() {
 
 func loginJob(ch chan<- string) {
 
-	login := exec.Command("docker", "login", basicinfo.RegistryEndpoint, "--username", tacoconst.BuilderUser, "--password", tacoconst.BuilderPass)
+	registryinfo := config.GetConfig().Registry
+
+	login := exec.Command("docker", "login", registryinfo.Endpoint, "--username", tacoconst.BuilderUser, "--password", tacoconst.BuilderPass)
 	r := ""
 	stdout, _ := login.StdoutPipe()
 	login.Start()
@@ -315,21 +318,24 @@ func loginJob(ch chan<- string) {
 	login.Wait()
 
 	if strings.Contains(r, tacoconst.LoginSucceeded) {
-		logger.INFO("service/docker.go", "loginJob", fmt.Sprintf("[%s] logged in succeeded", basicinfo.RegistryEndpoint))
+		logger.INFO("service/docker.go", "loginJob", fmt.Sprintf("[%s] logged in succeeded", registryinfo.Endpoint))
 		ch <- constant.ResultSuccess
 	} else {
-		logger.INFO("service/docker.go", "loginJob", fmt.Sprintf("[%s] logged in failed", basicinfo.RegistryEndpoint))
+		logger.INFO("service/docker.go", "loginJob", fmt.Sprintf("[%s] logged in failed", registryinfo.Endpoint))
 		ch <- constant.ResultFail
 	}
 }
 
 func pullJob(ch chan<- string, repoName string, tag string, external bool) {
+
+	registryinfo := config.GetConfig().Registry
+
 	logger.DEBUG("service/docker.go", "pullJob", fmt.Sprintf("pullJob start [%s:%s]", repoName, tag))
 
 	if external {
-		repoName = repoName + ":" + tag
+		repoName = fmt.Sprintf("%s:%s", repoName, tag)
 	} else {
-		repoName = basicinfo.RegistryEndpoint + "/" + repoName + ":" + tag
+		repoName = fmt.Sprintf("%s/%s:%s", registryinfo.Endpoint, repoName, tag)
 	}
 
 	pull := exec.Command("docker", "pull", repoName)
@@ -361,9 +367,12 @@ func pullJob(ch chan<- string, repoName string, tag string, external bool) {
 }
 
 func pushJob(ch chan<- string, repoName string, tag string) {
+
+	registryinfo := config.GetConfig().Registry
+
 	logger.DEBUG("service/docker.go", "pushJob", fmt.Sprintf("pushJob start [%s:%s]", repoName, tag))
 
-	repoName = basicinfo.RegistryEndpoint + "/" + repoName + ":" + tag
+	repoName = fmt.Sprintf("%s/%s:%s", registryinfo.Endpoint, repoName, tag)
 	push := exec.Command("docker", "push", repoName)
 
 	r := ""
@@ -393,10 +402,13 @@ func pushJob(ch chan<- string, repoName string, tag string) {
 }
 
 func tagJob(ch chan<- string, repoName string, oldTag string, newTag string) {
+
+	registryinfo := config.GetConfig().Registry
+
 	logger.DEBUG("service/docker.go", "tagJob", fmt.Sprintf("tagJob [%s] [%s] to [%s]", repoName, oldTag, newTag))
 
-	oldRepo := basicinfo.RegistryEndpoint + "/" + repoName + ":" + oldTag
-	newRepo := basicinfo.RegistryEndpoint + "/" + repoName + ":" + newTag
+	oldRepo := fmt.Sprintf("%s/%s:%s", registryinfo.Endpoint, repoName, oldTag)
+	newRepo := fmt.Sprintf("%s/%s:%s", registryinfo.Endpoint, repoName, newTag)
 
 	tag := exec.Command("docker", "tag", oldRepo, newRepo)
 
@@ -411,6 +423,9 @@ func tagJob(ch chan<- string, repoName string, oldTag string, newTag string) {
 }
 
 func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath string, useCache bool, tempDelete bool) {
+
+	registryinfo := config.GetConfig().Registry
+
 	logger.DEBUG("service/docker.go", "buildJob", "buildJob start "+repoName)
 
 	seq := tacoconst.PhaseBuilding.StartSeq
@@ -421,7 +436,7 @@ func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath 
 	p := tacoutil.MakePhaseLog(buildID, seq, tacoconst.PhaseBuilding.Status)
 	is.RegistryRepository.InsertBuildLog(p)
 
-	repoName = basicinfo.RegistryEndpoint + "/" + repoName + ":latest"
+	repoName = fmt.Sprintf("%s/%s:%s", registryinfo.Endpoint, repoName, "latest")
 	var build *exec.Cmd
 	if useCache {
 		// phase - checking cache
@@ -529,7 +544,9 @@ func procTagError(buildID string, tag string) {
 
 func getImageSize(repoName string, tag string) string {
 
-	repo := basicinfo.RegistryEndpoint + "/" + repoName + ":" + tag
+	registryinfo := config.GetConfig().Registry
+
+	repo := fmt.Sprintf("%s/%s:%s", registryinfo.Endpoint, repoName, tag)
 	cmd := "docker images --filter=reference='" + repo + "' --format \"{{.Size}}\""
 	stdout, err := exec.Command("/bin/sh", "-c", cmd).Output()
 	if err != nil {

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"builder/config"
 	"bufio"
 	urlconst "builder/constant/url"
 	"builder/util"
@@ -19,7 +20,7 @@ type FileManager struct{}
 
 // GetTemporaryPath returns temporary path(directory) string
 func (f *FileManager) GetTemporaryPath() string {
-	return basicinfo.TemporaryPath + "/" + util.GetTimeMillisecond()
+	return config.GetConfig().Default.TmpDir + "/" + util.GetTimeMillisecond()
 }
 
 // MakeDirectory is making dir on root
@@ -128,7 +129,7 @@ func (f *FileManager) PullGitRepository(gitRepoURL string, userID string, userPW
 		// private
 		gitURL = fmt.Sprintf(urlconst.GitRepositoryPrivateURL, gitRepo.Protocol, url.QueryEscape(userID), url.QueryEscape(userPW), gitRepo.URL)
 	}
-	gitClone := exec.Command("docker", "run", "--rm", "-v", fmt.Sprintf("%s:/tmp", basicinfo.TemporaryPath), "alpine/git", "clone", gitURL, dirPath)
+	gitClone := exec.Command("docker", "run", "--rm", "-v", fmt.Sprintf("%s:/tmp", config.GetConfig().Default.TmpDir), "alpine/git", "clone", gitURL, dirPath)
 
 	logger.DEBUG("service/file-manager.go", "PullGitRepository", gitURL)
 

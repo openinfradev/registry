@@ -2,44 +2,28 @@ package repository
 
 import (
 	"builder/util/logger"
+	"builder/config"
 	"database/sql"
 	"fmt"
 )
 
-// DBInfo is basically database information
-type DBInfo struct {
-	DBtype string
-	DBhost string
-	DBport string
-	DBuser string
-	DBpass string
-	DBname string
-	DBxarg string
-}
-
-var dbinfo *DBInfo
-
-// SetDBConnectionInfo is setting database basically information
-func SetDBConnectionInfo(info *DBInfo) {
-	logger.INFO("repository/repository.go", "SetDBConnectionInfo", "setting database connection information")
-
-	dbinfo = info
-}
-
 // CreateDBConnection return created database connection
 func CreateDBConnection() *sql.DB {
 	url := ""
-	switch dbinfo.DBtype {
+
+	dbinfo := config.GetConfig().Database
+
+	switch dbinfo.Type {
 	case "mysql":
-		url = fmt.Sprintf("%v:%v@tcp(%v:%v)/%v", dbinfo.DBuser, dbinfo.DBpass, dbinfo.DBhost, dbinfo.DBport, dbinfo.DBname)
-		if dbinfo.DBxarg != "" {
-			url += "?" + dbinfo.DBxarg
+		url = fmt.Sprintf("%v:%v@tcp(%v:%v)/%v", dbinfo.User, dbinfo.Password, dbinfo.Host, dbinfo.Port, dbinfo.Name)
+		if dbinfo.Xargs != "" {
+			url += "?" + dbinfo.Xargs
 		}
 	case "postgres":
-		url = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable options='%s'", dbinfo.DBhost, dbinfo.DBport, dbinfo.DBuser, dbinfo.DBpass, dbinfo.DBname, dbinfo.DBxarg)
+		url = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable options='%s'", dbinfo.Host, dbinfo.Port, dbinfo.User, dbinfo.Password, dbinfo.Name, dbinfo.Xargs)
 	}
 
-	db, err := sql.Open(dbinfo.DBtype, url)
+	db, err := sql.Open(dbinfo.Type, url)
 	if err != nil {
 		logger.ERROR("repository/repository.go", "CreateDBConnection", "failed database connection : "+err.Error())
 	}

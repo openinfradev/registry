@@ -1,6 +1,7 @@
 package service
 
 import (
+	"builder/config"
 	"builder/model"
 	"builder/util"
 	"builder/util/logger"
@@ -41,7 +42,7 @@ func (g *RegisterService) Regist() {
 	}
 	builderList := &model.BuilderList{}
 	json.Unmarshal([]byte(builderListJSON), &builderList)
-	port, _ := strconv.Atoi(basicinfo.ServicePort)
+	port, _ := strconv.Atoi(config.GetConfig().Default.Port)
 
 	// container ip
 	self := &model.Builder{
@@ -86,7 +87,7 @@ func (g *RegisterService) Sync() {
 // InitClient is register create
 func (g *RegisterService) InitClient() {
 	g.Register = redis.NewClient(&redis.Options{
-		Addr:     basicinfo.RedisEndpoint,
+		Addr:     config.GetConfig().Redis.Endpoint,
 		Password: "",
 		DB:       0,
 	})

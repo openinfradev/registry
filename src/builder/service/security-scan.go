@@ -1,6 +1,7 @@
 package service
 
 import (
+	"builder/config"
 	"builder/constant"
 	"builder/constant/scope"
 	urlconst "builder/constant/url"
@@ -25,7 +26,7 @@ func (s *SecurityService) GetLayer(layerID string) *model.SecurityScanLayer {
 
 	layerScanResult := &model.SecurityScanLayer{}
 
-	path := fmt.Sprintf(urlconst.SecurityScanLayer, basicinfo.ClairEndpoint, layerID)
+	path := fmt.Sprintf(urlconst.SecurityScanLayer, config.GetConfig().Clair.Endpoint, layerID)
 	// layer features & vulnerabilities
 	path += "?" + urlconst.SecurityScanLayerParam
 	resp, err := http.Get(path)
@@ -130,7 +131,7 @@ func scanJob(ch chan<- string, repoName string, tag string) {
 		c := &model.RegistryManifestV1HistoryValue{}
 		json.Unmarshal([]byte(cs), c)
 
-		path := fmt.Sprintf(basicinfo.GetRegistryURL(urlconst.PathRegistryBlobs), repoName, fsLayers[i].BlobSum)
+		path := fmt.Sprintf(GetRegistryURL(urlconst.PathRegistryBlobs), repoName, fsLayers[i].BlobSum)
 
 		layer := &model.SecurityScanLayerParam{}
 		layer.Name = c.ID
@@ -167,7 +168,7 @@ func scanJob(ch chan<- string, repoName string, tag string) {
 func requestScan(param *model.SecurityScanParam) {
 	b, _ := json.Marshal(param)
 	buff := bytes.NewBuffer(b)
-	path := fmt.Sprintf(urlconst.SecurityScan, basicinfo.ClairEndpoint)
+	path := fmt.Sprintf(urlconst.SecurityScan, config.GetConfig().Clair.Endpoint)
 	resp, err := http.Post(path, "application/json", buff)
 	if err != nil {
 		logger.ERROR("service/security-scan.go", "requestScan", err.Error())

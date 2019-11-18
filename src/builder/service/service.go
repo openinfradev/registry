@@ -1,24 +1,9 @@
 package service
 
 import (
-	"builder/util/logger"
+	"builder/config"
 	"builder/repository"
 )
-
-// BasicInfo is defined service information
-type BasicInfo struct {
-	RegistryName     string
-	RegistryInsecure bool
-	RegistryEndpoint string
-	TemporaryPath    string
-	RedisEndpoint    string
-	ClairEndpoint    string
-	AuthURL          string
-	ServiceDomain    string
-	ServicePort      string
-	MinioData        string
-	MinioDomain      string
-}
 
 // InjectedServices is injection services
 type InjectedServices struct {
@@ -32,8 +17,6 @@ type InjectedServices struct {
 
 var is *InjectedServices
 
-var basicinfo *BasicInfo
-
 func init() {
 	is = &InjectedServices {
 		DockerService:      new(DockerService),
@@ -45,22 +28,18 @@ func init() {
 	}
 }
 
-// SetBasicInfo is setting service information
-func SetBasicInfo(info *BasicInfo) {
-	logger.INFO("service/service.go", "SetBasicInfo", "setting service information")
-
-	basicinfo = info
-}
-
 // GetRegistryURL returns registry full url
-func (b *BasicInfo) GetRegistryURL(path string) string {
+func GetRegistryURL(path string) string {
 	url := ""
-	if basicinfo.RegistryInsecure {
+
+	registryinfo := config.GetConfig().Registry
+
+	if registryinfo.Insecure {
 		url = "http://"
 	} else {
 		url = "https://"
 	}
-	url += basicinfo.RegistryEndpoint
+	url += registryinfo.Endpoint
 	url += path
 
 	// logger.DEBUG("service/service.go", "GetRegistryURL", url)

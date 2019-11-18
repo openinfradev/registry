@@ -1,8 +1,6 @@
 package config
 
 import (
-	"builder/repository"
-	"builder/service"
 	"builder/util/logger"
 	"fmt"
 	"io/ioutil"
@@ -75,8 +73,10 @@ type Minio struct {
 	Data      string `yaml:"data"`
 }
 
-// LoadConfig returns basicinfo & dbinfo
-func LoadConfig() (*service.BasicInfo, *repository.DBInfo) {
+var config *Configuration
+
+// LoadConfig is parsing configuration
+func LoadConfig() {
 
 	configFile := os.Getenv("BUILDER_CONFIG")
 	loglevel := os.Getenv("BUILDER_LOG_LEVEL")
@@ -90,42 +90,23 @@ func LoadConfig() (*service.BasicInfo, *repository.DBInfo) {
 	if err != nil {
 		logger.FATAL("config/config.go", "LoadConfig", err.Error())
 	}
-	conf := &Configuration{}
-	err = yaml.Unmarshal(yamlFile, conf)
+	config = &Configuration{}
+	err = yaml.Unmarshal(yamlFile, config)
 	if err != nil {
 		logger.FATAL("config/config.go", "LoadConfig", err.Error())
 	}
 
-	conf.Print()
-
 	// log level
 	if loglevel == "" {
-		loglevel = conf.Default.LogLevel
+		loglevel = config.Default.LogLevel
 	}
 	logger.SetLevel(loglevel)
 
-	dbinfo := repository.DBInfo{
-		DBtype: conf.Database.Type,
-		DBhost: conf.Database.Host,
-		DBport: conf.Database.Port,
-		DBuser: conf.Database.User,
-		DBpass: conf.Database.Password,
-		DBname: conf.Database.Name,
-		DBxarg: conf.Database.Xargs,
-	}
-
-	basicinfo := service.BasicInfo{
-		RegistryName:     conf.Registry.Name,
-		RegistryInsecure: conf.Registry.Insecure,
-		RegistryEndpoint: conf.Registry.Endpoint,
-		TemporaryPath:    conf.Default.TmpDir,
-		RedisEndpoint:    conf.Redis.Endpoint,
-		ClairEndpoint:    conf.Clair.Endpoint,
-		AuthURL:          conf.Registry.Auth,
-		ServiceDomain:    conf.Default.Domain,
-		ServicePort:      conf.Default.Port,
-		MinioData:        conf.Minio.Data,
-		MinioDomain:      conf.Minio.Domain,
-	}
-	return &basicinfo, &dbinfo
+	config.Print()
 }
+
+// GetConfig returns configuration
+func GetConfig() *Configuration {
+	return config
+}
+

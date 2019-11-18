@@ -1,6 +1,7 @@
 package service
 
 import (
+	"builder/config"
 	"builder/constant"
 	"builder/constant/minio"
 	"builder/model"
@@ -27,6 +28,8 @@ func (m *MinioService) ExistsContainer(userID string) bool {
 // CreateMinio is creating minio container by user
 func (m *MinioService) CreateMinio(params *model.MinioParam) *model.MinioResult {
 
+	minioinfo := config.GetConfig().Minio
+
 	// 0. decoded password
 	decoded, err := base64.StdEncoding.DecodeString(params.UserPW)
 	if err != nil {
@@ -40,7 +43,7 @@ func (m *MinioService) CreateMinio(params *model.MinioParam) *model.MinioResult 
 
 	// 1. make directory (if not exists)
 	is.FileManager.MakeDirectory(minio.MinioDataPath, params.UserID)
-	mountPath := fmt.Sprintf("%s/%s", basicinfo.MinioData, params.UserID)
+	mountPath := fmt.Sprintf("%s/%s", minioinfo.Data, params.UserID)
 
 	// 2. pulling minio docker image
 	pullParam := &model.DockerPullParam{
@@ -100,7 +103,7 @@ func (m *MinioService) CreateMinio(params *model.MinioParam) *model.MinioResult 
 			Code:    constant.ResultSuccess,
 			Message: "",
 		},
-		Domain: basicinfo.MinioDomain,
+		Domain: minioinfo.Domain,
 		Port:   topPort,
 	}
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"builder/config"
 	"builder/constant"
 	"builder/constant/scope"
 	urlconst "builder/constant/url"
@@ -33,7 +34,7 @@ func (d *RegistryService) GetCatalog() *model.CatalogResult {
 	if err != nil {
 		return catalogResult
 	}
-	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(urlconst.PathRegistryCatalog), nil)
+	req, err := http.NewRequest("GET", GetRegistryURL(urlconst.PathRegistryCatalog), nil)
 	if err != nil {
 		return catalogResult
 	}
@@ -76,7 +77,7 @@ func (d *RegistryService) GetRepository(repoName string) *model.RepositoryResult
 	if err != nil {
 		return repositoryResult
 	}
-	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
+	req, err := http.NewRequest("GET", GetRegistryURL(path), nil)
 	if err != nil {
 		return repositoryResult
 	}
@@ -183,7 +184,7 @@ func (d *RegistryService) DeleteRepositoryTag(repoName string, tag string) *mode
 
 	// delete by digest
 	path := fmt.Sprintf(urlconst.PathRegistryManifest, repoName, digest)
-	req, err := http.NewRequest("DELETE", basicinfo.GetRegistryURL(path), nil)
+	req, err := http.NewRequest("DELETE", GetRegistryURL(path), nil)
 	if err != nil {
 		return &model.BasicResult{
 			Code:    constant.ResultFail,
@@ -240,7 +241,7 @@ func (d *RegistryService) GetDigest(repoName string, tag string) string {
 	}
 
 	path := fmt.Sprintf(urlconst.PathRegistryManifest, repoName, tag)
-	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
+	req, err := http.NewRequest("GET", GetRegistryURL(path), nil)
 	if err != nil {
 		return ""
 	}
@@ -272,7 +273,7 @@ func (d *RegistryService) GetManifestV1(repoName string, tag string) map[string]
 	}
 
 	path := fmt.Sprintf(urlconst.PathRegistryManifest, repoName, tag)
-	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
+	req, err := http.NewRequest("GET", GetRegistryURL(path), nil)
 	if err != nil {
 		return nil
 	}
@@ -312,7 +313,7 @@ func (d *RegistryService) GetManifestV2(repoName string, tag string) map[string]
 	}
 
 	path := fmt.Sprintf(urlconst.PathRegistryManifest, repoName, tag)
-	req, err := http.NewRequest("GET", basicinfo.GetRegistryURL(path), nil)
+	req, err := http.NewRequest("GET", GetRegistryURL(path), nil)
 	if err != nil {
 		return nil
 	}
@@ -341,11 +342,12 @@ func (d *RegistryService) GetManifestV2(repoName string, tag string) map[string]
 
 // Authorization returns docker registry authorization token
 func (d *RegistryService) Authorization(scope *scope.Scope) (string, error) {
-	if basicinfo.AuthURL == "" {
+	registryinfo := config.GetConfig().Registry
+	if registryinfo.Auth == "" {
 		return "", errors.New("Authorization endpoint argument is empty")
 	}
 
-	path := fmt.Sprintf(basicinfo.AuthURL+"?scope=%s&service=%s", scope.String(), basicinfo.RegistryName)
+	path := fmt.Sprintf(registryinfo.Auth+"?scope=%s&service=%s", scope.String(), registryinfo.Name)
 	// logger.DEBUG("service/docker-registry.go", "Authorization", path)
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {
