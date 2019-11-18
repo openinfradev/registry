@@ -61,7 +61,7 @@ func (d *DockerService) BuildByCopiedMinioBucket(params *model.DockerBuildByMini
 		}
 	}
 
-	return d.Build(params.BuildID, params.Name, destPath, params.UseCache, params.Push)
+	return d.Build(params.BuildID, params.Name, destPath, params.UseCache, params.Push, false)
 }
 
 // BuildByMinioBucket is docker building by minio bucket
@@ -79,7 +79,7 @@ func (d *DockerService) BuildByMinioBucket(params *model.DockerBuildByMinioParam
 		path = strings.Replace(path, "/", "", 1)
 	}
 	fullPath := fmt.Sprintf("%s/%s/%s", minio.MinioDataPath, params.UserID, path)
-	return d.Build(params.BuildID, params.Name, fullPath, params.UseCache, params.Push)
+	return d.Build(params.BuildID, params.Name, fullPath, params.UseCache, params.Push, false)
 }
 
 // BuildByDockerfile is docker building by dockerfile
@@ -110,7 +110,7 @@ func (d *DockerService) BuildByDockerfile(params *model.DockerBuildByFileParam) 
 		}
 	}
 
-	return d.Build(params.BuildID, params.Name, path, params.UseCache, params.Push)
+	return d.Build(params.BuildID, params.Name, path, params.UseCache, params.Push, true)
 }
 
 // BuildByGitRepository is docker building by git repository
@@ -143,18 +143,18 @@ func (d *DockerService) BuildByGitRepository(params *model.DockerBuildByGitParam
 		}
 	}
 
-	return d.Build(params.BuildID, params.Name, path, params.UseCache, params.Push)
+	return d.Build(params.BuildID, params.Name, path, params.UseCache, params.Push, true)
 }
 
 // Build is docker building by file path
-func (d *DockerService) Build(buildID string, repoName string, dockerfilePath string, useCache bool, push bool) *model.BasicResult {
+func (d *DockerService) Build(buildID string, repoName string, dockerfilePath string, useCache bool, push bool, tempDelete bool) *model.BasicResult {
 
 	// async
 	ch := make(chan string)
 	if push {
-		go d.BuildAndPush(ch, buildID, repoName, dockerfilePath, useCache)
+		go d.BuildAndPush(ch, buildID, repoName, dockerfilePath, useCache, tempDelete)
 	} else {
-		go buildJob(ch, buildID, repoName, dockerfilePath, useCache)
+		go buildJob(ch, buildID, repoName, dockerfilePath, useCache, tempDelete)
 	}
 
 	// only ok
@@ -165,13 +165,13 @@ func (d *DockerService) Build(buildID string, repoName string, dockerfilePath st
 }
 
 // BuildAndPush is docker build and push
-func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName string, dockerfilePath string, useCache bool) {
+func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName string, dockerfilePath string, useCache bool, tempDelete bool) {
 	// fixed "latest"
 	tag := "latest"
 
 	proc := make(chan string)
 	// build
-	go buildJob(proc, buildID, repoName, dockerfilePath, useCache)
+	go buildJob(proc, buildID, repoName, dockerfilePath, useCache, tempDelete)
 	r := <-proc
 	if r == constant.ResultFail {
 		procBuildError(buildID)
@@ -422,7 +422,7 @@ func tagJob(ch chan<- string, repoName string, oldTag string, newTag string) {
 	}
 }
 
-func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath string, useCache bool) {
+func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath string, useCache bool, tempDelete bool) {
 	logger.DEBUG("service/docker.go", "buildJob", "buildJob start "+repoName)
 
 	seq := tacoconst.PhaseBuilding.StartSeq
@@ -476,7 +476,9 @@ func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath 
 	build.Wait()
 
 	// path removeall
-	fileManager.DeleteDirectory(dockerfilePath)
+	if tempDelete {
+		fileManager.DeleteDirectory(dockerfilePath)
+	}
 
 	ch <- constant.ResultSuccess
 
