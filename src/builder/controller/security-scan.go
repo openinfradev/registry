@@ -1,18 +1,13 @@
 package controller
 
 import (
-	"builder/service"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-var securityService *service.SecurityService
-
 func init() {
-	// inject service
-	securityService = new(service.SecurityService)
 
 	// get layer scanning information
 	addRequestMapping(
@@ -55,7 +50,7 @@ func getSecurityScanLayer(c *gin.Context) {
 
 	layerID := c.Params.ByName("name")
 
-	r := securityService.GetLayer(layerID)
+	r := is.SecurityService.GetLayer(layerID)
 
 	c.JSON(http.StatusOK, r)
 }
@@ -77,7 +72,7 @@ func getSecurityScanLayerByRepo(c *gin.Context) {
 
 	tag := c.Query("tag")
 
-	r := securityService.GetLayerByRepo(repoName, tag)
+	r := is.SecurityService.GetLayerByRepo(repoName, tag)
 
 	c.JSON(http.StatusOK, r)
 }
@@ -98,7 +93,7 @@ func scanLayers(c *gin.Context) {
 
 	tag := c.Query("tag")
 
-	r := securityService.Scan(repoName, tag)
+	r := is.SecurityService.Scan(repoName, tag)
 
 	c.JSON(http.StatusOK, r)
 }

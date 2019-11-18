@@ -2,7 +2,7 @@ package controller
 
 import (
 	"builder/network/server"
-
+	"builder/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +18,28 @@ type RestAPI struct {
 	RequestMapping func(*server.Instance)
 }
 
+// InjectedServices is injection services
+type InjectedServices struct {
+	DockerService    *service.DockerService
+	RegistryService  *service.RegistryService
+	MinioService     *service.MinioService
+	SecurityService  *service.SecurityService
+}
+
+var is *InjectedServices
+
 var mappers []RequestMapper
+
+func init() {
+	// inject service
+	is = &InjectedServices {
+		DockerService:   new(service.DockerService),
+		RegistryService: new(service.RegistryService),
+		MinioService:    new(service.MinioService),
+		SecurityService: new(service.SecurityService),
+	}
+	
+}
 
 // New returns RestAPI
 func New() *RestAPI {

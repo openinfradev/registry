@@ -58,8 +58,7 @@ func (s *SecurityService) GetLayer(layerID string) *model.SecurityScanLayer {
 // GetLayerByRepo returns scanned layer vulnerabilities
 func (s *SecurityService) GetLayerByRepo(repoName string, tag string) *model.SecurityScanLayer {
 
-	registryService := new(RegistryService)
-	manifest := registryService.GetManifestV1(repoName, tag)
+	manifest := is.RegistryService.GetManifestV1(repoName, tag)
 	if manifest == nil {
 		logger.ERROR("service/security-scan.go", "GetLayerByRepo", fmt.Sprintf("Not exists manifest [%s:%s]", repoName, tag))
 		return &model.SecurityScanLayer{
@@ -96,8 +95,7 @@ func scanJob(ch chan<- string, repoName string, tag string) {
 	logger.DEBUG("service/security-scan.go", "scanJob", fmt.Sprintf("start [%s:%s]", repoName, tag))
 
 	// 0. authorization token
-	registryService := new(RegistryService)
-	token, err := registryService.Authorization(&scope.Scope{
+	token, err := is.RegistryService.Authorization(&scope.Scope{
 		Type:     scope.TypeRepository,
 		Resource: repoName,
 		Action:   scope.ActionPull,
@@ -108,7 +106,7 @@ func scanJob(ch chan<- string, repoName string, tag string) {
 	}
 
 	// 1. get manifest
-	manifest := registryService.GetManifestV1(repoName, tag)
+	manifest := is.RegistryService.GetManifestV1(repoName, tag)
 	if manifest == nil {
 		logger.ERROR("service/security-scan.go", "scanJob", fmt.Sprintf("Not exists manifest [%s:%s]", repoName, tag))
 		ch <- constant.ResultFail

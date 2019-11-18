@@ -2,18 +2,13 @@ package controller
 
 import (
 	"builder/model"
-	"builder/service"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-var registryService *service.RegistryService
-
 func init() {
-	// inject service
-	registryService = new(service.RegistryService)
 
 	// registry catalog
 	addRequestMapping(
@@ -71,7 +66,7 @@ func init() {
 // @Router /registry/catalog [get]
 // @Success 200 {object} model.CatalogResult
 func getRegistryCatalog(c *gin.Context) {
-	r := registryService.GetCatalog()
+	r := is.RegistryService.GetCatalog()
 
 	c.JSON(http.StatusOK, r)
 }
@@ -91,10 +86,10 @@ func getRegistryRepositories(c *gin.Context) {
 	repoName = strings.Replace(repoName, "/", "", 1)
 
 	if repoName == "" {
-		r := registryService.GetRepositories()
+		r := is.RegistryService.GetRepositories()
 		c.JSON(http.StatusOK, r)
 	} else {
-		r := registryService.GetRepository(repoName)
+		r := is.RegistryService.GetRepository(repoName)
 		if r.Tags == nil {
 			c.AbortWithStatus(http.StatusNoContent)
 			return
@@ -120,9 +115,9 @@ func deleteRegistryRepository(c *gin.Context) {
 	tag := c.Query("tag")
 	r := &model.BasicResult{}
 	if tag == "" {
-		r = registryService.DeleteRepository(repoName)
+		r = is.RegistryService.DeleteRepository(repoName)
 	} else {
-		r = registryService.DeleteRepositoryTag(repoName, tag)
+		r = is.RegistryService.DeleteRepositoryTag(repoName, tag)
 	}
 	c.JSON(http.StatusOK, r)
 }
@@ -143,7 +138,7 @@ func getRegistryManifestV1(c *gin.Context) {
 
 	tag := c.Query("tag")
 
-	r := registryService.GetManifestV1(repoName, tag)
+	r := is.RegistryService.GetManifestV1(repoName, tag)
 	c.JSON(http.StatusOK, r)
 }
 
@@ -163,6 +158,6 @@ func getRegistryManifestV2(c *gin.Context) {
 
 	tag := c.Query("tag")
 
-	r := registryService.GetManifestV2(repoName, tag)
+	r := is.RegistryService.GetManifestV2(repoName, tag)
 	c.JSON(http.StatusOK, r)
 }

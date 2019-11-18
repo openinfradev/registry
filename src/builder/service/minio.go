@@ -4,7 +4,6 @@ import (
 	"builder/constant"
 	"builder/constant/minio"
 	"builder/model"
-	"builder/repository"
 	"builder/util/logger"
 	"encoding/base64"
 	"fmt"
@@ -40,8 +39,7 @@ func (m *MinioService) CreateMinio(params *model.MinioParam) *model.MinioResult 
 	}
 
 	// 1. make directory (if not exists)
-	fileManager := new(FileManager)
-	fileManager.MakeDirectory(minio.MinioDataPath, params.UserID)
+	is.FileManager.MakeDirectory(minio.MinioDataPath, params.UserID)
 	mountPath := fmt.Sprintf("%s/%s", basicinfo.MinioData, params.UserID)
 
 	// 2. pulling minio docker image
@@ -49,8 +47,7 @@ func (m *MinioService) CreateMinio(params *model.MinioParam) *model.MinioResult 
 		Name: minio.MinioImageName,
 		Tag:  minio.MinioImageTag,
 	}
-	dockerService := new(DockerService)
-	r := dockerService.Pull(pullParam, false, true)
+	r := is.DockerService.Pull(pullParam, false, true)
 	if r.Code != constant.ResultSuccess {
 		return &model.MinioResult{
 			BasicResult: *r,
@@ -64,9 +61,8 @@ func (m *MinioService) CreateMinio(params *model.MinioParam) *model.MinioResult 
 	}
 
 	// 3. minio port process
-	registryRepository := new(repository.RegistryRepository)
-	registryRepository.CreatePortTableIfExists()
-	topPort := registryRepository.GetTopPort()
+	is.RegistryRepository.CreatePortTableIfExists()
+	topPort := is.RegistryRepository.GetTopPort()
 	topPort++
 
 	// 4. run minio container
@@ -95,7 +91,7 @@ func (m *MinioService) CreateMinio(params *model.MinioParam) *model.MinioResult 
 	}
 
 	// 6. insert new port
-	registryRepository.InsertPort(topPort)
+	is.RegistryRepository.InsertPort(topPort)
 
 	// logger.DEBUG("service/minio.go", "CreateMinio", fmt.Sprintf("%s %s %s", params.UserID, decoded, mountPath))
 
@@ -116,9 +112,8 @@ func (m *MinioService) DeleteMinio(userID string) bool {
 	if port != "" {
 		// delete temporary port
 		logger.DEBUG("service/minio.go", "DeleteMinio", fmt.Sprintf("Deletion target container port [%s]", port))
-		registryRepository := new(repository.RegistryRepository)
 		iport, _ := strconv.Atoi(port)
-		registryRepository.DeletePort(iport)
+		is.RegistryRepository.DeletePort(iport)
 	}
 
 	// remove minio container
@@ -129,8 +124,7 @@ func (m *MinioService) DeleteMinio(userID string) bool {
 	}
 
 	// delete user's directory
-	fileManager := new(FileManager)
-	fileManager.DeleteDirectory(fmt.Sprintf("%s/%s", minio.MinioDataPath, userID))
+	is.FileManager.DeleteDirectory(fmt.Sprintf("%s/%s", minio.MinioDataPath, userID))
 
 	return true
 }

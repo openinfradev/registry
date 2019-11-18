@@ -6,7 +6,6 @@ import (
 	"builder/constant"
 	tacoconst "builder/constant/taco"
 	"builder/model"
-	"builder/repository"
 	"builder/util/logger"
 	tacoutil "builder/util/taco"
 	"encoding/base64"
@@ -19,28 +18,17 @@ import (
 // DockerService is docker command relative service
 type DockerService struct{}
 
-var fileManager *FileManager
-var registryRepository *repository.RegistryRepository
-var registryService *RegistryService
-var securityService *SecurityService
-
-func init() {
-	fileManager = new(FileManager)
-	registryRepository = new(repository.RegistryRepository)
-	registryService = new(RegistryService)
-	securityService = new(SecurityService)
-}
 
 // BuildByCopiedMinioBucket is docker buiding by copied minio bucket
 func (d *DockerService) BuildByCopiedMinioBucket(params *model.DockerBuildByMinioCopyAsParam) *model.BasicResult {
 
 	// phase - preparing
 	p := tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhasePreparing.StartSeq, tacoconst.PhasePreparing.Status)
-	registryRepository.InsertBuildLog(p)
+	is.RegistryRepository.InsertBuildLog(p)
 
 	// phase - unpacking
 	p = tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhaseUnpacking.StartSeq, tacoconst.PhaseUnpacking.Status)
-	registryRepository.InsertBuildLog(p)
+	is.RegistryRepository.InsertBuildLog(p)
 
 	// copy as
 	src := params.SrcPath
@@ -53,7 +41,7 @@ func (d *DockerService) BuildByCopiedMinioBucket(params *model.DockerBuildByMini
 	}
 	srcPath := fmt.Sprintf("%s/%s/%s", minio.MinioDataPath, params.SrcUserID, src)
 	destPath := fmt.Sprintf("%s/%s/%s", minio.MinioDataPath, params.UserID, dest)
-	err := fileManager.CopyDirectory(srcPath, destPath)
+	err := is.FileManager.CopyDirectory(srcPath, destPath)
 	if err != nil {
 		return &model.BasicResult{
 			Code: constant.ResultFail,
@@ -68,11 +56,11 @@ func (d *DockerService) BuildByCopiedMinioBucket(params *model.DockerBuildByMini
 func (d *DockerService) BuildByMinioBucket(params *model.DockerBuildByMinioParam) *model.BasicResult {
 	// phase - preparing
 	p := tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhasePreparing.StartSeq, tacoconst.PhasePreparing.Status)
-	registryRepository.InsertBuildLog(p)
+	is.RegistryRepository.InsertBuildLog(p)
 
 	// phase - unpacking
 	p = tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhaseUnpacking.StartSeq, tacoconst.PhaseUnpacking.Status)
-	registryRepository.InsertBuildLog(p)
+	is.RegistryRepository.InsertBuildLog(p)
 
 	path := params.Path
 	if strings.HasPrefix(path, "/") {
@@ -87,7 +75,7 @@ func (d *DockerService) BuildByDockerfile(params *model.DockerBuildByFileParam) 
 
 	// phase - preparing
 	p := tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhasePreparing.StartSeq, tacoconst.PhasePreparing.Status)
-	registryRepository.InsertBuildLog(p)
+	is.RegistryRepository.InsertBuildLog(p)
 
 	// decoding contents
 	decoded, err := base64.StdEncoding.DecodeString(params.Contents)
@@ -100,9 +88,9 @@ func (d *DockerService) BuildByDockerfile(params *model.DockerBuildByFileParam) 
 
 	// phase - unpacking
 	p = tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhaseUnpacking.StartSeq, tacoconst.PhaseUnpacking.Status)
-	registryRepository.InsertBuildLog(p)
+	is.RegistryRepository.InsertBuildLog(p)
 
-	path, err := fileManager.WriteDockerfile(string(decoded))
+	path, err := is.FileManager.WriteDockerfile(string(decoded))
 	if err != nil {
 		return &model.BasicResult{
 			Code:    constant.ResultFail,
@@ -118,7 +106,7 @@ func (d *DockerService) BuildByGitRepository(params *model.DockerBuildByGitParam
 
 	// phase - preparing
 	p := tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhasePreparing.StartSeq, tacoconst.PhasePreparing.Status)
-	registryRepository.InsertBuildLog(p)
+	is.RegistryRepository.InsertBuildLog(p)
 
 	// decoding userPW
 	decoded, err := base64.StdEncoding.DecodeString(params.UserPW)
@@ -131,11 +119,11 @@ func (d *DockerService) BuildByGitRepository(params *model.DockerBuildByGitParam
 
 	// phase - unpacking
 	p = tacoutil.MakePhaseLog(params.BuildID, tacoconst.PhaseUnpacking.StartSeq, tacoconst.PhaseUnpacking.Status)
-	registryRepository.InsertBuildLog(p)
+	is.RegistryRepository.InsertBuildLog(p)
 
 	// not using go-routine (not yet)
 	// ch := make(chan string, 1)	// dirPath
-	path, err := fileManager.PullGitRepository(params.GitRepository, params.UserID, string(decoded))
+	path, err := is.FileManager.PullGitRepository(params.GitRepository, params.UserID, string(decoded))
 	if err != nil {
 		return &model.BasicResult{
 			Code:    constant.ResultFail,
@@ -190,9 +178,9 @@ func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName 
 
 	// push
 	// phase - push
-	registryRepository.UpdateBuildPhase(buildID, tacoconst.PhasePushing.Status)
+	is.RegistryRepository.UpdateBuildPhase(buildID, tacoconst.PhasePushing.Status)
 	p := tacoutil.MakePhaseLog(buildID, tacoconst.PhasePushing.StartSeq, tacoconst.PhasePushing.Status)
-	registryRepository.InsertBuildLog(p)
+	is.RegistryRepository.InsertBuildLog(p)
 
 	go pushJob(proc, repoName, tag)
 	r = <-proc
@@ -204,7 +192,7 @@ func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName 
 
 	// security scan (optional??)
 	// returned value isn't necessary.
-	securityService.Scan(repoName, tag)
+	is.SecurityService.Scan(repoName, tag)
 
 	// phase - complete
 	procBuildComplete(buildID, repoName, tag)
@@ -429,16 +417,16 @@ func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath 
 
 	// phase - build
 	// updating build phase
-	registryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseBuilding.Status)
+	is.RegistryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseBuilding.Status)
 	p := tacoutil.MakePhaseLog(buildID, seq, tacoconst.PhaseBuilding.Status)
-	registryRepository.InsertBuildLog(p)
+	is.RegistryRepository.InsertBuildLog(p)
 
 	repoName = basicinfo.RegistryEndpoint + "/" + repoName + ":latest"
 	var build *exec.Cmd
 	if useCache {
 		// phase - checking cache
 		p = tacoutil.MakePhaseLog(buildID, seq, tacoconst.PhaseCheckingCache.Status)
-		registryRepository.InsertBuildLog(p)
+		is.RegistryRepository.InsertBuildLog(p)
 
 		build = exec.Command("docker", "build", "--network=host", "-t", repoName, dockerfilePath)
 	} else {
@@ -454,7 +442,7 @@ func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath 
 		seq++
 		m := scanner.Text()
 		row := tacoutil.ParseLog(buildID, seq, m)
-		registryRepository.InsertBuildLog(row)
+		is.RegistryRepository.InsertBuildLog(row)
 
 		// logger.DEBUG("service/docker.go", "buildJob", m)
 	}
@@ -465,10 +453,10 @@ func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath 
 		m := errscan.Text()
 		errrow := tacoutil.ParseLog(buildID, seq, m)
 		errrow.Type = "error"
-		registryRepository.InsertBuildLog(errrow)
+		is.RegistryRepository.InsertBuildLog(errrow)
 		logger.ERROR("service/docker.go", "buildJob", m)
 		// path removeall - because of breaking
-		fileManager.DeleteDirectory(dockerfilePath)
+		is.FileManager.DeleteDirectory(dockerfilePath)
 
 		ch <- constant.ResultFail
 	}
@@ -476,7 +464,7 @@ func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath 
 	build.Wait()
 
 	// path removeall
-	fileManager.DeleteDirectory(dockerfilePath)
+	is.FileManager.DeleteDirectory(dockerfilePath)
 
 	ch <- constant.ResultSuccess
 
@@ -508,33 +496,33 @@ func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath 
 
 func procBuildComplete(buildID string, repoName string, tag string) {
 	// digest & size
-	digest := registryService.GetDigest(repoName, tag)
+	digest := is.RegistryService.GetDigest(repoName, tag)
 	size := getImageSize(repoName, tag)
-	registryRepository.UpdateTagDigest(buildID, "latest", digest, size)
+	is.RegistryRepository.UpdateTagDigest(buildID, "latest", digest, size)
 
-	registryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseComplete.Status)
+	is.RegistryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseComplete.Status)
 	p := tacoutil.MakePhaseLog(buildID, tacoconst.PhaseComplete.StartSeq, tacoconst.PhaseComplete.Status)
-	registryRepository.InsertBuildLog(p)
+	is.RegistryRepository.InsertBuildLog(p)
 }
 
 func procBuildError(buildID string) {
-	registryRepository.DeleteUsageLog(buildID)
-	registryRepository.DeleteTag(buildID, "latest")
+	is.RegistryRepository.DeleteUsageLog(buildID)
+	is.RegistryRepository.DeleteTag(buildID, "latest")
 
-	registryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseError.Status)
+	is.RegistryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseError.Status)
 	p := tacoutil.MakePhaseLog(buildID, tacoconst.PhaseError.StartSeq, tacoconst.PhaseError.Status)
-	registryRepository.InsertBuildLog(p)
+	is.RegistryRepository.InsertBuildLog(p)
 }
 
 func procTagComplete(buildID string, repoName string, tag string) {
 	// digest & size
-	digest := registryService.GetDigest(repoName, tag)
+	digest := is.RegistryService.GetDigest(repoName, tag)
 	size := getImageSize(repoName, tag)
-	registryRepository.UpdateTagDigest(buildID, tag, digest, size)
+	is.RegistryRepository.UpdateTagDigest(buildID, tag, digest, size)
 }
 
 func procTagError(buildID string, tag string) {
-	registryRepository.DeleteTag(buildID, tag)
+	is.RegistryRepository.DeleteTag(buildID, tag)
 }
 
 func getImageSize(repoName string, tag string) string {

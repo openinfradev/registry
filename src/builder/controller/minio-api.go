@@ -3,18 +3,12 @@ package controller
 import (
 	"builder/constant"
 	"builder/model"
-	"builder/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-var minioService *service.MinioService
-
 func init() {
-
-	// inject service
-	minioService = new(service.MinioService)
 
 	// create minio
 	addRequestMapping(
@@ -52,7 +46,7 @@ func createMinio(c *gin.Context) {
 	var params *model.MinioParam
 	c.BindJSON(&params)
 
-	r := minioService.CreateMinio(params)
+	r := is.MinioService.CreateMinio(params)
 	c.JSON(http.StatusOK, r)
 }
 
@@ -68,7 +62,7 @@ func deleteMinio(c *gin.Context) {
 	var params *model.MinioParam
 	c.BindJSON(&params)
 
-	r := minioService.DeleteMinio(params.UserID)
+	r := is.MinioService.DeleteMinio(params.UserID)
 	if r {
 		c.JSON(http.StatusOK, &model.BasicResult{
 			Code:    constant.ResultSuccess,

@@ -2,17 +2,12 @@ package controller
 
 import (
 	"builder/model"
-	"builder/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-var dockerService *service.DockerService
-
 func init() {
-	// inject service
-	dockerService = new(service.DockerService)
 
 	// docker build by file
 	addRequestMapping(
@@ -83,7 +78,7 @@ func buildByDockerFile(c *gin.Context) {
 	var params *model.DockerBuildByFileParam
 	c.BindJSON(&params)
 
-	r := dockerService.BuildByDockerfile(params)
+	r := is.DockerService.BuildByDockerfile(params)
 
 	c.JSON(http.StatusOK, r)
 }
@@ -102,7 +97,7 @@ func buildByGitRepository(c *gin.Context) {
 	var params *model.DockerBuildByGitParam
 	c.BindJSON(&params)
 
-	r := dockerService.BuildByGitRepository(params)
+	r := is.DockerService.BuildByGitRepository(params)
 	c.JSON(http.StatusOK, r)
 }
 
@@ -120,7 +115,7 @@ func buildByMinioBucket(c *gin.Context) {
 	var params *model.DockerBuildByMinioParam
 	c.BindJSON(&params)
 
-	r := dockerService.BuildByMinioBucket(params)
+	r := is.DockerService.BuildByMinioBucket(params)
 	c.JSON(http.StatusOK, r)
 }
 
@@ -138,7 +133,7 @@ func buildByMinioBucketCopyAs(c *gin.Context) {
 	var params *model.DockerBuildByMinioCopyAsParam
 	c.BindJSON(&params)
 
-	r := dockerService.BuildByCopiedMinioBucket(params)
+	r := is.DockerService.BuildByCopiedMinioBucket(params)
 	c.JSON(http.StatusOK, r)
 }
 
@@ -155,7 +150,7 @@ func tagDockerImage(c *gin.Context) {
 	var params *model.DockerTagParam
 	c.BindJSON(&params)
 
-	r := dockerService.Tag(params)
+	r := is.DockerService.Tag(params)
 	c.JSON(http.StatusOK, r)
 }
 
@@ -172,6 +167,6 @@ func pushDockerImage(c *gin.Context) {
 	var params *model.DockerPushParam
 	c.BindJSON(&params)
 
-	r := dockerService.Push(params)
+	r := is.DockerService.Push(params)
 	c.JSON(http.StatusOK, r)
 }
