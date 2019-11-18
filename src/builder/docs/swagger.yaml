@@ -57,6 +57,34 @@ definitions:
     - userId
     - userPw
     type: object
+  model.DockerBuildByMinioCopyAsParam:
+    properties:
+      build:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+      push:
+        type: boolean
+      srcPath:
+        type: string
+      srcUserId:
+        type: string
+      useCache:
+        type: boolean
+      userId:
+        type: string
+    required:
+    - build
+    - name
+    - path
+    - push
+    - srcPath
+    - srcUserId
+    - useCache
+    - userId
+    type: object
   model.DockerBuildByMinioParam:
     properties:
       build:
@@ -289,6 +317,27 @@ paths:
           schema:
             $ref: '#/definitions/model.BasicResult'
       summary: docker build by minio
+  /docker/build/minio-copy-as:
+    post:
+      consumes:
+      - application/json
+      description: docker build by minio copy as api
+      parameters:
+      - description: 'Json Parameters '
+        in: body
+        name: contents
+        required: true
+        schema:
+          $ref: '#/definitions/model.DockerBuildByMinioCopyAsParam'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
+      summary: docker build by minio copy as
   /docker/push:
     put:
       description: docker image push

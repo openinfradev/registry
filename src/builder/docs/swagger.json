@@ -101,6 +101,38 @@
                 }
             }
         },
+        "/docker/build/minio-copy-as": {
+            "post": {
+                "description": "docker build by minio copy as api",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "docker build by minio copy as",
+                "parameters": [
+                    {
+                        "description": "Json Parameters ",
+                        "name": "contents",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.DockerBuildByMinioCopyAsParam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.BasicResult"
+                        }
+                    }
+                }
+            }
+        },
         "/docker/push": {
             "put": {
                 "description": "docker image push",
@@ -585,6 +617,45 @@
                     "type": "string"
                 },
                 "userPw": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DockerBuildByMinioCopyAsParam": {
+            "type": "object",
+            "required": [
+                "build",
+                "name",
+                "path",
+                "push",
+                "srcPath",
+                "srcUserId",
+                "useCache",
+                "userId"
+            ],
+            "properties": {
+                "build": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "push": {
+                    "type": "boolean"
+                },
+                "srcPath": {
+                    "type": "string"
+                },
+                "srcUserId": {
+                    "type": "string"
+                },
+                "useCache": {
+                    "type": "boolean"
+                },
+                "userId": {
                     "type": "string"
                 }
             }

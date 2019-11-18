@@ -45,7 +45,7 @@ func init() {
 	addRequestMapping(
 		RequestMapper{
 			Method:  "POST",
-			Path:    "/docker/build/minio-copyas",
+			Path:    "/docker/build/minio-copy-as",
 			Request: buildByMinioBucketCopyAs,
 		},
 	)
@@ -130,7 +130,7 @@ func buildByMinioBucket(c *gin.Context) {
 // @Name buildByMinioBucketCopyAs
 // @Accept json
 // @Produce json
-// @Router /docker/build/minio-copyas [post]
+// @Router /docker/build/minio-copy-as [post]
 // @Param contents body model.DockerBuildByMinioCopyAsParam true "Json Parameters "
 // @Success 200 {object} model.BasicResult
 func buildByMinioBucketCopyAs(c *gin.Context) {
