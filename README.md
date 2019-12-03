@@ -139,6 +139,9 @@ $ docker run -d -p 4000:4000 \
 | registry | auth | string | registry authorization token api url |
 | redis | endpoint | string | redis endpoint |
 | clair | endpoint | string | clair endpoint |
+| minio | domain | string | common domain |
+| minio | data | string | host path for minio root |
+| minio | ports | string | port socpe |
 
 #### configuration example
 ```
@@ -179,4 +182,10 @@ redis:
 # clair configuration
 clair:
   endpoint: "exntu.kr:26060"
+
+# minio configuration
+minio:
+  domain: taco-registry
+  data: /home/linus/minio/data
+  ports: 9001-10000
 ```
