@@ -471,7 +471,9 @@ func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath 
 		is.RegistryRepository.InsertBuildLog(errrow)
 		logger.ERROR("service/docker.go", "buildJob", m)
 		// path removeall - because of breaking
-		is.FileManager.DeleteDirectory(dockerfilePath)
+		if tempDelete {
+			is.FileManager.DeleteDirectory(dockerfilePath)
+		}
 
 		ch <- constant.ResultFail
 	}
