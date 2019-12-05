@@ -526,7 +526,7 @@ func procBuildComplete(buildID string, repoName string, tag string) {
 
 func procBuildError(buildID string) {
 	is.RegistryRepository.DeleteUsageLog(buildID)
-	is.RegistryRepository.DeleteTag(buildID, "latest")
+	// is.RegistryRepository.DeleteTag(buildID, "latest")
 
 	is.RegistryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseError.Status)
 	p := tacoutil.MakePhaseLog(buildID, tacoconst.PhaseError.StartSeq, tacoconst.PhaseError.Status)

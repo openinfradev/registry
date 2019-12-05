@@ -63,7 +63,7 @@ func (a *RegistryRepository) UpdateTagDigest(buildID string, tag string, digest 
 	dbconn := CreateDBConnection()
 	defer CloseDBConnection(dbconn)
 
-	_, err := dbconn.Exec("update tag set manifest_digest=$1, size=$2 where build_id=$3 and name=$4 and (end_time is null or end_time > now())", digest, size, buildID, tag)
+	_, err := dbconn.Exec("update tag set manifest_digest=$1, size=$2, updated_date=now() where build_id=$3 and name=$4 and (end_time is null or end_time > now())", digest, size, buildID, tag)
 	if err != nil {
 		logger.ERROR("repository/taco-registry.go", "UpdateTagDigest", err.Error())
 		return false
