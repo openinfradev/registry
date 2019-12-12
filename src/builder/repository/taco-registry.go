@@ -72,11 +72,11 @@ func (a *RegistryRepository) UpdateTagDigest(buildID string, tag string, digest 
 }
 
 // DeleteUsageLog is usage log deleting
-func (a *RegistryRepository) DeleteUsageLog(buildID string) bool {
+func (a *RegistryRepository) DeleteUsageLog(buildID string, tag string) bool {
 	dbconn := CreateDBConnection()
 	defer CloseDBConnection(dbconn)
 
-	_, err := dbconn.Exec("delete from usage_log where build_id=$1 and kind='create_tag' and tag='latest'", buildID)
+	_, err := dbconn.Exec("delete from usage_log where build_id=$1 and kind='create_tag' and tag=$2", buildID, tag)
 	if err != nil {
 		logger.ERROR("repository/taco-registry.go", "DeleteUsageLog", err.Error())
 		return false

@@ -566,6 +566,7 @@
                 "contents",
                 "name",
                 "push",
+                "tag",
                 "useCache"
             ],
             "properties": {
@@ -581,6 +582,9 @@
                 "push": {
                     "type": "boolean"
                 },
+                "tag": {
+                    "type": "string"
+                },
                 "useCache": {
                     "type": "boolean"
                 }
@@ -593,6 +597,7 @@
                 "gitRepo",
                 "name",
                 "push",
+                "tag",
                 "useCache",
                 "userId",
                 "userPw"
@@ -609,6 +614,9 @@
                 },
                 "push": {
                     "type": "boolean"
+                },
+                "tag": {
+                    "type": "string"
                 },
                 "useCache": {
                     "type": "boolean"
@@ -630,6 +638,7 @@
                 "push",
                 "srcPath",
                 "srcUserId",
+                "tag",
                 "useCache",
                 "userId"
             ],
@@ -652,6 +661,9 @@
                 "srcUserId": {
                     "type": "string"
                 },
+                "tag": {
+                    "type": "string"
+                },
                 "useCache": {
                     "type": "boolean"
                 },
@@ -667,6 +679,7 @@
                 "name",
                 "path",
                 "push",
+                "tag",
                 "useCache",
                 "userId"
             ],
@@ -682,6 +695,9 @@
                 },
                 "push": {
                     "type": "boolean"
+                },
+                "tag": {
+                    "type": "string"
                 },
                 "useCache": {
                     "type": "boolean"

@@ -23,6 +23,8 @@ definitions:
         type: string
       push:
         type: boolean
+      tag:
+        type: string
       useCache:
         type: boolean
     required:
@@ -30,6 +32,7 @@ definitions:
     - contents
     - name
     - push
+    - tag
     - useCache
     type: object
   model.DockerBuildByGitParam:
@@ -42,6 +45,8 @@ definitions:
         type: string
       push:
         type: boolean
+      tag:
+        type: string
       useCache:
         type: boolean
       userId:
@@ -53,6 +58,7 @@ definitions:
     - gitRepo
     - name
     - push
+    - tag
     - useCache
     - userId
     - userPw
@@ -71,6 +77,8 @@ definitions:
         type: string
       srcUserId:
         type: string
+      tag:
+        type: string
       useCache:
         type: boolean
       userId:
@@ -82,6 +90,7 @@ definitions:
     - push
     - srcPath
     - srcUserId
+    - tag
     - useCache
     - userId
     type: object
@@ -95,6 +104,8 @@ definitions:
         type: string
       push:
         type: boolean
+      tag:
+        type: string
       useCache:
         type: boolean
       userId:
@@ -104,6 +115,7 @@ definitions:
     - name
     - path
     - push
+    - tag
     - useCache
     - userId
     type: object

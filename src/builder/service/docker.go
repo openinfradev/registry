@@ -50,7 +50,7 @@ func (d *DockerService) BuildByCopiedMinioBucket(params *model.DockerBuildByMini
 		}
 	}
 
-	return d.Build(params.BuildID, params.Name, destPath, params.UseCache, params.Push, false)
+	return d.Build(params.BuildID, params.Name, params.Tag, destPath, params.UseCache, params.Push, false)
 }
 
 // BuildByMinioBucket is docker building by minio bucket
@@ -68,7 +68,7 @@ func (d *DockerService) BuildByMinioBucket(params *model.DockerBuildByMinioParam
 		path = strings.Replace(path, "/", "", 1)
 	}
 	fullPath := fmt.Sprintf("%s/%s/%s", minio.MinioDataPath, params.UserID, path)
-	return d.Build(params.BuildID, params.Name, fullPath, params.UseCache, params.Push, false)
+	return d.Build(params.BuildID, params.Name, params.Tag, fullPath, params.UseCache, params.Push, false)
 }
 
 // BuildByDockerfile is docker building by dockerfile
@@ -99,7 +99,7 @@ func (d *DockerService) BuildByDockerfile(params *model.DockerBuildByFileParam) 
 		}
 	}
 
-	return d.Build(params.BuildID, params.Name, path, params.UseCache, params.Push, true)
+	return d.Build(params.BuildID, params.Name, params.Tag, path, params.UseCache, params.Push, true)
 }
 
 // BuildByGitRepository is docker building by git repository
@@ -132,18 +132,18 @@ func (d *DockerService) BuildByGitRepository(params *model.DockerBuildByGitParam
 		}
 	}
 
-	return d.Build(params.BuildID, params.Name, path, params.UseCache, params.Push, true)
+	return d.Build(params.BuildID, params.Name, params.Tag, path, params.UseCache, params.Push, true)
 }
 
 // Build is docker building by file path
-func (d *DockerService) Build(buildID string, repoName string, dockerfilePath string, useCache bool, push bool, tempDelete bool) *model.BasicResult {
+func (d *DockerService) Build(buildID string, repoName string, tag string, dockerfilePath string, useCache bool, push bool, tempDelete bool) *model.BasicResult {
 
 	// async
 	ch := make(chan string)
 	if push {
-		go d.BuildAndPush(ch, buildID, repoName, dockerfilePath, useCache, tempDelete)
+		go d.BuildAndPush(ch, buildID, repoName, tag, dockerfilePath, useCache, tempDelete)
 	} else {
-		go buildJob(ch, buildID, repoName, dockerfilePath, useCache, tempDelete)
+		go buildJob(ch, buildID, repoName, tag, dockerfilePath, useCache, tempDelete)
 	}
 
 	// only ok
@@ -154,16 +154,13 @@ func (d *DockerService) Build(buildID string, repoName string, dockerfilePath st
 }
 
 // BuildAndPush is docker build and push
-func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName string, dockerfilePath string, useCache bool, tempDelete bool) {
-	// fixed "latest"
-	tag := "latest"
-
+func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName string, tag string, dockerfilePath string, useCache bool, tempDelete bool) {
 	proc := make(chan string)
 	// build
-	go buildJob(proc, buildID, repoName, dockerfilePath, useCache, tempDelete)
+	go buildJob(proc, buildID, repoName, tag, dockerfilePath, useCache, tempDelete)
 	r := <-proc
 	if r == constant.ResultFail {
-		procBuildError(buildID)
+		procBuildError(buildID, tag)
 		ch <- constant.ResultFail
 		return
 	}
@@ -186,7 +183,7 @@ func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName 
 	go pushJob(proc, repoName, tag)
 	r = <-proc
 	if r == constant.ResultFail {
-		procBuildError(buildID)
+		procBuildError(buildID, tag)
 		ch <- constant.ResultFail
 		return
 	}
@@ -422,7 +419,7 @@ func tagJob(ch chan<- string, repoName string, oldTag string, newTag string) {
 	}
 }
 
-func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath string, useCache bool, tempDelete bool) {
+func buildJob(ch chan<- string, buildID string, repoName string, tag string, dockerfilePath string, useCache bool, tempDelete bool) {
 
 	registryinfo := config.GetConfig().Registry
 
@@ -436,7 +433,7 @@ func buildJob(ch chan<- string, buildID string, repoName string, dockerfilePath 
 	p := tacoutil.MakePhaseLog(buildID, seq, tacoconst.PhaseBuilding.Status)
 	is.RegistryRepository.InsertBuildLog(p)
 
-	repoName = fmt.Sprintf("%s/%s:%s", registryinfo.Endpoint, repoName, "latest")
+	repoName = fmt.Sprintf("%s/%s:%s", registryinfo.Endpoint, repoName, tag)
 	var build *exec.Cmd
 	if useCache {
 		// phase - checking cache
@@ -517,16 +514,15 @@ func procBuildComplete(buildID string, repoName string, tag string) {
 	// digest & size
 	digest := is.RegistryService.GetDigest(repoName, tag)
 	size := getImageSize(repoName, tag)
-	is.RegistryRepository.UpdateTagDigest(buildID, "latest", digest, size)
+	is.RegistryRepository.UpdateTagDigest(buildID, tag, digest, size)
 
 	is.RegistryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseComplete.Status)
 	p := tacoutil.MakePhaseLog(buildID, tacoconst.PhaseComplete.StartSeq, tacoconst.PhaseComplete.Status)
 	is.RegistryRepository.InsertBuildLog(p)
 }
 
-func procBuildError(buildID string) {
-	is.RegistryRepository.DeleteUsageLog(buildID)
-	// is.RegistryRepository.DeleteTag(buildID, "latest")
+func procBuildError(buildID string, tag string) {
+	is.RegistryRepository.DeleteUsageLog(buildID, tag)
 
 	is.RegistryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseError.Status)
 	p := tacoutil.MakePhaseLog(buildID, tacoconst.PhaseError.StartSeq, tacoconst.PhaseError.Status)
