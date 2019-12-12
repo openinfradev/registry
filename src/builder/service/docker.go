@@ -165,15 +165,6 @@ func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName 
 		return
 	}
 
-	// tag
-	// go tagJob(proc, repoName, tag, tag)
-	// r = <-proc
-	// if r == constant.ResultFail {
-	// 	procBuildError(buildID)
-	// 	ch <- constant.ResultFail
-	// 	return
-	// }
-
 	// push
 	// phase - push
 	is.RegistryRepository.UpdateBuildPhase(buildID, tacoconst.PhasePushing.Status)
@@ -191,6 +182,29 @@ func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName 
 	// security scan (optional??)
 	// returned value isn't necessary.
 	is.SecurityService.Scan(repoName, tag)
+
+	// if not exists "latest" tag. latest tagging and push
+	// check latest tag
+	existsLatest := false
+	repoResult := is.RegistryService.GetRepository(repoName)
+	if repoResult.Tags != nil && len(repoResult.Tags) > 0 {
+		for _, t := range repoResult.Tags {
+			if t.Name == "latest" {
+				existsLatest = true
+				break
+			}
+		}
+	}
+	// tagging "latest"
+	if !existsLatest {
+		tagParams := &model.DockerTagParam{
+			BuildID : buildID,
+			Name : repoName,
+			OldTag : tag,
+			NewTag : "latest",
+		}
+		d.Tag(tagParams)
+	}
 
 	// phase - complete
 	procBuildComplete(buildID, repoName, tag)
