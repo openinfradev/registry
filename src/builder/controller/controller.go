@@ -60,3 +60,10 @@ func requestMapping(instance *server.Instance) {
 func addRequestMapping(mapper RequestMapper) {
 	mappers = append(mappers, mapper)
 }
+
+func authorization(token string) bool {
+	if token == "" {
+		return false
+	}
+	return service.Authorization(token);
+}

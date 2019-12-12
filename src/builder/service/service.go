@@ -1,8 +1,11 @@
 package service
 
 import (
+	"builder/util/logger"
+	tokenutil "builder/util/token"
 	"builder/config"
 	"builder/repository"
+	"fmt"
 )
 
 // InjectedServices is injection services
@@ -45,4 +48,14 @@ func GetRegistryURL(path string) string {
 	// logger.DEBUG("service/service.go", "GetRegistryURL", url)
 
 	return url
+}
+
+// Authorization is authorization
+func Authorization(token string) bool {
+	basicToken, err := tokenutil.DecodeBasicToken(token)
+	if err != nil {
+		logger.ERROR("service/service.go", "Authorization", err.Error())
+	}
+	logger.DEBUG("service/service.go", "Authorization", fmt.Sprintf("decoded token raw[%s]", basicToken.Raw))
+	return true
 }
