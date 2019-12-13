@@ -184,26 +184,19 @@ func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName 
 	is.SecurityService.Scan(repoName, tag)
 
 	// if not exists "latest" tag. latest tagging and push
-	// check latest tag
-	existsLatest := false
-	repoResult := is.RegistryService.GetRepository(repoName)
-	if repoResult.Tags != nil && len(repoResult.Tags) > 0 {
-		for _, t := range repoResult.Tags {
-			if t.Name == "latest" {
-				existsLatest = true
-				break
-			}
-		}
-	}
-	// tagging "latest"
-	if !existsLatest {
+	latest := "latest"
+	if !is.RegistryService.ExistsTag(repoName, latest) {
 		tagParams := &model.DockerTagParam{
 			BuildID : buildID,
 			Name : repoName,
 			OldTag : tag,
-			NewTag : "latest",
+			NewTag : latest,
 		}
-		d.Tag(tagParams)
+		go d.PullAndTag(proc, tagParams)
+		r = <-proc
+		if r == constant.ResultFail {
+			logger.ERROR("service/docker.go", "BuildAndPush", fmt.Sprintf("Failed to tagging 'latest' on [%s].", repoName))
+		}
 	}
 
 	// phase - complete
@@ -221,7 +214,7 @@ func (d *DockerService) PullAndTag(ch chan<- string, params *model.DockerTagPara
 	r := <-proc
 	if r == constant.ResultFail {
 		logger.ERROR("service/docker.go", "PullAndTag", "failed to pulling docker image")
-		procTagError(params.BuildID, params.NewTag)
+		procTagError(params.BuildID, params.Name, params.NewTag)
 		ch <- constant.ResultFail
 		return
 	}
@@ -231,7 +224,7 @@ func (d *DockerService) PullAndTag(ch chan<- string, params *model.DockerTagPara
 	r = <-proc
 	if r == constant.ResultFail {
 		logger.ERROR("service/docker.go", "PullAndTag", "failed to tagging docker image")
-		procTagError(params.BuildID, params.NewTag)
+		procTagError(params.BuildID, params.Name, params.NewTag)
 		ch <- constant.ResultFail
 		return
 	}
@@ -241,7 +234,7 @@ func (d *DockerService) PullAndTag(ch chan<- string, params *model.DockerTagPara
 	r = <-proc
 	if r == constant.ResultFail {
 		logger.ERROR("service/docker.go", "PullAndTag", "failed to pushing docker image")
-		procTagError(params.BuildID, params.NewTag)
+		procTagError(params.BuildID, params.Name, params.NewTag)
 		ch <- constant.ResultFail
 		return
 	}
@@ -550,8 +543,10 @@ func procTagComplete(buildID string, repoName string, tag string) {
 	is.RegistryRepository.UpdateTagDigest(buildID, tag, digest, size)
 }
 
-func procTagError(buildID string, tag string) {
-	is.RegistryRepository.DeleteTag(buildID, tag)
+func procTagError(buildID string, repoName string, tag string) {
+	if !is.RegistryService.ExistsTag(repoName, tag) {
+		is.RegistryRepository.DeleteTag(buildID, tag)
+	}
 }
 
 func getImageSize(repoName string, tag string) string {

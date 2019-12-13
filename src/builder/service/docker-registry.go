@@ -340,6 +340,21 @@ func (d *RegistryService) GetManifestV2(repoName string, tag string) map[string]
 	return result
 }
 
+// ExistsTag returns exists flag specific image & tag
+func (d *RegistryService) ExistsTag(repoName string, tag string) bool {
+	exists := false
+	repoResult := is.RegistryService.GetRepository(repoName)
+	if repoResult.Tags != nil && len(repoResult.Tags) > 0 {
+		for _, t := range repoResult.Tags {
+			if t.Name == tag {
+				exists = true
+				break
+			}
+		}
+	}
+	return exists
+}
+
 // Authorization returns docker registry authorization token
 func (d *RegistryService) Authorization(scope *scope.Scope) (string, error) {
 	registryinfo := config.GetConfig().Registry

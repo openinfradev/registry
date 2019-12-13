@@ -39,6 +39,13 @@ func INFO(where string, what string, message string) {
 	}
 }
 
+// Trash is abandoned log
+func Trash(where string, what string, message string) {
+	if level < 0 {
+		write("ABANDONED", where, what, message)
+	}
+}
+
 // FATAL is fatal error log
 func FATAL(where string, what string, message string) {
 	log.Fatalf("[Fatal ERROR] [%v -> %v] %v", where, what, message)
