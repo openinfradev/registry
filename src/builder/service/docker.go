@@ -160,7 +160,7 @@ func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName 
 	go buildJob(proc, buildID, repoName, tag, dockerfilePath, useCache, tempDelete)
 	r := <-proc
 	if r == constant.ResultFail {
-		procBuildError(buildID, tag)
+		procBuildError(buildID, repoName, tag)
 		ch <- constant.ResultFail
 		return
 	}
@@ -174,7 +174,7 @@ func (d *DockerService) BuildAndPush(ch chan<- string, buildID string, repoName 
 	go pushJob(proc, repoName, tag)
 	r = <-proc
 	if r == constant.ResultFail {
-		procBuildError(buildID, tag)
+		procBuildError(buildID, repoName, tag)
 		ch <- constant.ResultFail
 		return
 	}
@@ -528,8 +528,11 @@ func procBuildComplete(buildID string, repoName string, tag string) {
 	is.RegistryRepository.InsertBuildLog(p)
 }
 
-func procBuildError(buildID string, tag string) {
+func procBuildError(buildID string, repoName string, tag string) {
 	is.RegistryRepository.DeleteUsageLog(buildID, tag)
+	if !is.RegistryService.ExistsTag(repoName, tag) {
+		is.RegistryRepository.DeleteTag(buildID, tag)
+	}
 
 	is.RegistryRepository.UpdateBuildPhase(buildID, tacoconst.PhaseError.Status)
 	p := tacoutil.MakePhaseLog(buildID, tacoconst.PhaseError.StartSeq, tacoconst.PhaseError.Status)
