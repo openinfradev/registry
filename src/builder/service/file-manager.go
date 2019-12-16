@@ -129,7 +129,9 @@ func (f *FileManager) PullGitRepository(gitRepoURL string, userID string, userPW
 		// private
 		gitURL = fmt.Sprintf(urlconst.GitRepositoryPrivateURL, gitRepo.Protocol, url.QueryEscape(userID), url.QueryEscape(userPW), gitRepo.URL)
 	}
-	gitClone := exec.Command("docker", "run", "--rm", "-v", fmt.Sprintf("%s:/tmp", config.GetConfig().Default.TmpDir), "alpine/git", "clone", gitURL, dirPath)
+	
+	// gitClone := exec.Command("docker", "run", "--rm", "-v", fmt.Sprintf("%s:/tmp", config.GetConfig().Default.TmpDir), "alpine/git", "clone", gitURL, dirPath)
+	gitClone := exec.Command("git", "clone", gitURL, dirPath)
 
 	logger.DEBUG("service/file-manager.go", "PullGitRepository", gitURL)
 
