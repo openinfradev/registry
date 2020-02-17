@@ -16,15 +16,8 @@ func init() {
 }
 
 // Toss is delivered from registry to app
-func (w *WebhookService) Toss(body []byte) {
-	m := make(map[string]interface{})
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		logger.ERROR("service/webhook.go", "toss", err.Error())
-		return
-	}
-
-	b, _ := json.Marshal(m)
+func (w *WebhookService) Toss(body *map[string]interface{}) {
+	b, _ := json.Marshal(body)
 	buff := bytes.NewBuffer(b)
 
 	logger.DEBUG("service/webhook.go", "toss", "start toss")

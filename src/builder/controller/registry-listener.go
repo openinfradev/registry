@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"bytes"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -29,15 +27,18 @@ func init() {
 // @Router /listener [post]
 // @Success 200
 func listen(c *gin.Context) {
-	buf := make([]byte, 1024)
-	num, _ := c.Request.Body.Read(buf)
-	reqBody := string(buf[0:num])
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer([]byte(reqBody)))
+	// buf := make([]byte, 1024)
+	// num, _ := c.Request.Body.Read(buf)
+	// reqBody := string(buf[0:num])
+	// c.Request.Body = ioutil.NopCloser(bytes.NewBuffer([]byte(reqBody)))
 
-	buf2 := make([]byte, 1024)
-	num2, _ := c.Request.Body.Read(buf2)
+	// buf2 := make([]byte, 1024)
+	// num2, _ := c.Request.Body.Read(buf2)
 
-	is.WebhookService.Toss(buf2[0:num2])
+	params := new(map[string]interface{})
+	c.BindJSON(&params)
+
+	is.WebhookService.Toss(params)
 
 	c.AbortWithStatus(http.StatusOK)
 }
