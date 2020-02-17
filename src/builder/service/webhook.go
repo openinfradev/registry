@@ -17,10 +17,13 @@ func init() {
 func (w *WebhookService) Toss(body []byte) {
 	buff := bytes.NewBuffer(body)
 
+	logger.DEBUG("service/webhook.go", "toss", "start toss")
+
 	conf := config.GetConfig()
 	if conf.Webhook != nil && conf.Webhook.Listener != nil {
 		paths := conf.Webhook.Listener
 		for _, path := range paths {
+			logger.DEBUG("service/webhook.go", "toss", path)
 			resp, err := http.Post(path, "application/json", buff)
 			if err != nil {
 				logger.ERROR("service/webhook.go", "toss", err.Error())
