@@ -4,6 +4,7 @@ import (
 	"builder/config"
 	"builder/util/logger"
 	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 )
@@ -16,7 +17,15 @@ func init() {
 
 // Toss is delivered from registry to app
 func (w *WebhookService) Toss(body []byte) {
-	buff := bytes.NewBuffer(body)
+	m := make(map[string]interface{})
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		logger.ERROR("service/webhook.go", "toss", err.Error())
+		return
+	}
+
+	b, _ := json.Marshal(m)
+	buff := bytes.NewBuffer(b)
 
 	logger.DEBUG("service/webhook.go", "toss", "start toss")
 
