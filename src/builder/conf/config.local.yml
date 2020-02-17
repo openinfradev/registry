@@ -28,6 +28,12 @@ registry:
   endpoint: "exntu.kr:25000"
   auth: "http://exntu.kr:38383/api/oauth/token"
 
+# docker image push listener
+webhook:
+  listener:
+    - "http://localhost:4000/v1/test"
+    - "http://localhost:4000/v1/health"
+
 # redis configuration
 redis:
   endpoint: "exntu.kr:26379"

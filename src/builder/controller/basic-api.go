@@ -3,6 +3,10 @@ package controller
 import (
 	"builder/constant"
 	"builder/model"
+	"builder/util/logger"
+	"bytes"
+	"io/ioutil"
+
 	// "builder/service"
 	"net/http"
 
@@ -23,7 +27,7 @@ func init() {
 	// test
 	addRequestMapping(
 		RequestMapper{
-			Method:  "GET",
+			Method:  "POST",
 			Path:    "/test",
 			Request: test,
 		},
@@ -59,8 +63,17 @@ func test(c *gin.Context) {
 
 	// dockerService := new(service.DockerService)
 	// dockerService.Test("/home/linus/ngrinder", "/home/linus/ngrinder666")
-	
-	c.JSON(http.StatusOK, &model.BasicResult{
-		Code:    constant.ResultSuccess,
-	})
+
+	buf := make([]byte, 1024)
+	num, _ := c.Request.Body.Read(buf)
+	reqBody := string(buf[0:num])
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer([]byte(reqBody)))
+
+	buf2 := make([]byte, 1024)
+	num2, _ := c.Request.Body.Read(buf2)
+	reqBody2 := string(buf2[0:num2])
+
+	logger.DEBUG("controller/registry-listener.go", "listen", reqBody2)
+
+	c.JSON(http.StatusOK, buf2[0:num2])
 }

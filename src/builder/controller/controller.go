@@ -3,6 +3,7 @@ package controller
 import (
 	"builder/network/server"
 	"builder/service"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,10 +21,11 @@ type RestAPI struct {
 
 // InjectedServices is injection services
 type InjectedServices struct {
-	DockerService    *service.DockerService
-	RegistryService  *service.RegistryService
-	MinioService     *service.MinioService
-	SecurityService  *service.SecurityService
+	DockerService   *service.DockerService
+	RegistryService *service.RegistryService
+	MinioService    *service.MinioService
+	SecurityService *service.SecurityService
+	WebhookService  *service.WebhookService
 }
 
 var is *InjectedServices
@@ -32,13 +34,14 @@ var mappers []RequestMapper
 
 func init() {
 	// inject service
-	is = &InjectedServices {
+	is = &InjectedServices{
 		DockerService:   new(service.DockerService),
 		RegistryService: new(service.RegistryService),
 		MinioService:    new(service.MinioService),
 		SecurityService: new(service.SecurityService),
+		WebhookService:  new(service.WebhookService),
 	}
-	
+
 }
 
 // New returns RestAPI
@@ -65,5 +68,5 @@ func authorization(token string) bool {
 	if token == "" {
 		return false
 	}
-	return service.Authorization(token);
+	return service.Authorization(token)
 }

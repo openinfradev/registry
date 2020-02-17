@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 	"strconv"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 )
@@ -17,6 +17,7 @@ type Configuration struct {
 	Default  *Default  `yaml:"default"`
 	Database *Database `yaml:"database"`
 	Registry *Registry `yaml:"registry"`
+	Webhook  *Webhook  `yaml:"webhook"`
 	Redis    *Redis    `yaml:"redis"`
 	Clair    *Clair    `yaml:"clair"`
 	Minio    *Minio    `yaml:"minio"`
@@ -51,6 +52,11 @@ type Registry struct {
 	Auth     string `yaml:"auth"`
 }
 
+// Webhook is listeners
+type Webhook struct {
+	Listener []string `yaml:"listener"`
+}
+
 // Default is default config
 type Default struct {
 	Domain   string `yaml:"domain"`
@@ -71,11 +77,11 @@ type Clair struct {
 
 // Minio is minio config
 type Minio struct {
-	Domain         string `yaml:"domain"`
-	Data           string `yaml:"data"`
-	Ports          string `yaml:"ports"`
-	StartOfPort    int
-	EndOfPort      int
+	Domain      string `yaml:"domain"`
+	Data        string `yaml:"data"`
+	Ports       string `yaml:"ports"`
+	StartOfPort int
+	EndOfPort   int
 }
 
 var config *Configuration
@@ -130,4 +136,3 @@ func LoadConfig() {
 func GetConfig() *Configuration {
 	return config
 }
-

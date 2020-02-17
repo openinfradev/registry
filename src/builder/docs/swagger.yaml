@@ -399,6 +399,16 @@ paths:
           schema:
             $ref: '#/definitions/model.BasicResult'
       summary: health check api
+  /listener:
+    post:
+      consumes:
+      - application/json
+      description: registry hook listen
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      summary: registry hook listen
   /minio:
     delete:
       description: delete minio

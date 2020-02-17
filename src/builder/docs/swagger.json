@@ -208,6 +208,21 @@
                 }
             }
         },
+        "/listener": {
+            "post": {
+                "description": "registry hook listen",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "registry hook listen",
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
         "/minio": {
             "post": {
                 "description": "create minio",

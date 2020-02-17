@@ -28,6 +28,12 @@ registry:
   endpoint: "taco-registry:5000"
   auth: "http://taco-registry-app:8080/api/oauth/token"
 
+# docker image push listener
+webhook:
+  listener:
+    - "http://localhost:4000/v1/test"
+    - "http://localhost:4000/v1/health"
+
 # redis configuration
 redis:
   endpoint: "taco-redis:6379"
