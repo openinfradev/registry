@@ -4,6 +4,7 @@ import (
 	"builder/config"
 	"builder/util/logger"
 	"bytes"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -30,6 +31,13 @@ func (w *WebhookService) Toss(body []byte) {
 				return
 			}
 			defer resp.Body.Close()
+
+			r, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				logger.ERROR("service/webhook.go", "Toss", err.Error())
+				return
+			}
+			logger.DEBUG("service/webhook.go", "Toss", string(r))
 		}
 	}
 }
