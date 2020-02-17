@@ -5,7 +5,6 @@ import (
 	"builder/util/logger"
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 )
 
@@ -20,7 +19,7 @@ func (w *WebhookService) Toss(body *map[string]interface{}) {
 	b, _ := json.Marshal(body)
 	buff := bytes.NewBuffer(b)
 
-	logger.DEBUG("service/webhook.go", "toss", "start toss")
+	// logger.DEBUG("service/webhook.go", "toss", "start toss")
 
 	conf := config.GetConfig()
 	if conf.Webhook != nil && conf.Webhook.Listener != nil {
@@ -34,12 +33,12 @@ func (w *WebhookService) Toss(body *map[string]interface{}) {
 			}
 			defer resp.Body.Close()
 
-			r, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				logger.ERROR("service/webhook.go", "Toss", err.Error())
-				return
-			}
-			logger.DEBUG("service/webhook.go", "Toss", string(r))
+			// r, err := ioutil.ReadAll(resp.Body)
+			// if err != nil {
+			// 	logger.ERROR("service/webhook.go", "Toss", err.Error())
+			// 	return
+			// }
+			// logger.DEBUG("service/webhook.go", "Toss", string(r))
 		}
 	}
 }
