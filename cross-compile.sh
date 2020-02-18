@@ -31,9 +31,9 @@ do
 
     echo 'Compiling ---> '$GOOS'-'$GOARCH
     env CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH go build -a --ldflags=--s -o $output$output_name $target
-    if [ $GOOS = "linux" -a $GOARCH = "amd64" ]; then
-        cp -f $output$output_name $package_name
-    fi
+#    if [ $GOOS = "linux" -a $GOARCH = "amd64" ]; then
+#        cp -f $output$output_name $package_name
+#    fi
 
     if [ $? -ne 0 ]; then
         echo 'An error has occurred! Aborting the script execution...'
