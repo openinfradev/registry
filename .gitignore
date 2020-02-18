@@ -1,13 +1,6 @@
-
 bin/
-pkg/
-src/github.com/
-src/golang.org/
-src/gopkg.in/
-
-src/builder/__debug_bin
-
-src/auth_server/
+builder/__debug_bin
+auth_server/
 
 .DS_Store
 .idea/

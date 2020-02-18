@@ -15,12 +15,13 @@ deps:
 
 swag:
 	@echo "### Generating taco-registry Builder Swagger Docs."
-	cd ./src/builder; ../../bin/swag init
+	go get -u github.com/swaggo/swag/cmd/swag
+	${GOPATH}/bin/swag init
 
 build:
 	@echo "### Building taco-registry Builder."
 	@echo "==================================="
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --ldflags=--s -o builder src/builder/main.go
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --ldflags=--s -o builder main.go
 
 build-cross:
 	@echo "### Cross-Compiling taco-registry Builder."

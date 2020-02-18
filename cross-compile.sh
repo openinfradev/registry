@@ -2,9 +2,9 @@
 
 # variables
 package_name="builder"
-target="./src/builder/main.go"
-output="./dist/"
-conf="./src/builder/conf"
+target="./main.go"
+output="./bin/"
+conf="./builder/conf"
 
 if [ -d "$output" ]; then
     rm -rf $output
