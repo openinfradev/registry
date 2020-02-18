@@ -249,8 +249,7 @@ definitions:
   model.SecurityScanLayer:
     properties:
       data:
-        additionalProperties:
-          type: object
+        additionalProperties: true
         type: object
       status:
         type: string
@@ -278,7 +277,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/model.DockerBuildByFileParam'
-          type: object
       produces:
       - application/json
       responses:
@@ -299,7 +297,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/model.DockerBuildByGitParam'
-          type: object
       produces:
       - application/json
       responses:
@@ -320,7 +317,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/model.DockerBuildByMinioParam'
-          type: object
       produces:
       - application/json
       responses:
@@ -341,7 +337,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/model.DockerBuildByMinioCopyAsParam'
-          type: object
       produces:
       - application/json
       responses:
@@ -360,7 +355,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/model.DockerPushParam'
-          type: object
       produces:
       - application/json
       responses:
@@ -379,7 +373,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/model.DockerTagParam'
-          type: object
       produces:
       - application/json
       responses:
@@ -419,7 +412,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/model.MinioParam'
-          type: object
       produces:
       - application/json
       responses:
@@ -437,7 +429,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/model.MinioParam'
-          type: object
       produces:
       - application/json
       responses:

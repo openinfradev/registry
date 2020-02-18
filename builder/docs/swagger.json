@@ -22,7 +22,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/model.DockerBuildByFileParam"
                         }
                     }
@@ -54,7 +53,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/model.DockerBuildByGitParam"
                         }
                     }
@@ -86,7 +84,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/model.DockerBuildByMinioParam"
                         }
                     }
@@ -118,7 +115,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/model.DockerBuildByMinioCopyAsParam"
                         }
                     }
@@ -147,7 +143,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/model.DockerPushParam"
                         }
                     }
@@ -176,7 +171,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/model.DockerTagParam"
                         }
                     }
@@ -237,7 +231,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/model.MinioParam"
                         }
                     }
@@ -264,7 +257,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/model.MinioParam"
                         }
                     }
@@ -920,9 +912,7 @@
             "properties": {
                 "data": {
                     "type": "object",
-                    "additionalProperties": {
-                        "type": "object"
-                    }
+                    "additionalProperties": true
                 },
                 "status": {
                     "type": "string"

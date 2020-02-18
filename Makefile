@@ -16,7 +16,7 @@ deps:
 swag:
 	@echo "### Generating taco-registry Builder Swagger Docs."
 	go get -u github.com/swaggo/swag/cmd/swag
-	${GOPATH}/bin/swag init
+	cd builder;${GOPATH}/bin/swag init -d ../.
 
 build:
 	@echo "### Building taco-registry Builder."
