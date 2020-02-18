@@ -11,6 +11,4 @@ src/auth_server/
 
 .DS_Store
 .idea/
-go.mod
-go.sum
 vendor/
