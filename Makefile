@@ -21,7 +21,7 @@ swag:
 build:
 	@echo "### Building taco-registry Builder."
 	@echo "==================================="
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --ldflags=--s -o builder main.go
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --ldflags=--s -o ./bin/builder main.go
 
 build-cross:
 	@echo "### Cross-Compiling taco-registry Builder."
