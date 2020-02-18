@@ -19,7 +19,8 @@ RUN make build
 FROM ubuntu:18.04 AS image
 LABEL maintainer="linus lee <linus@exntu.com>"
 
-RUN apt-get -y update \
+RUN sed -i 's/archive.ubuntu.com/ftp.neowiz.com\/ubuntu/g' /etc/apt/sources.list \
+    && apt-get -y update \
     && apt-get -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
     && apt-key fingerprint 0EBFCD88 \
@@ -28,14 +29,13 @@ RUN apt-get -y update \
     && apt-get -y install docker-ce docker-ce-cli containerd.io git \
     && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /app
-WORKDIR /app
+WORKDIR /
 COPY --from=build /work/bin/builder .
-COPY --from=build /work/docs .
+COPY --from=build /work/builder/docs .
 
 RUN mkdir -p /conf
-COPY --from=build /work/builder/conf/* /app/conf/
+COPY --from=build /work/builder/conf/* /conf/
 
 EXPOSE 4000
 
-ENTRYPOINT ["/app/builder"]
+ENTRYPOINT ["./builder"]
