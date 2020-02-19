@@ -1,0 +1,622 @@
+definitions:
+  model.BasicResult:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  model.CatalogResult:
+    properties:
+      repositories:
+        items:
+          type: string
+        type: array
+    type: object
+  model.DockerBuildByFileParam:
+    properties:
+      build:
+        type: string
+      contents:
+        type: string
+      name:
+        type: string
+      push:
+        type: boolean
+      tag:
+        type: string
+      useCache:
+        type: boolean
+    required:
+    - build
+    - contents
+    - name
+    - push
+    - tag
+    - useCache
+    type: object
+  model.DockerBuildByGitParam:
+    properties:
+      build:
+        type: string
+      gitRepo:
+        type: string
+      name:
+        type: string
+      push:
+        type: boolean
+      tag:
+        type: string
+      useCache:
+        type: boolean
+      userId:
+        type: string
+      userPw:
+        type: string
+    required:
+    - build
+    - gitRepo
+    - name
+    - push
+    - tag
+    - useCache
+    - userId
+    - userPw
+    type: object
+  model.DockerBuildByMinioCopyAsParam:
+    properties:
+      build:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+      push:
+        type: boolean
+      srcPath:
+        type: string
+      srcUserId:
+        type: string
+      tag:
+        type: string
+      useCache:
+        type: boolean
+      userId:
+        type: string
+    required:
+    - build
+    - name
+    - path
+    - push
+    - srcPath
+    - srcUserId
+    - tag
+    - useCache
+    - userId
+    type: object
+  model.DockerBuildByMinioParam:
+    properties:
+      build:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+      push:
+        type: boolean
+      tag:
+        type: string
+      useCache:
+        type: boolean
+      userId:
+        type: string
+    required:
+    - build
+    - name
+    - path
+    - push
+    - tag
+    - useCache
+    - userId
+    type: object
+  model.DockerPushParam:
+    properties:
+      build:
+        type: string
+      name:
+        type: string
+      tag:
+        type: string
+    required:
+    - build
+    - name
+    - tag
+    type: object
+  model.DockerTagParam:
+    properties:
+      build:
+        type: string
+      name:
+        type: string
+      newTag:
+        type: string
+      oldTag:
+        type: string
+    required:
+    - build
+    - name
+    - newTag
+    - oldTag
+    type: object
+  model.MinioParam:
+    properties:
+      userId:
+        type: string
+      userPw:
+        type: string
+    type: object
+  model.MinioResult:
+    properties:
+      code:
+        type: string
+      domain:
+        type: string
+      message:
+        type: string
+      port:
+        type: integer
+    type: object
+  model.RegistryManifestV1:
+    properties:
+      architecture:
+        type: string
+      fsLayers:
+        items:
+          $ref: '#/definitions/model.RegistryManifestV1Layer'
+        type: array
+      history:
+        items:
+          $ref: '#/definitions/model.RegistryManifestV1History'
+        type: array
+      name:
+        type: string
+      schemaVersion:
+        type: integer
+      signatures:
+        items:
+          $ref: '#/definitions/model.RegistryManifestV1Signature'
+        type: array
+      tag:
+        type: string
+    type: object
+  model.RegistryManifestV1History:
+    properties:
+      v1Compatibility:
+        type: string
+    type: object
+  model.RegistryManifestV1Layer:
+    properties:
+      blobSum:
+        type: string
+    type: object
+  model.RegistryManifestV1Signature:
+    properties:
+      protected:
+        type: string
+      signature:
+        description: Header    string `json:"header"`
+        type: string
+    type: object
+  model.RegistryManifestV2:
+    properties:
+      config:
+        $ref: '#/definitions/model.RegistryManifestV2Item'
+        type: object
+      layers:
+        items:
+          $ref: '#/definitions/model.RegistryManifestV2Item'
+        type: array
+      mediaType:
+        type: string
+      schemaVersion:
+        type: integer
+    type: object
+  model.RegistryManifestV2Item:
+    properties:
+      digest:
+        type: string
+      mediaType:
+        type: string
+      size:
+        type: integer
+    type: object
+  model.RepositoriesResult:
+    properties:
+      repositories:
+        items:
+          $ref: '#/definitions/model.RepositoryResult'
+        type: array
+    type: object
+  model.RepositoryResult:
+    properties:
+      name:
+        type: string
+      tags:
+        items:
+          $ref: '#/definitions/model.TagResult'
+        type: array
+    type: object
+  model.SecurityScanLayer:
+    properties:
+      data:
+        additionalProperties: true
+        type: object
+      status:
+        type: string
+    type: object
+  model.TagResult:
+    properties:
+      digest:
+        type: string
+      name:
+        type: string
+    type: object
+info:
+  contact: {}
+  license: {}
+paths:
+  /docker/build/file:
+    post:
+      consumes:
+      - application/json
+      description: docker build by dockerfile api
+      parameters:
+      - description: Json Parameters (contents is base64 encoded)
+        in: body
+        name: contents
+        required: true
+        schema:
+          $ref: '#/definitions/model.DockerBuildByFileParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
+      summary: docker build by dockerfile
+  /docker/build/git:
+    post:
+      consumes:
+      - application/json
+      description: docker build by git api
+      parameters:
+      - description: Json Parameters (userPW is base64 encoded)
+        in: body
+        name: contents
+        required: true
+        schema:
+          $ref: '#/definitions/model.DockerBuildByGitParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
+      summary: docker build by git
+  /docker/build/minio:
+    post:
+      consumes:
+      - application/json
+      description: docker build by minio api
+      parameters:
+      - description: 'Json Parameters '
+        in: body
+        name: contents
+        required: true
+        schema:
+          $ref: '#/definitions/model.DockerBuildByMinioParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
+      summary: docker build by minio
+  /docker/build/minio-copy-as:
+    post:
+      consumes:
+      - application/json
+      description: docker build by minio copy as api
+      parameters:
+      - description: 'Json Parameters '
+        in: body
+        name: contents
+        required: true
+        schema:
+          $ref: '#/definitions/model.DockerBuildByMinioCopyAsParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
+      summary: docker build by minio copy as
+  /docker/push:
+    put:
+      description: docker image push
+      parameters:
+      - description: Json Parameters
+        in: body
+        name: contents
+        required: true
+        schema:
+          $ref: '#/definitions/model.DockerPushParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
+      summary: docker image push
+  /docker/tag:
+    patch:
+      description: docker image tag
+      parameters:
+      - description: Json Parameters
+        in: body
+        name: contents
+        required: true
+        schema:
+          $ref: '#/definitions/model.DockerTagParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
+      summary: docker image tag
+  /health:
+    get:
+      description: builder의 health를 체크할 목적의 api
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
+      summary: health check api
+  /listener:
+    post:
+      consumes:
+      - application/json
+      description: registry hook listen
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      summary: registry hook listen
+  /minio:
+    delete:
+      description: delete minio
+      parameters:
+      - description: Json Parameters
+        in: body
+        name: contents
+        required: true
+        schema:
+          $ref: '#/definitions/model.MinioParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
+      summary: delete minio
+    post:
+      description: create minio
+      parameters:
+      - description: Json Parameters
+        in: body
+        name: contents
+        required: true
+        schema:
+          $ref: '#/definitions/model.MinioParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.MinioResult'
+      summary: create minio
+  /registry/catalog:
+    get:
+      consumes:
+      - application/json
+      description: docker registry catalog api
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.CatalogResult'
+      summary: docker registry catalog api
+  /registry/manifest-v1/{name}:
+    get:
+      consumes:
+      - application/json
+      description: docker registry manifest v1 api
+      parameters:
+      - default: ""
+        description: Repository Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Tag Name
+        in: query
+        name: tag
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.RegistryManifestV1'
+      summary: docker registry manifest v1 api
+  /registry/manifest-v2/{name}:
+    get:
+      consumes:
+      - application/json
+      description: docker registry manifest v2 api
+      parameters:
+      - default: ""
+        description: Repository Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Tag Name
+        in: query
+        name: tag
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.RegistryManifestV2'
+      summary: docker registry manifest v2 api
+  /registry/repositories/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: docker registry repository delete api
+      parameters:
+      - default: ""
+        description: Repository Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Tag Name
+        in: query
+        name: tag
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
+      summary: docker registry repository delete api
+    get:
+      consumes:
+      - application/json
+      description: docker registry repositories api
+      parameters:
+      - default: ""
+        description: Repository Name
+        in: path
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.RepositoryResult'
+      summary: docker registry repositories api
+  /sescan/layer/{name}:
+    get:
+      consumes:
+      - application/json
+      description: security scanning layer api
+      parameters:
+      - default: ""
+        description: Layer(history) ID
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SecurityScanLayer'
+      summary: security scanning layer api
+  /sescan/repository/{name}:
+    get:
+      consumes:
+      - application/json
+      description: security scanning layer api
+      parameters:
+      - default: ""
+        description: Repository Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Tag Name
+        in: query
+        name: tag
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SecurityScanLayer'
+      summary: security scanning layer api
+    patch:
+      consumes:
+      - application/json
+      description: security scan api
+      parameters:
+      - default: ""
+        description: Repository Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Tag Name
+        in: query
+        name: tag
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BasicResult'
+      summary: security scan api
+  /test:
+    get:
+      description: test
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      summary: test api
+swagger: "2.0"
