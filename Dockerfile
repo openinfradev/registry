@@ -31,7 +31,6 @@ RUN sed -i 's/archive.ubuntu.com/ftp.neowiz.com\/ubuntu/g' /etc/apt/sources.list
 
 WORKDIR /
 COPY --from=build /work/bin/builder .
-COPY --from=build /work/builder/docs .
 
 RUN mkdir -p /conf
 COPY --from=build /work/builder/conf/* /conf/
