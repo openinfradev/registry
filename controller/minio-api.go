@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"github.com/openinfradev/registry-builder/builder/constant"
-	"github.com/openinfradev/registry-builder/builder/model"
+	"github.com/openinfradev/registry-builder/constant"
+	"github.com/openinfradev/registry-builder/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

@@ -1,7 +1,7 @@
 package taco
 
 import (
-	"github.com/openinfradev/registry-builder/builder/model"
+	"github.com/openinfradev/registry-builder/model"
 	"regexp"
 )
 

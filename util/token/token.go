@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/openinfradev/registry-builder/builder/model"
+	"github.com/openinfradev/registry-builder/model"
 	"strings"
 )
 

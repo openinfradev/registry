@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"io/ioutil"
 
-	"github.com/openinfradev/registry-builder/builder/constant"
-	"github.com/openinfradev/registry-builder/builder/model"
-	"github.com/openinfradev/registry-builder/builder/util/logger"
+	"github.com/openinfradev/registry-builder/constant"
+	"github.com/openinfradev/registry-builder/model"
+	"github.com/openinfradev/registry-builder/util/logger"
 
 	"net/http"
 

@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/openinfradev/registry-builder/builder/util/logger"
+	"github.com/openinfradev/registry-builder/util/logger"
 
 	"github.com/gin-contrib/location"
 

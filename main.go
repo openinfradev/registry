@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/openinfradev/registry-builder/builder/config"
-	"github.com/openinfradev/registry-builder/builder/controller"
-	"github.com/openinfradev/registry-builder/builder/docs"
-	"github.com/openinfradev/registry-builder/builder/network/server"
-	"github.com/openinfradev/registry-builder/builder/repository"
-	"github.com/openinfradev/registry-builder/builder/service"
+	"github.com/openinfradev/registry-builder/config"
+	"github.com/openinfradev/registry-builder/controller"
+	"github.com/openinfradev/registry-builder/docs"
+	"github.com/openinfradev/registry-builder/network/server"
+	"github.com/openinfradev/registry-builder/repository"
+	"github.com/openinfradev/registry-builder/service"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"

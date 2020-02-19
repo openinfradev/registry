@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/openinfradev/registry-builder/builder/model"
+	"github.com/openinfradev/registry-builder/model"
 	"net/http"
 	"strings"
 

@@ -2,7 +2,7 @@ package util
 
 import (
 	"encoding/json"
-	"github.com/openinfradev/registry-builder/builder/util/logger"
+	"github.com/openinfradev/registry-builder/util/logger"
 	"net"
 	"strconv"
 	"strings"

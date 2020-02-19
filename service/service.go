@@ -2,10 +2,10 @@ package service
 
 import (
 	"fmt"
-	"github.com/openinfradev/registry-builder/builder/config"
-	"github.com/openinfradev/registry-builder/builder/repository"
-	"github.com/openinfradev/registry-builder/builder/util/logger"
-	tokenutil "github.com/openinfradev/registry-builder/builder/util/token"
+	"github.com/openinfradev/registry-builder/config"
+	"github.com/openinfradev/registry-builder/repository"
+	"github.com/openinfradev/registry-builder/util/logger"
+	tokenutil "github.com/openinfradev/registry-builder/util/token"
 )
 
 // InjectedServices is injection services

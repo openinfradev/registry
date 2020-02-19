@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"github.com/openinfradev/registry-builder/builder/network/server"
-	"github.com/openinfradev/registry-builder/builder/service"
+	"github.com/openinfradev/registry-builder/network/server"
+	"github.com/openinfradev/registry-builder/service"
 
 	"github.com/gin-gonic/gin"
 )

@@ -3,8 +3,8 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"github.com/openinfradev/registry-builder/builder/config"
-	"github.com/openinfradev/registry-builder/builder/util/logger"
+	"github.com/openinfradev/registry-builder/config"
+	"github.com/openinfradev/registry-builder/util/logger"
 )
 
 // CreateDBConnection return created database connection

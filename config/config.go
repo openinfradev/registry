@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"github.com/openinfradev/registry-builder/builder/util/logger"
+	"github.com/openinfradev/registry-builder/util/logger"
 	"io/ioutil"
 	"os"
 	"path/filepath"

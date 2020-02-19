@@ -3,9 +3,9 @@ package repository
 import (
 	"errors"
 	"fmt"
-	"github.com/openinfradev/registry-builder/builder/config"
-	"github.com/openinfradev/registry-builder/builder/model"
-	"github.com/openinfradev/registry-builder/builder/util/logger"
+	"github.com/openinfradev/registry-builder/config"
+	"github.com/openinfradev/registry-builder/model"
+	"github.com/openinfradev/registry-builder/util/logger"
 )
 
 // RegistryRepository is registry db (postregs)
