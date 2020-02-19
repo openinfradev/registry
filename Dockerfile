@@ -33,7 +33,7 @@ WORKDIR /
 COPY --from=build /work/bin/builder .
 
 RUN mkdir -p /conf
-COPY --from=build /work/builder/conf/* /conf/
+COPY --from=build /work/conf/* /conf/
 
 EXPOSE 4000
 

@@ -4,7 +4,7 @@
 package_name="builder"
 target="./main.go"
 output="./bin/"
-conf="./builder/conf"
+conf="./conf"
 
 if [ -d "$output" ]; then
     rm -rf $output
