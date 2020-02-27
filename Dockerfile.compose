@@ -1,16 +1,16 @@
 # Taco-Registry Build Stage
 FROM golang:latest AS build
-LABEL maintainer="linus lee <linus@exntu.com>"
+LABEL maintainer="Seungkyu Ahn <seungkyua@gmail.com>"
 
-RUN mkdir -p /work
-ENV GOPATH /work
+RUN mkdir -p /{work,go_workspace}
 WORKDIR /work
 
 COPY ./* ./
+RUN go mod vendor
 
-RUN make deps
+ENV GOPATH /go_workspace
+RUN make swag
 RUN make build
-
 
 # Taco-Registry Image Stage
 FROM ubuntu:18.04 AS image
@@ -25,10 +25,10 @@ RUN apt-get -y update
 RUN apt-get -y install docker-ce docker-ce-cli containerd.io git
 
 WORKDIR /
-COPY --from=build /work/builder .
+COPY --from=build /work/bin/builder .
 
-RUN mkdir /conf
-COPY --from=build /work/src/builder/conf/* /conf/
+RUN mkdir -p /conf
+COPY --from=build /work/conf/* /conf/
 
 EXPOSE 4000
 
